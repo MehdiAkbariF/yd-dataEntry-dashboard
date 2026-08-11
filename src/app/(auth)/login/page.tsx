@@ -92,7 +92,7 @@ export default function LoginPage() {
         code: data.code,
       });
       setAuthenticated(true);
-      router.push('/products'); // ورود به پنل
+      router.push('/'); // ورود به پنل
     } catch (err: any) {
       setServerError(err.response?.data?.message || 'کد وارد شده اشتباه یا منقضی شده است.');
     } finally {

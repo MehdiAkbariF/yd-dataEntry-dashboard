@@ -9,7 +9,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
-      forcedTheme="dark" // پنل اختصاصی دارک‌مود برای جلوگیری از خستگی چشم اپراتور
     >
       {children}
     </NextThemesProvider>
