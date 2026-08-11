@@ -14,3 +14,177 @@ body {
   color: var(--foreground);
   font-family: var(--font-iran-yekan), system-ui, sans-serif;
 }
+/* =========================================================
+   استایل‌های فوق تخصصی ProseMirror برای Tiptap Editor
+   ========================================================= */
+
+.ProseMirror {
+  min-height: 350px;
+  padding: 1.25rem;
+  outline: none;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #525252;
+  content: attr(data-placeholder);
+  float: right;
+  height: 0;
+  pointer-events: none;
+}
+
+/* تیترها (Headings) */
+.ProseMirror h1 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #f59e0b;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #262626;
+  padding-bottom: 0.5rem;
+}
+
+.ProseMirror h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e5e5e5;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #d4d4d4;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+/* پاراگراف‌ها */
+.ProseMirror p {
+  font-size: 0.825rem;
+  line-height: 1.8;
+  color: #e5e5e5;
+  margin-bottom: 0.75rem;
+}
+
+/* لیست‌های نقطه‌ای و عددی */
+.ProseMirror ul:not([data-type="taskList"]) {
+  list-style-type: disc;
+  padding-right: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-right: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.ProseMirror li {
+  font-size: 0.825rem;
+  line-height: 1.7;
+  color: #d4d4d4;
+  margin-bottom: 0.25rem;
+}
+
+/* چک لیست‌ها (Task List) */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-right: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ProseMirror ul[data-type="taskList"] li input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #f59e0b;
+  margin-top: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* جدول‌ها */
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1.25rem 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid #262626;
+  background-color: rgba(20, 20, 23, 0.6);
+}
+
+.ProseMirror td,
+.ProseMirror th {
+  min-width: 1em;
+  border: 1px solid #262626;
+  padding: 0.6rem 0.85rem;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+  font-size: 0.8rem;
+}
+
+.ProseMirror th {
+  font-weight: bold;
+  text-align: right;
+  background-color: #171717;
+  color: #f59e0b;
+}
+
+/* کادر نقل قول و نکات */
+.ProseMirror blockquote {
+  border-right: 4px solid #f59e0b;
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  font-style: italic;
+  color: #f5f5f5;
+  background-color: rgba(245, 158, 11, 0.08);
+  border-radius: 0.5rem 0 0 0.5rem;
+}
+
+/* تصاویر و ویدیوها */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.85rem;
+  border: 1px solid #262626;
+  margin: 1.25rem 0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.ProseMirror iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.85rem;
+  border: 1px solid #262626;
+  margin: 1.25rem 0;
+}
+
+/* کدها */
+.ProseMirror code {
+  background-color: #1f1f23;
+  color: #f59e0b;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.375rem;
+  font-family: monospace;
+  font-size: 0.775rem;
+}
