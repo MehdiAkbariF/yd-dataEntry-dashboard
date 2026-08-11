@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { AsyncSelect } from '@/components/ui/AsyncSelect';
 import { MultiAsyncSelect, SelectOption } from '@/components/ui/MultiAsyncSelect';
+import { Switch } from '@/components/ui/Switch';
 import ProEditor from '@/components/editor/ProEditor';
 import SEOPreview from '@/components/common/SEOPreview';
 import MediaUploader from '@/components/common/MediaUploader';
@@ -33,6 +34,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
   const [yadakchiProfitPercent, setYadakchiProfitPercent] = useState(
     initialData?.yadakchiProfitPercent ? String(initialData.yadakchiProfitPercent) : '0'
   );
+  const [isActive, setIsActive] = useState(initialData?.isActive ?? true); // ⚠️ تاگل وضعیت
 
   const [partCategoryId, setPartCategoryId] = useState(
     initialData?.partCategoryId || initialData?.partCategory?.id || ''
@@ -41,7 +43,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
     initialData?.partCategory?.name || ''
   );
 
-  // ویژگی‌های انتخاب‌شده
   const [propertyIds, setPropertyIds] = useState<string[]>(
     initialData?.properties?.map((p: any) => p.id) || []
   );
@@ -52,7 +53,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
     })) || []
   );
 
-  // فایل‌ها و توضیحات
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconAlt, setIconAlt] = useState(initialData?.iconAlt || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -65,7 +65,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // مقداردهی اولیه در حالت ویرایش
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || '');
@@ -74,6 +73,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
       setYadakchiProfitPercent(
         initialData.yadakchiProfitPercent ? String(initialData.yadakchiProfitPercent) : '0'
       );
+      setIsActive(initialData.isActive ?? true);
 
       const catId = initialData.partCategoryId || initialData.partCategory?.id || '';
       setPartCategoryId(catId);
@@ -96,7 +96,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
     }
   }, [initialData]);
 
-  // توابع سرچ Async
   const fetchPartCategories = async (q: string) => {
     const categories = await partService.getPartCategoriesName(q);
     return categories.map((c: any) => ({ value: c.id, label: c.name }));
@@ -107,7 +106,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
     return props.map((p: any) => ({ value: p.id, label: p.name }));
   };
 
-  // کلید میانبر Ctrl + S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -161,7 +159,17 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
     activeMutation.mutate(formData, {
-      onSuccess: () => {
+      onSuccess: async (resPart: any) => {
+        const partId = initialData?.id || resPart?.id || resPart;
+
+        try {
+          if (isEditMode && partId) {
+            await partService.toggleActiveStatus(partId, isActive);
+          }
+        } catch (e) {
+          console.error('Part active status error:', e);
+        }
+
         toast.success(isEditMode ? 'قطعه با موفقیت به‌روزرسانی شد!' : 'قطعه پایه با موفقیت ثبت شد!');
         router.push('/parts');
       },
@@ -173,19 +181,30 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-6xl mx-auto pb-24">
       {/* هدر صفحه */}
-      <div className="flex items-center gap-3 border-b border-neutral-800 pb-4">
-        <button
-          type="button"
-          onClick={() => router.push('/parts')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white transition-all"
-        >
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-lg font-bold text-white">
-            {isEditMode ? `ویرایش قطعه: ${initialData?.name}` : 'تعریف قطعه جدید (Part)'}
-          </h1>
-          <p className="text-xs text-neutral-400">شناسنامه پایه قطعه خودرو را ثبت کنید</p>
+      <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push('/parts')}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white transition-all"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
+          <div>
+            <h1 className="text-lg font-bold text-white">
+              {isEditMode ? `ویرایش قطعه: ${initialData?.name}` : 'تعریف قطعه جدید (Part)'}
+            </h1>
+            <p className="text-xs text-neutral-400">شناسنامه پایه قطعه خودرو را ثبت کنید</p>
+          </div>
+        </div>
+
+        {/* ⚠️ تاگل وضعیت فعال در هدر فرم */}
+        <div className="flex items-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/80 px-4 py-2">
+          <Switch
+            checked={isActive}
+            onChange={setIsActive}
+            label={isActive ? 'وضعیت: فعال' : 'وضعیت: غیرفعال'}
+          />
         </div>
       </div>
 
@@ -234,7 +253,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
             dir="ltr"
           />
 
-          {/* الگوی استاندارد نام‌گذاری محصول برای اپراتورهای محتوا */}
           <div className="sm:col-span-2 lg:col-span-3">
             <div className="flex items-center gap-1.5 text-xs text-amber-400 mb-1 font-semibold">
               <HelpCircle className="h-3.5 w-3.5" />
@@ -249,7 +267,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
             />
           </div>
 
-          {/* ویژگی‌های مرتبط با این قطعه (Properties) */}
           <div className="sm:col-span-2 lg:col-span-3">
             <MultiAsyncSelect
               label="ویژگی‌های مرتبط با این قطعه (PropertyIds)"

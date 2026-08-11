@@ -3,14 +3,16 @@
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useGetProductById, useDeleteProduct } from '@/features/products/hooks/useProducts';
+import { useGetProductById, useDeleteProduct, useToggleProductStatus } from '@/features/products/hooks/useProducts';
 import SEOPreview from '@/components/common/SEOPreview';
 import Badge from '@/components/ui/Badge';
+import { Switch } from '@/components/ui/Switch';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import {
-  ArrowRight, Edit, Trash2, Package, Car, Award, Tag, Sparkles,
-  ShieldCheck, Truck, AlertTriangle, Calendar, User, Image as ImageIcon, Loader2
+  ArrowRight, Edit, Trash2, Package, Car, Tag, Sparkles,
+  Calendar, User, Image as ImageIcon, Loader2
 } from 'lucide-react';
 
 export default function ViewProductPage() {
@@ -22,6 +24,7 @@ export default function ViewProductPage() {
 
   const { data: product, isLoading, isError } = useGetProductById(productId);
   const deleteMutation = useDeleteProduct();
+  const toggleMutation = useToggleProductStatus();
 
   const getImageUrl = (path: string | null) => {
     if (!path) return null;
@@ -29,9 +32,19 @@ export default function ViewProductPage() {
     return `https://api.yadakchi.com${path}`;
   };
 
+  const handleToggleStatus = (newStatus: boolean) => {
+    toggleMutation.mutate(
+      { id: productId, isActive: newStatus },
+      {
+        onSuccess: () => toast.success('وضعیت نمایش محصول تغییر یافت.'),
+      }
+    );
+  };
+
   const handleDelete = () => {
     deleteMutation.mutate(productId, {
       onSuccess: () => {
+        toast.success('محصول با موفقیت حذف شد.');
         router.push('/products');
       },
     });
@@ -71,9 +84,6 @@ export default function ViewProductPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold text-white">{product.title}</h1>
-              <Badge variant={product.isActive ? 'success' : 'danger'} size="sm">
-                {product.isActive ? 'فعال' : 'غیرفعال'}
-              </Badge>
             </div>
             <p className="text-xs text-amber-500 font-mono mt-0.5 dir-ltr text-right">
               کد محصول: {product.productCode}
@@ -81,7 +91,17 @@ export default function ViewProductPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* ⚠️ تاگل آنی وضعیت فعال در صفحه View */}
+          <div className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-1.5">
+            <Switch
+              checked={product.isActive}
+              onChange={handleToggleStatus}
+              isLoading={toggleMutation.isPending}
+              label={product.isActive ? 'فعال' : 'غیرفعال'}
+            />
+          </div>
+
           <Link
             href={`/products/edit/${product.id}`}
             className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500 hover:text-black transition-all"
@@ -99,9 +119,8 @@ export default function ViewProductPage() {
         </div>
       </div>
 
-      {/* بخش کارت اصلی اطلاعات + تصویر */}
+      {/* کارت اصلی اطلاعات + تصویر */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* تصویر اصلی و گالری */}
         <div className="space-y-4">
           <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 flex items-center justify-center p-4">
             {mainImageUrl ? (
@@ -117,7 +136,6 @@ export default function ViewProductPage() {
             )}
           </div>
 
-          {/* گالری عکس‌ها */}
           {product.productImages && product.productImages.length > 0 && (
             <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-2">
               <span className="text-xs font-bold text-amber-500">گالری تصاویر ({product.productImages.length})</span>
@@ -136,7 +154,6 @@ export default function ViewProductPage() {
           )}
         </div>
 
-        {/* مشخصات کلی محصول */}
         <div className="lg:col-span-2 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-neutral-800 pb-6">
             <div>
@@ -168,7 +185,6 @@ export default function ViewProductPage() {
             </div>
           </div>
 
-          {/* خودروهای سازگار */}
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-amber-500 mb-2">
               <Car className="h-4 w-4" />
@@ -187,7 +203,6 @@ export default function ViewProductPage() {
             </div>
           </div>
 
-          {/* برچسب‌ها */}
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-amber-500 mb-2">
               <Tag className="h-4 w-4" />
@@ -206,7 +221,6 @@ export default function ViewProductPage() {
             </div>
           </div>
 
-          {/* ابعاد و بسته‌بندی */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-3 text-center text-xs">
             <div>
               <span className="text-[10px] text-neutral-500 block">ابعاد (cm):</span>
@@ -232,7 +246,6 @@ export default function ViewProductPage() {
         </div>
       </div>
 
-      {/* رندر محتوای توضیحات HTML */}
       {product.description && (
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-3">
           <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
@@ -246,7 +259,6 @@ export default function ViewProductPage() {
         </div>
       )}
 
-      {/* پیش‌نمایش سئو و حسابرسی */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SEOPreview
           title={product.seoInformation?.title || product.title}
@@ -254,7 +266,6 @@ export default function ViewProductPage() {
           canonicalUrl={product.seoInformation?.canonicalUrl || product.title.toLowerCase().replace(/\s+/g, '-')}
         />
 
-        {/* کارت حسابرسی Data Entry */}
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 text-xs">
           <h3 className="font-bold text-amber-500 mb-2">اطلاعات ثبت و حسابرسی (Audit Info)</h3>
           <div className="space-y-2 text-neutral-300">
@@ -281,7 +292,6 @@ export default function ViewProductPage() {
         </div>
       </div>
 
-      {/* مودال حذف */}
       <ConfirmModal
         isOpen={showDeleteModal}
         title="حذف محصول"

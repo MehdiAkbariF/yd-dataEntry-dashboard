@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { AsyncSelect } from '@/components/ui/AsyncSelect';
 import { MultiAsyncSelect, SelectOption } from '@/components/ui/MultiAsyncSelect';
+import { Switch } from '@/components/ui/Switch';
 import ProEditor from '@/components/editor/ProEditor';
 import SEOPreview from '@/components/common/SEOPreview';
 import MediaUploader from '@/components/common/MediaUploader';
@@ -29,6 +31,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const [title, setTitle] = useState(initialData?.title || '');
   const [englishTitle, setEnglishTitle] = useState(initialData?.englishTitle || '');
   const [partNumber, setPartNumber] = useState(initialData?.partNumber || '');
+  const [isActive, setIsActive] = useState(initialData?.isActive ?? true); // ⚠️ وضعیت فعال بودن
   
   const [brandId, setBrandId] = useState(initialData?.brandId || initialData?.brand?.id || '');
   const [brandName, setBrandName] = useState(initialData?.brand?.name || '');
@@ -85,12 +88,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // لود داده‌های اولیه در حالت Edit
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || '');
       setEnglishTitle(initialData.englishTitle || '');
       setPartNumber(initialData.partNumber || '');
+      setIsActive(initialData.isActive ?? true);
 
       const bId = initialData.brandId || initialData.brand?.id || '';
       setBrandId(bId);
@@ -135,7 +138,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     }
   }, [initialData]);
 
-  // توابع دریافت داده‌ها
   const fetchBrands = async (q: string) => {
     const res = await apiClient.get<any[]>('/api/Admin/A_Product/BrandsName', { params: { Name: q } });
     return (res.data || []).map((b) => ({ value: b.id, label: b.name }));
@@ -161,7 +163,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     return (res.data.items || []).map((p: any) => ({ value: p.id, label: p.title }));
   };
 
-  // کلید میانبر Ctrl + S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -231,6 +232,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         const productId = initialData?.id || resProduct?.id || resProduct;
 
         try {
+          // در صورت تغییر وضعیت فعال بودن در ویرایش
+          if (isEditMode && productId) {
+            await productService.toggleActiveStatus(productId, isActive);
+          }
+
           if (galleryItems.length > 0 && productId) {
             const files = galleryItems.map((item) => item.file);
             const alts = galleryItems.map((item) => item.alt || title);
@@ -241,7 +247,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             await productService.setProductRelations(productId, relatedProductIds);
           }
         } catch (e) {
-          console.error('Gallery or relation error:', e);
+          console.error('Gallery, relation or status update error:', e);
         }
 
         toast.success(isEditMode ? 'محصول با موفقیت به‌روزرسانی شد!' : 'محصول با موفقیت ثبت شد!');
@@ -255,19 +261,30 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-6xl mx-auto pb-24">
       {/* هدر صفحه */}
-      <div className="flex items-center gap-3 border-b border-neutral-800 pb-4">
-        <button
-          type="button"
-          onClick={() => router.push('/products')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white transition-all"
-        >
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-lg font-bold text-white">
-            {isEditMode ? `ویرایش محصول: ${initialData?.title}` : 'افزودن محصول جدید'}
-          </h1>
-          <p className="text-xs text-neutral-400">اطلاعات کامل قطعه خودرو را وارد و ذخیره نمایید</p>
+      <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push('/products')}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white transition-all"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
+          <div>
+            <h1 className="text-lg font-bold text-white">
+              {isEditMode ? `ویرایش محصول: ${initialData?.title}` : 'افزودن محصول جدید'}
+            </h1>
+            <p className="text-xs text-neutral-400">اطلاعات کامل قطعه خودرو را وارد و ذخیره نمایید</p>
+          </div>
+        </div>
+
+        {/* ⚠️ تاگل تغییر وضعیت در بالای فرم */}
+        <div className="flex items-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/80 px-4 py-2">
+          <Switch
+            checked={isActive}
+            onChange={setIsActive}
+            label={isActive ? 'وضعیت: فعال' : 'وضعیت: غیرفعال'}
+          />
         </div>
       </div>
 
@@ -309,7 +326,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
               label="نوع قطعه پایه (Part) *"
               placeholder="انتخاب قطعه پایه..."
               value={partId}
-              initialLabel={partName} // ⚠️ پیش‌فرض ویرایش
+              initialLabel={partName}
               onChange={setPartId}
               fetchOptions={fetchParts}
             />
@@ -321,7 +338,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
               label="برند سازنده *"
               placeholder="انتخاب برند..."
               value={brandId}
-              initialLabel={brandName} // ⚠️ پیش‌فرض ویرایش
+              initialLabel={brandName}
               onChange={setBrandId}
               fetchOptions={fetchBrands}
             />
@@ -333,7 +350,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
               label="خودروهای مرتبط (CarIds) *"
               placeholder="جستجو و انتخاب خودروهای سازگار..."
               selectedValues={carIds}
-              initialOptions={initialCarOptions} // ⚠️ پیش‌فرض ویرایش
+              initialOptions={initialCarOptions}
               onChange={setCarIds}
               fetchOptions={fetchCars}
             />
@@ -345,7 +362,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
               label="برچسب‌ها / تگ‌ها (TagIds)"
               placeholder="انتخاب برچسب‌های مرتبط..."
               selectedValues={tagIds}
-              initialOptions={initialTagOptions} // ⚠️ پیش‌فرض ویرایش
+              initialOptions={initialTagOptions}
               onChange={setTagIds}
               fetchOptions={fetchTags}
             />
@@ -363,7 +380,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           label="انتخاب محصولات مشابه یا مکمل"
           placeholder="جستجو در عنوان محصولات..."
           selectedValues={relatedProductIds}
-          initialOptions={initialRelatedOptions} // ⚠️ پیش‌فرض ویرایش
+          initialOptions={initialRelatedOptions}
           onChange={setRelatedProductIds}
           fetchOptions={fetchProductTitles}
         />
