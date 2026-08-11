@@ -3,11 +3,16 @@ import { PaginatedResponse } from '@/types/api';
 import { ProductListItem, ProductFilterParams } from '@/features/products/types';
 
 export const productService = {
-  // گرفتن لیست محصولات با فیلترها و Paging
+  // گرفتن لیست محصولات با فیلتر پیش‌فرض IsDeleted = false
   async getProducts(params: ProductFilterParams): Promise<PaginatedResponse<ProductListItem>> {
     const response = await apiClient.get<PaginatedResponse<ProductListItem>>(
       '/api/Admin/A_Product/ProductList',
-      { params }
+      {
+        params: {
+          isDeleted: false, // ⚠️ عدم نمایش آیتم‌های حذف‌شده به صورت پیش‌فرض
+          ...params,
+        },
+      }
     );
     return response.data;
   },

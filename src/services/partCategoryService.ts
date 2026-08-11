@@ -3,11 +3,16 @@ import { PaginatedResponse } from '@/types/api';
 import { PartCategoryListItem, PartCategoryFilterParams } from '@/features/part-categories/types';
 
 export const partCategoryService = {
-  // دریافت لیست دسته‌بندی‌ها
+  // دریافت لیست دسته‌بندی‌ها با فیلتر پیش‌فرض IsDeleted = false
   async getCategories(params: PartCategoryFilterParams): Promise<PaginatedResponse<PartCategoryListItem>> {
     const response = await apiClient.get<PaginatedResponse<PartCategoryListItem>>(
       '/api/A_Part/PartCategoryList',
-      { params }
+      {
+        params: {
+          isDeleted: false, // ⚠️ پیش‌فرض
+          ...params,
+        },
+      }
     );
     return response.data;
   },

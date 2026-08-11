@@ -4,15 +4,31 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Package, Cpu, Car, Award, Tag, MessageSquare, HelpCircle, Layers } from 'lucide-react';
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  Package,
+  Cpu,
+  Sliders,
+  Layers,
+  FileText,
+  Car,
+  Award,
+  Tag,
+  MessageSquare,
+  HelpCircle,
+} from 'lucide-react';
 import clsx from 'clsx';
 
 const menuItems = [
-  { title: 'صفحه اصلی داشبورد', href: '/', icon: Package },
+  { title: 'صفحه اصلی داشبورد', href: '/', icon: LayoutDashboard },
   { title: 'محصولات (Products)', href: '/products', icon: Package },
   { title: 'قطعات خودرو (Parts)', href: '/parts', icon: Cpu },
+  { title: 'ویژگی‌های قطعات (Properties)', href: '/properties', icon: Sliders },
   { title: 'دسته‌بندی قطعات', href: '/parts/categories', icon: Layers },
-  { title: 'مدیریت خودروها', href: '/cars', icon: Car },
+  { title: 'توضیحات قطعه-خودرو', href: '/part-descriptions', icon: FileText },
+  { title: 'مدیریت خودروها (Cars)', href: '/cars', icon: Car },
   { title: 'برندها (Brands)', href: '/brands', icon: Award },
   { title: 'برچسب‌ها (Tags)', href: '/tags', icon: Tag },
   { title: 'نظرات کاربران', href: '/comments', icon: MessageSquare },
@@ -28,18 +44,17 @@ export default function MobileSidebar() {
     setMounted(true);
   }, []);
 
-  // رندر کردن منو از طریق Portal به بدنه اصلی سند (document.body)
   const mobileMenuContent =
     isOpen && mounted
       ? createPortal(
           <div className="fixed inset-0 z-[999] flex md:hidden">
-            {/* Overlay تاریک پس‌زمینه */}
+            {/* Overlay پس‌زمینه */}
             <div
               onClick={() => setIsOpen(false)}
               className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
             />
 
-            {/* دراور اصلی منو */}
+            {/* کشو اصلی منو */}
             <div className="relative flex w-full max-w-xs flex-col bg-neutral-900 border-l border-neutral-800 p-6 shadow-2xl z-10 h-full">
               <div className="flex items-center justify-between border-b border-neutral-800 pb-4 mb-4">
                 <div className="flex items-center gap-2">
@@ -59,7 +74,10 @@ export default function MobileSidebar() {
               <nav className="space-y-1.5 overflow-y-auto flex-1">
                 {menuItems.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href;
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/'
+                      : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
                   return (
                     <Link

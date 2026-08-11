@@ -3,11 +3,16 @@ import { PaginatedResponse } from '@/types/api';
 import { PartListItem, PartFilterParams } from '@/features/parts/types';
 
 export const partService = {
-  // دریافت لیست قطعات با فیلترها و Paging
+  // دریافت لیست قطعات با فیلتر پیش‌فرض IsDeleted = false
   async getParts(params: PartFilterParams): Promise<PaginatedResponse<PartListItem>> {
     const response = await apiClient.get<PaginatedResponse<PartListItem>>(
       '/api/A_Part/PartList',
-      { params }
+      {
+        params: {
+          isDeleted: false, // ⚠️ پیش‌فرض
+          ...params,
+        },
+      }
     );
     return response.data;
   },
@@ -59,7 +64,7 @@ export const partService = {
   // دریافت لیست نام دسته‌بندی‌های قطعات
   async getPartCategoriesName(query?: string): Promise<any[]> {
     const response = await apiClient.get<any>('/api/A_Part/PartCategoriesName', {
-      params: { Name: query, PageSize: 50 },
+      params: { Name: query, PageSize: 50, IsDeleted: false },
     });
     return response.data?.items || response.data || [];
   },
@@ -67,7 +72,7 @@ export const partService = {
   // دریافت لیست ویژگی‌های پایه برای انتخاب چندتایی (Properties)
   async getProperties(query?: string): Promise<any[]> {
     const response = await apiClient.get<any>('/api/A_Part/Properties', {
-      params: { Name: query, PageSize: 50 },
+      params: { Name: query, PageSize: 50, IsDeleted: false },
     });
     return response.data?.items || response.data || [];
   },

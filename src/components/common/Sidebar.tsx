@@ -2,24 +2,51 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Package, Cpu, Car, Award, Tag, MessageSquare, HelpCircle, Layers } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Package,
+  Cpu,
+  Sliders,
+  Layers,
+  FileText,
+  Car,
+  Award,
+  Tag,
+  MessageSquare,
+  HelpCircle,
+} from 'lucide-react';
 import clsx from 'clsx';
 
 const menuItems = [
   {
-    title: 'محصولات (Product)',
+    title: 'صفحه اصلی داشبورد',
+    href: '/',
+    icon: LayoutDashboard,
+  },
+  {
+    title: 'محصولات (Products)',
     href: '/products',
     icon: Package,
   },
   {
-    title: 'قطعات خودرو (Part)',
+    title: 'قطعات خودرو (Parts)',
     href: '/parts',
     icon: Cpu,
+  },
+  {
+    title: 'ویژگی‌های قطعات (Properties)',
+    href: '/properties',
+    icon: Sliders,
   },
   {
     title: 'دسته‌بندی قطعات',
     href: '/parts/categories',
     icon: Layers,
+  },
+  {
+    title: 'توضیحات قطعه-خودرو',
+    href: '/part-descriptions',
+    icon: FileText,
   },
   {
     title: 'مدیریت خودروها (Cars)',
@@ -52,11 +79,11 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 shrink-0 border-l border-neutral-800 bg-neutral-900/60 p-4 flex flex-col justify-between hidden md:flex">
+    <aside className="w-64 shrink-0 border-l border-neutral-800 bg-neutral-900/60 p-4 flex flex-col justify-between hidden md:flex transition-colors">
       <div>
         {/* برند لاگوی پنل */}
         <div className="flex items-center gap-3 px-3 py-4 border-b border-neutral-800 mb-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 font-black text-neutral-950 text-lg">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 font-black text-neutral-950 text-lg shadow-md shadow-amber-500/20">
             ید
           </div>
           <div>
@@ -65,11 +92,15 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* منوهای اصلی */}
+        {/* منوهای اصلی پنل */}
         <nav className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            // منطق هایلایت هوشمند برای روت اصلی و روت‌های فرزند
+            const isActive =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -90,9 +121,11 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* اطلاعات پایین منو */}
+      {/* وضعیت اتصال پایین منو */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3 text-center">
-        <p className="text-[11px] text-neutral-400">وضعیت اتصال: <span className="text-emerald-400 font-bold">برقرار</span></p>
+        <p className="text-[11px] text-neutral-400">
+          وضعیت اتصال: <span className="text-emerald-400 font-bold">برقرار</span>
+        </p>
       </div>
     </aside>
   );
