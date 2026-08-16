@@ -7,6 +7,9 @@ import { Switch } from '@/components/ui/Switch';
 import MediaUploader from '@/components/common/MediaUploader';
 import { Factory, Loader2, X, Save } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface CarManufacturerModalProps {
   isOpen: boolean;
   initialManufacturer?: any | null;
@@ -108,7 +111,7 @@ export default function CarManufacturerModal({
           <MediaUploader
             label="لوگو / آیکون خودروساز"
             onFileSelect={setIconFile}
-            previewUrl={initialManufacturer?.icon ? `https://api.yadakchi.com${initialManufacturer.icon}` : null}
+            previewUrl={initialManufacturer?.icon ? `${BASE_URL}${initialManufacturer.icon}` : null}
           />
 
           <Input

@@ -6,6 +6,9 @@ import { PartListItem } from '../types';
 import Badge from '@/components/ui/Badge';
 import { Edit, Trash2, Eye, Loader2, Cpu } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface PartTableProps {
   parts: PartListItem[];
   isLoading: boolean;
@@ -21,10 +24,11 @@ export default function PartTable({
   onDelete,
   isTogglingId,
 }: PartTableProps) {
+  // استفاده از BASE_URL به جای هاردکد
   const getIconUrl = (path: string | null) => {
     if (!path || path === '/noimage.webp') return null;
     if (path.startsWith('http')) return path;
-    return `https://api.yadakchi.com${path}`;
+    return `${BASE_URL}${path}`;
   };
 
   if (isLoading) {

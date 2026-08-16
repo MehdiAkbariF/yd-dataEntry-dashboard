@@ -10,6 +10,9 @@ import { useCreateBrand, useUpdateBrand } from '../hooks/useBrands';
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Award } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface BrandFormProps {
   initialData?: any;
   isEditMode?: boolean;
@@ -162,7 +165,7 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
         <MediaUploader
           label="تصویر لوگوی برند"
           onFileSelect={setImageFile}
-          previewUrl={initialData?.image ? `https://api.yadakchi.com${initialData.image}` : null}
+          previewUrl={initialData?.image ? `${BASE_URL}${initialData.image}` : null}
         />
         <Input
           label="متن جایگزین لوگو (ImageAlt)"

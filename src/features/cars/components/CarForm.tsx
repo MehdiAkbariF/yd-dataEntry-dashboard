@@ -15,6 +15,9 @@ import { carService } from '@/services/carService';
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Car, Sparkles } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface CarFormProps {
   initialData?: any;
   isEditMode?: boolean;
@@ -272,7 +275,7 @@ export default function CarForm({ initialData, isEditMode = false }: CarFormProp
           <MediaUploader
             label="تصویر کاور خودرو"
             onFileSelect={setCoverFile}
-            previewUrl={initialData?.cover ? `https://api.yadakchi.com${initialData.cover}` : null}
+            previewUrl={initialData?.cover ? `${BASE_URL}${initialData.cover}` : null}
           />
           <Input
             label="متن جایگزین کاور (CoverAlt)"

@@ -15,6 +15,9 @@ import { partService } from '@/services/partService';
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Cpu, Sparkles, HelpCircle } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface PartFormProps {
   initialData?: any;
   isEditMode?: boolean;
@@ -295,7 +298,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
           <MediaUploader
             label="آیکون یا تصویر نمادین قطعه"
             onFileSelect={setIconFile}
-            previewUrl={initialData?.icon ? `https://api.yadakchi.com${initialData.icon}` : null}
+            previewUrl={initialData?.icon ? `${BASE_URL}${initialData.icon}` : null}
           />
           <Input
             label="متن جایگزین آیکون (IconAlt)"

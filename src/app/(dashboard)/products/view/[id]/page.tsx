@@ -15,6 +15,9 @@ import {
   Calendar, User, Image as ImageIcon, Loader2, X
 } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 export default function ViewProductPage() {
   const params = useParams();
   const router = useRouter();
@@ -27,10 +30,11 @@ export default function ViewProductPage() {
   const deleteMutation = useDeleteProduct();
   const toggleMutation = useToggleProductStatus();
 
+  // استفاده از BASE_URL به جای هاردکد
   const getImageUrl = (path: string | null) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
-    return `https://api.yadakchi.com${path}`;
+    return `${BASE_URL}${path}`;
   };
 
   const handleToggleStatus = (newStatus: boolean) => {

@@ -8,6 +8,9 @@ import { useQuery } from '@tanstack/react-query';
 import Badge from '@/components/ui/Badge';
 import { ArrowRight, Edit, Factory, Loader2 } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 export default function ViewCarManufacturerPage() {
   const params = useParams();
   const id = params?.id as string;
@@ -29,7 +32,8 @@ export default function ViewCarManufacturerPage() {
     );
   }
 
-  const iconUrl = manufacturer.icon ? `https://api.yadakchi.com${manufacturer.icon}` : null;
+  // استفاده از BASE_URL به جای هاردکد
+  const iconUrl = manufacturer.icon ? `${BASE_URL}${manufacturer.icon}` : null;
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12">
@@ -56,7 +60,13 @@ export default function ViewCarManufacturerPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="relative h-64 w-full rounded-2xl border border-neutral-800 bg-neutral-950 flex items-center justify-center p-4">
           {iconUrl ? (
-            <Image src={iconUrl} alt={manufacturer.name} fill className="object-contain p-4" unoptimized />
+            <Image 
+              src={iconUrl} 
+              alt={manufacturer.name} 
+              fill 
+              className="object-contain p-4" 
+              unoptimized 
+            />
           ) : (
             <Factory className="h-16 w-16 text-neutral-700" />
           )}

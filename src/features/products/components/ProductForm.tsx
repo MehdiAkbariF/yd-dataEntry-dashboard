@@ -17,6 +17,9 @@ import { apiClient } from '@/lib/axios';
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Package, Sparkles, Link2 } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface ProductFormProps {
   initialData?: any;
   isEditMode?: boolean;
@@ -125,7 +128,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           id: img.id,
           file: null,
           alt: img.imageAlt || '',
-          preview: img.image?.startsWith('http') ? img.image : `https://api.yadakchi.com${img.image}`,
+          preview: img.image?.startsWith('http') ? img.image : `${BASE_URL}${img.image}`,
         }));
         setGalleryItems(mappedGallery);
       }
@@ -424,7 +427,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           <MediaUploader
             label="تصویر اصلی محصول"
             onFileSelect={setMainImage}
-            previewUrl={initialData?.image ? `https://api.yadakchi.com${initialData.image}` : null}
+            previewUrl={initialData?.image ? `${BASE_URL}${initialData.image}` : null}
           />
           <Input
             label="متن جایگزین تصویر اصلی (ImageAlt)"

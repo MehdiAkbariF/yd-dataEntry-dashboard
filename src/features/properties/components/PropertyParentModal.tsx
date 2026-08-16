@@ -7,6 +7,9 @@ import { PropertyParentListItem } from '../types';
 import MediaUploader from '@/components/common/MediaUploader';
 import { Layers, Loader2, X, Save } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface PropertyParentModalProps {
   isOpen: boolean;
   initialParent?: PropertyParentListItem | null;
@@ -101,7 +104,7 @@ export default function PropertyParentModal({
           <MediaUploader
             label="آیکون گروه"
             onFileSelect={setIconFile}
-            previewUrl={initialParent?.icon ? `https://api.yadakchi.com${initialParent.icon}` : null}
+            previewUrl={initialParent?.icon ? `${BASE_URL}${initialParent.icon}` : null}
           />
 
           <Input

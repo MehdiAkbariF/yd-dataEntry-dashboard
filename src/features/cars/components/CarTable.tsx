@@ -6,6 +6,9 @@ import { CarListItem } from '../types';
 import Badge from '@/components/ui/Badge';
 import { Edit, Trash2, Eye, Loader2, Car as CarIcon } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface CarTableProps {
   cars: CarListItem[];
   isLoading: boolean;
@@ -13,10 +16,11 @@ interface CarTableProps {
 }
 
 export default function CarTable({ cars, isLoading, onDelete }: CarTableProps) {
+  // استفاده از BASE_URL به جای هاردکد
   const getCoverUrl = (path: string | null) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
-    return `https://api.yadakchi.com${path}`;
+    return `${BASE_URL}${path}`;
   };
 
   if (isLoading) {

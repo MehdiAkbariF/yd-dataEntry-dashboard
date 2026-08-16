@@ -15,6 +15,9 @@ import {
   Calendar, User, Car as CarIcon, Loader2
 } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 export default function ViewCarPage() {
   const params = useParams();
   const router = useRouter();
@@ -26,10 +29,11 @@ export default function ViewCarPage() {
   const deleteMutation = useDeleteCar();
   const updateMutation = useUpdateCar();
 
+  // استفاده از BASE_URL به جای هاردکد
   const getCoverUrl = (path: string | null) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
-    return `https://api.yadakchi.com${path}`;
+    return `${BASE_URL}${path}`;
   };
 
   const handleToggleStatus = (newStatus: boolean) => {

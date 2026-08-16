@@ -1,16 +1,6 @@
-// src/features/products/hooks/useProducts.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '@/services/productService';
-
-export interface ProductFilterParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  brandId?: string;
-  partId?: string;
-  isActive?: boolean;
-  [key: string]: any;
-}
+import { ProductFilterParams } from '../types';
 
 export const useGetProducts = (params: ProductFilterParams) => {
   return useQuery({

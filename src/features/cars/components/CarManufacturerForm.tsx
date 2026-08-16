@@ -10,6 +10,9 @@ import { useCreateCarManufacturer, useUpdateCarManufacturer } from '../hooks/use
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Factory } from 'lucide-react';
 
+// دریافت BASE_URL از env
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+
 interface CarManufacturerFormProps {
   initialData?: any;
   isEditMode?: boolean;
@@ -142,7 +145,7 @@ export default function CarManufacturerForm({ initialData, isEditMode = false }:
         <MediaUploader
           label="آیکون یا لوگوی شرکت خودروساز"
           onFileSelect={setIconFile}
-          previewUrl={initialData?.icon ? `https://api.yadakchi.com${initialData.icon}` : null}
+          previewUrl={initialData?.icon ? `${BASE_URL}${initialData.icon}` : null}
         />
         <Input
           label="متن جایگزین آیکون (IconAlt)"
