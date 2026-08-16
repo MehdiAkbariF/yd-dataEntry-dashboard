@@ -6,10 +6,13 @@ export interface UserItem {
   userName: string;
   fullName: string | null;
   phoneNumber: string;
+  status?: string;
+  email?: string | null;
+  roles?: any[];
 }
 
 export const userService = {
-  // گرفتن لیست کاربران برای دراپ‌داون‌های فیلتر
+  // دریافت لیست کاربران برای دراپ‌داون‌ها
   async getUsers(searchedValue?: string): Promise<UserItem[]> {
     const response = await apiClient.get<PaginatedResponse<UserItem>>(
       '/api/Admin/A_User/Users',
@@ -21,6 +24,14 @@ export const userService = {
         },
       }
     );
-    return response.data.items || [];
+    return response.data?.items || [];
+  },
+
+  // ⚠️ دریافت اطلاعات کامل پروفایل یک کاربر با Id
+  async getUserById(id: string): Promise<UserItem> {
+    const response = await apiClient.get<UserItem>('/api/Admin/A_User/User', {
+      params: { Id: id },
+    });
+    return response.data;
   },
 };

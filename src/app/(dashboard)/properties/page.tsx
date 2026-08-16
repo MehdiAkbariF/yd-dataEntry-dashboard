@@ -11,6 +11,7 @@ import {
   useUpdatePropertyParent,
   useDeletePropertyParent,
 } from '@/features/properties/hooks/useProperties';
+import { propertyService } from '@/services/propertyService';
 import PropertyTable from '@/features/properties/components/PropertyTable';
 import PropertyFilterBar from '@/features/properties/components/PropertyFilterBar';
 import PropertyModal from '@/features/properties/components/PropertyModal';
@@ -18,22 +19,14 @@ import PropertyParentModal from '@/features/properties/components/PropertyParent
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import { PropertyListItem, PropertyParentListItem } from '@/features/properties/types';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, Sliders, Layers, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PropertiesPage() {
   const [activeTab, setActiveTab] = useState<'properties' | 'parents'>('properties');
-  const [page, setPage] = useState(1);
+  const { propertyFilters, setPropertyFilter, resetPropertyFilters } = useFilterStore();
 
-  // فیلترها
-  const [name, setName] = useState('');
-  const [type, setType] = useState('');
-  const [parentId, setParentId] = useState('');
-  const [isMain, setIsMain] = useState('');
-  const [isFilter, setIsFilter] = useState('');
-  const [isActive, setIsActive] = useState('');
-
-  // مودال‌ها
   const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<PropertyListItem | null>(null);
 
@@ -43,21 +36,19 @@ export default function PropertiesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteType, setDeleteType] = useState<'property' | 'parent'>('property');
 
-  // فراخوانی لیست ویژگی‌ها
   const { data: propertiesData, isLoading: isPropertiesLoading } = useGetProperties({
-    pageNumber: page,
+    pageNumber: propertyFilters.page,
     pageSize: 20,
-    name: name || undefined,
-    type: type || undefined,
-    parentId: parentId || undefined,
-    isMain: isMain === '' ? undefined : isMain === 'true',
-    isFilter: isFilter === '' ? undefined : isFilter === 'true',
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    name: propertyFilters.name || undefined,
+    type: propertyFilters.type || undefined,
+    parentId: propertyFilters.parentId || undefined,
+    isMain: propertyFilters.isMain === '' ? undefined : propertyFilters.isMain === 'true',
+    isFilter: propertyFilters.isFilter === '' ? undefined : propertyFilters.isFilter === 'true',
+    isActive: propertyFilters.isActive === '' ? undefined : propertyFilters.isActive === 'true',
   });
 
-  // فراخوانی لیست گروه‌ها
   const { data: parentsData, isLoading: isParentsLoading } = useGetPropertyParents({
-    pageNumber: page,
+    pageNumber: propertyFilters.page,
     pageSize: 30,
   });
 
@@ -69,26 +60,67 @@ export default function PropertiesPage() {
   const updateParentMutation = useUpdatePropertyParent();
   const deleteParentMutation = useDeletePropertyParent();
 
-  // ذخیره ویژگی
-  const handleSaveProperty = ({ data, formData, isEdit }: any) => {
-    if (isEdit) {
-      updatePropertyMutation.mutate(formData, {
-        onSuccess: () => {
-          toast.success('ویژگی با موفقیت به‌روزرسانی شد.');
-          setIsPropertyModalOpen(false);
-        },
-      });
-    } else {
-      createPropertyMutation.mutate(data, {
-        onSuccess: () => {
-          toast.success('ویژگی جدید ایجاد شد.');
-          setIsPropertyModalOpen(false);
-        },
-      });
+  // ⚠️ عملیات ذخیره و اتصال موازی ویژگی به قطعات و مقادیر چندتایی
+  const handleSaveProperty = async ({ data, formData, isEdit, partIds, multiSelectValues }: any) => {
+    try {
+      let currentPropertyId = selectedProperty?.id;
+
+      if (isEdit) {
+        await updatePropertyMutation.mutateAsync(formData);
+        toast.success('ویژگی با موفقیت به‌روزرسانی شد.');
+      } else {
+        const res = await createPropertyMutation.mutateAsync(data);
+        currentPropertyId = Array.isArray(res) ? res[0]?.id : res?.id;
+        toast.success('ویژگی جدید ایجاد شد.');
+      }
+
+      if (currentPropertyId) {
+        // ۱. اتصال به قطعات
+        if (partIds && partIds.length > 0) {
+          await Promise.all(partIds.map((pId: string) => propertyService.assignPropertyToPart(pId, currentPropertyId)));
+        }
+
+        // ۲. پردازش مقادیر MultiSelect
+        if (multiSelectValues && multiSelectValues.length > 0) {
+          const newValues = multiSelectValues.filter((v: any) => !v.id && !v.isDeleted).map((v: any) => v.value);
+          const updateValues = multiSelectValues.filter((v: any) => v.id && !v.isDeleted && v.isEdited);
+          const deleteValues = multiSelectValues.filter((v: any) => v.id && v.isDeleted);
+
+          // ایجاد مقادیر جدید به صورت گروهی
+          if (newValues.length > 0) {
+            const form = new FormData();
+            form.append('PropertyId', currentPropertyId);
+            newValues.forEach((val: string) => form.append('Values', val));
+            await propertyService.createPropertyMultiSelect(form);
+          }
+
+          // ویرایش مقادیر تغییر یافته (ویرایش متن یا تاگل فعال/غیرفعال)
+          if (updateValues.length > 0) {
+            await Promise.all(
+              updateValues.map((v: any) => {
+                const form = new FormData();
+                form.append('Id', v.id);
+                form.append('PropertyId', currentPropertyId);
+                form.append('Value', v.value);
+                form.append('IsActive', String(v.isActive));
+                return propertyService.updatePropertyMultiSelect(form);
+              })
+            );
+          }
+
+          // حذف مقادیر دیلیت شده
+          if (deleteValues.length > 0) {
+            await Promise.all(deleteValues.map((v: any) => propertyService.deletePropertyMultiSelect(v.id)));
+          }
+        }
+      }
+
+      setIsPropertyModalOpen(false);
+    } catch (e) {
+      toast.error('خطا در پردازش اطلاعات مکمل (قطعات یا مقادیر).');
     }
   };
 
-  // ذخیره گروه
   const handleSaveParent = (formData: FormData) => {
     if (selectedParent) {
       updateParentMutation.mutate(formData, {
@@ -107,7 +139,6 @@ export default function PropertiesPage() {
     }
   };
 
-  // حذف
   const handleConfirmDelete = () => {
     if (!deleteId) return;
     if (deleteType === 'property') {
@@ -127,19 +158,8 @@ export default function PropertiesPage() {
     }
   };
 
-  const handleResetFilters = () => {
-    setName('');
-    setType('');
-    setParentId('');
-    setIsMain('');
-    setIsFilter('');
-    setIsActive('');
-    setPage(1);
-  };
-
   return (
     <div className="space-y-6">
-      {/* هدر صفحه و تب‌ها */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
@@ -151,7 +171,6 @@ export default function PropertiesPage() {
           </div>
         </div>
 
-        {/* دکمه‌های ایجاد */}
         <div className="flex items-center gap-2">
           {activeTab === 'properties' ? (
             <button
@@ -179,12 +198,11 @@ export default function PropertiesPage() {
         </div>
       </div>
 
-      {/* سوییچر تب‌ها */}
       <div className="flex items-center gap-2 border-b border-neutral-800 pb-2">
         <button
           onClick={() => {
             setActiveTab('properties');
-            setPage(1);
+            setPropertyFilter('page', 1);
           }}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === 'properties'
@@ -199,7 +217,7 @@ export default function PropertiesPage() {
         <button
           onClick={() => {
             setActiveTab('parents');
-            setPage(1);
+            setPropertyFilter('page', 1);
           }}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === 'parents'
@@ -212,23 +230,22 @@ export default function PropertiesPage() {
         </button>
       </div>
 
-      {/* تب ۱: ویژگی‌ها */}
       {activeTab === 'properties' && (
         <>
           <PropertyFilterBar
-            name={name}
-            setName={setName}
-            type={type}
-            setType={setType}
-            parentId={parentId}
-            setParentId={setParentId}
-            isMain={isMain}
-            setIsMain={setIsMain}
-            isFilter={isFilter}
-            setIsFilter={setIsFilter}
-            isActive={isActive}
-            setIsActive={setIsActive}
-            onReset={handleResetFilters}
+            name={propertyFilters.name}
+            setName={(val) => setPropertyFilter('name', val)}
+            type={propertyFilters.type}
+            setType={(val) => setPropertyFilter('type', val)}
+            parentId={propertyFilters.parentId}
+            setParentId={(val) => setPropertyFilter('parentId', val)}
+            isMain={propertyFilters.isMain}
+            setIsMain={(val) => setPropertyFilter('isMain', val)}
+            isFilter={propertyFilters.isFilter}
+            setIsFilter={(val) => setPropertyFilter('isFilter', val)}
+            isActive={propertyFilters.isActive}
+            setIsActive={(val) => setPropertyFilter('isActive', val)}
+            onReset={resetPropertyFilters}
           />
 
           <PropertyTable
@@ -248,13 +265,12 @@ export default function PropertiesPage() {
             <Pagination
               currentPage={propertiesData.currentPage}
               totalPages={propertiesData.totalPages}
-              onPageChange={setPage}
+              onPageChange={(newPage) => setPropertyFilter('page', newPage)}
             />
           )}
         </>
       )}
 
-      {/* تب ۲: گروه‌های اصلی ویژگی‌ها */}
       {activeTab === 'parents' && (
         <div className="relative z-10 overflow-x-auto rounded-2xl border border-neutral-800 bg-neutral-900/60 backdrop-blur-xl">
           <table className="w-full text-right text-xs">
@@ -305,7 +321,6 @@ export default function PropertiesPage() {
         </div>
       )}
 
-      {/* مودال ایجاد/ویرایش ویژگی */}
       <PropertyModal
         isOpen={isPropertyModalOpen}
         initialProperty={selectedProperty}
@@ -314,7 +329,6 @@ export default function PropertiesPage() {
         onClose={() => setIsPropertyModalOpen(false)}
       />
 
-      {/* مودال ایجاد/ویرایش گروه */}
       <PropertyParentModal
         isOpen={isParentModalOpen}
         initialParent={selectedParent}
@@ -323,7 +337,6 @@ export default function PropertiesPage() {
         onClose={() => setIsParentModalOpen(false)}
       />
 
-      {/* مودال حذف */}
       <ConfirmModal
         isOpen={!!deleteId}
         title="حذف آیتم"

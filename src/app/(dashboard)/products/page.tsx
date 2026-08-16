@@ -7,32 +7,28 @@ import ProductTable from '@/features/products/components/ProductTable';
 import ProductFilterBar from '@/features/products/components/ProductFilterBar';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, Package } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function ProductsPage() {
-  const [page, setPage] = useState(1);
-  const [title, setTitle] = useState('');
-  const [productCode, setProductCode] = useState('');
-  const [isActive, setIsActive] = useState('');
-  const [creatorId, setCreatorId] = useState('');
-  const [updaterId, setUpdaterId] = useState('');
-  const [brandId, setBrandId] = useState('');
-  const [partId, setPartId] = useState('');
+  // ⚠️ استفاده از استور ماندگار فیلترها (حفظ ۱۰۰٪ فیلترها و شماره صفحه)
+  const { productFilters, setProductFilter, resetProductFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // فراخوانی API لیست محصولات با تمام فیلترهای جدید
+  // فراخوانی API محصولات از استور پایدار
   const { data, isLoading } = useGetProducts({
-    pageNumber: page,
+    pageNumber: productFilters.page,
     pageSize: 20,
-    title: title || undefined,
-    productCode: productCode || undefined,
-    isActive: isActive === '' ? undefined : isActive === 'true',
-    creatorId: creatorId || undefined,
-    updaterId: updaterId || undefined,
-    brandId: brandId || undefined,
-    partId: partId || undefined,
+    title: productFilters.title || undefined,
+    productCode: productFilters.productCode || undefined,
+    isActive: productFilters.isActive === '' ? undefined : productFilters.isActive === 'true',
+    creatorId: productFilters.creatorId || undefined,
+    updaterId: productFilters.updaterId || undefined,
+    brandId: productFilters.brandId || undefined,
+    partId: productFilters.partId || undefined,
   });
 
   const toggleMutation = useToggleProductStatus();
@@ -42,26 +38,21 @@ export default function ProductsPage() {
     setTogglingId(id);
     toggleMutation.mutate(
       { id, isActive: !currentStatus },
-      { onSettled: () => setTogglingId(null) }
+      {
+        onSuccess: () => toast.success('وضعیت نمایش محصول تغییر یافت.'),
+        onSettled: () => setTogglingId(null),
+      }
     );
   };
 
   const handleConfirmDelete = () => {
     if (!deleteId) return;
     deleteMutation.mutate(deleteId, {
-      onSuccess: () => setDeleteId(null),
+      onSuccess: () => {
+        toast.success('محصول با موفقیت حذف شد.');
+        setDeleteId(null);
+      },
     });
-  };
-
-  const handleResetFilters = () => {
-    setTitle('');
-    setProductCode('');
-    setIsActive('');
-    setCreatorId('');
-    setUpdaterId('');
-    setBrandId('');
-    setPartId('');
-    setPage(1);
   };
 
   return (
@@ -87,23 +78,23 @@ export default function ProductsPage() {
         </Link>
       </div>
 
-      {/* نوار فیلتر جامع */}
+      {/* نوار فیلتر متصل به استور ماندگار */}
       <ProductFilterBar
-        title={title}
-        setTitle={setTitle}
-        productCode={productCode}
-        setProductCode={setProductCode}
-        isActive={isActive}
-        setIsActive={setIsActive}
-        creatorId={creatorId}
-        setCreatorId={setCreatorId}
-        updaterId={updaterId}
-        setUpdaterId={setUpdaterId}
-        brandId={brandId}
-        setBrandId={setBrandId}
-        partId={partId}
-        setPartId={setPartId}
-        onReset={handleResetFilters}
+        title={productFilters.title}
+        setTitle={(val) => setProductFilter('title', val)}
+        productCode={productFilters.productCode}
+        setProductCode={(val) => setProductFilter('productCode', val)}
+        isActive={productFilters.isActive}
+        setIsActive={(val) => setProductFilter('isActive', val)}
+        creatorId={productFilters.creatorId}
+        setCreatorId={(val) => setProductFilter('creatorId', val)}
+        updaterId={productFilters.updaterId}
+        setUpdaterId={(val) => setProductFilter('updaterId', val)}
+        brandId={productFilters.brandId}
+        setBrandId={(val) => setProductFilter('brandId', val)}
+        partId={productFilters.partId}
+        setPartId={(val) => setProductFilter('partId', val)}
+        onReset={resetProductFilters}
       />
 
       {/* جدول لیست محصولات */}
@@ -115,12 +106,12 @@ export default function ProductsPage() {
         isTogglingId={togglingId}
       />
 
-      {/* صفحه‌بندی در مرکز */}
+      {/* صفحه‌بندی متصل به استور ماندگار */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
           totalPages={data.totalPages}
-          onPageChange={(newPage) => setPage(newPage)}
+          onPageChange={(newPage) => setProductFilter('page', newPage)}
         />
       )}
 

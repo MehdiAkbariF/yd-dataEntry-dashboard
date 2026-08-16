@@ -14,40 +14,35 @@ import CarTypePartDescriptionTable from '@/features/part-descriptions/components
 import PartDescriptionFilterBar from '@/features/part-descriptions/components/PartDescriptionFilterBar';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, FileText, Car, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PartDescriptionsPage() {
-  const [activeTab, setActiveTab] = useState<'car' | 'carType'>('car');
-  const [page, setPage] = useState(1);
-
-  // فیلترها
-  const [searchedValue, setSearchedValue] = useState('');
-  const [partId, setPartId] = useState('');
-  const [creatorId, setCreatorId] = useState('');
-  const [isActive, setIsActive] = useState('');
+  // ⚠️ استفاده از استور ماندگار فیلترها و تب‌ها
+  const { partDescriptionFilters, setPartDescriptionFilter, resetPartDescriptionFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // لیست توضیحات مدل خودرو (Tab 1)
   const { data: carData, isLoading: isCarLoading } = useGetPartCarDescriptions({
-    pageNumber: page,
+    pageNumber: partDescriptionFilters.page,
     pageSize: 20,
-    searchedValue: searchedValue || undefined,
-    partId: partId || undefined,
-    creatorId: creatorId || undefined,
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    searchedValue: partDescriptionFilters.searchedValue || undefined,
+    partId: partDescriptionFilters.partId || undefined,
+    creatorId: partDescriptionFilters.creatorId || undefined,
+    isActive: partDescriptionFilters.isActive === '' ? undefined : partDescriptionFilters.isActive === 'true',
   });
 
   // لیست توضیحات نوع خودرو (Tab 2)
   const { data: carTypeData, isLoading: isCarTypeLoading } = useGetCarTypePartDescriptions({
-    pageNumber: page,
+    pageNumber: partDescriptionFilters.page,
     pageSize: 20,
-    searchedValue: searchedValue || undefined,
-    partId: partId || undefined,
-    creatorId: creatorId || undefined,
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    searchedValue: partDescriptionFilters.searchedValue || undefined,
+    partId: partDescriptionFilters.partId || undefined,
+    creatorId: partDescriptionFilters.creatorId || undefined,
+    isActive: partDescriptionFilters.isActive === '' ? undefined : partDescriptionFilters.isActive === 'true',
   });
 
   const toggleMutation = useTogglePartCarDescriptionStatus();
@@ -55,7 +50,7 @@ export default function PartDescriptionsPage() {
 
   const handleToggleStatus = (id: string, currentStatus: boolean) => {
     setTogglingId(id);
-    if (activeTab === 'car') {
+    if (partDescriptionFilters.activeTab === 'car') {
       toggleMutation.mutate(
         { id, isActive: !currentStatus },
         {
@@ -72,7 +67,7 @@ export default function PartDescriptionsPage() {
 
   const handleConfirmDelete = () => {
     if (!deleteId) return;
-    if (activeTab === 'car') {
+    if (partDescriptionFilters.activeTab === 'car') {
       deleteMutation.mutate(deleteId, {
         onSuccess: () => {
           toast.success('توضیحات با موفقیت حذف شد.');
@@ -88,15 +83,7 @@ export default function PartDescriptionsPage() {
     }
   };
 
-  const handleResetFilters = () => {
-    setSearchedValue('');
-    setPartId('');
-    setCreatorId('');
-    setIsActive('');
-    setPage(1);
-  };
-
-  const currentData = activeTab === 'car' ? carData : carTypeData;
+  const currentData = partDescriptionFilters.activeTab === 'car' ? carData : carTypeData;
 
   return (
     <div className="space-y-6">
@@ -113,23 +100,20 @@ export default function PartDescriptionsPage() {
         </div>
 
         <Link
-          href={`/part-descriptions/new?type=${activeTab}`}
+          href={`/part-descriptions/new?type=${partDescriptionFilters.activeTab}`}
           className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-black hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10"
         >
           <Plus className="h-4 w-4" />
-          <span>ثبت توضیحات جدید ({activeTab === 'car' ? 'مدل خودرو' : 'نوع خودرو'})</span>
+          <span>ثبت توضیحات جدید ({partDescriptionFilters.activeTab === 'car' ? 'مدل خودرو' : 'نوع خودرو'})</span>
         </Link>
       </div>
 
-      {/* سوییچر تب‌ها */}
+      {/* سوییچر تب‌ها متصل به استور ماندگار */}
       <div className="flex items-center gap-2 border-b border-neutral-800 pb-2">
         <button
-          onClick={() => {
-            setActiveTab('car');
-            setPage(1);
-          }}
+          onClick={() => setPartDescriptionFilter('activeTab', 'car')}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-            activeTab === 'car'
+            partDescriptionFilters.activeTab === 'car'
               ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
               : 'text-neutral-400 hover:bg-neutral-900'
           }`}
@@ -139,12 +123,9 @@ export default function PartDescriptionsPage() {
         </button>
 
         <button
-          onClick={() => {
-            setActiveTab('carType');
-            setPage(1);
-          }}
+          onClick={() => setPartDescriptionFilter('activeTab', 'carType')}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-            activeTab === 'carType'
+            partDescriptionFilters.activeTab === 'carType'
               ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
               : 'text-neutral-400 hover:bg-neutral-900'
           }`}
@@ -154,21 +135,21 @@ export default function PartDescriptionsPage() {
         </button>
       </div>
 
-      {/* نوار فیلتر */}
+      {/* نوار فیلتر متصل به استور ماندگار */}
       <PartDescriptionFilterBar
-        searchedValue={searchedValue}
-        setSearchedValue={setSearchedValue}
-        partId={partId}
-        setPartId={setPartId}
-        creatorId={creatorId}
-        setCreatorId={setCreatorId}
-        isActive={isActive}
-        setIsActive={setIsActive}
-        onReset={handleResetFilters}
+        searchedValue={partDescriptionFilters.searchedValue}
+        setSearchedValue={(val) => setPartDescriptionFilter('searchedValue', val)}
+        partId={partDescriptionFilters.partId}
+        setPartId={(val) => setPartDescriptionFilter('partId', val)}
+        creatorId={partDescriptionFilters.creatorId}
+        setCreatorId={(val) => setPartDescriptionFilter('creatorId', val)}
+        isActive={partDescriptionFilters.isActive}
+        setIsActive={(val) => setPartDescriptionFilter('isActive', val)}
+        onReset={resetPartDescriptionFilters}
       />
 
       {/* نمایش جدول بر اساس تب فعال */}
-      {activeTab === 'car' ? (
+      {partDescriptionFilters.activeTab === 'car' ? (
         <PartCarDescriptionTable
           items={carData?.items || []}
           isLoading={isCarLoading}
@@ -186,12 +167,12 @@ export default function PartDescriptionsPage() {
         />
       )}
 
-      {/* صفحه‌بندی */}
+      {/* صفحه‌بندی متصل به استور ماندگار */}
       {currentData && (
         <Pagination
           currentPage={currentData.currentPage}
           totalPages={currentData.totalPages}
-          onPageChange={setPage}
+          onPageChange={(newPage) => setPartDescriptionFilter('page', newPage)}
         />
       )}
 

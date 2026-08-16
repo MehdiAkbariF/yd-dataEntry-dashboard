@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BrandListItem } from '../types';
 import Badge from '@/components/ui/Badge';
 import { Edit, Trash2, Eye, Loader2, Award, CheckCircle2, XCircle } from 'lucide-react';
+import { getMediaUrl } from '@/lib/config';
 
 interface BrandTableProps {
   brands: BrandListItem[];
@@ -21,12 +22,6 @@ export default function BrandTable({
   onDelete,
   confirmingId,
 }: BrandTableProps) {
-  const getImageUrl = (path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `https://api.yadakchi.com${path}`;
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900/40">
@@ -62,7 +57,8 @@ export default function BrandTable({
         </thead>
         <tbody className="divide-y divide-neutral-800/60">
           {brands.map((brand) => {
-            const imageUrl = getImageUrl(brand.image);
+            // ⚠️ استفاده از کانفیگ مرکزی برای ساخت آدرس معتبر تصویر
+            const imageUrl = getMediaUrl(brand.image);
 
             return (
               <tr key={brand.id} className="hover:bg-neutral-800/30 transition-all">
@@ -130,7 +126,7 @@ export default function BrandTable({
                   </button>
                 </td>
 
-                {/* وضعیت */}
+                {/* وضعیت نمایش */}
                 <td className="p-4 text-center">
                   <Badge variant={brand.isActive ? 'success' : 'danger'} size="sm">
                     {brand.isActive ? 'فعال' : 'غیرفعال'}

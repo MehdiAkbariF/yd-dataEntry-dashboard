@@ -5,30 +5,25 @@ import {
   PropertyFilterParams,
   PropertyParentListItem,
   PropertyParentFilterParams,
+  PropertyMultiSelectListItem,
+  PropertyMultiSelectFilterParams,
 } from '@/features/properties/types';
 
 export const propertyService = {
-  // دریافت لیست ویژگی‌ها (Properties)
+  // --- Properties ---
   async getProperties(params: PropertyFilterParams): Promise<PaginatedResponse<PropertyListItem>> {
     const response = await apiClient.get<PaginatedResponse<PropertyListItem>>(
       '/api/A_Part/Properties',
-      {
-        params: {
-          isDeleted: false,
-          ...params,
-        },
-      }
+      { params: { isDeleted: false, ...params } }
     );
     return response.data;
   },
 
-  // ایجاد ویژگی جدید (application/json)
   async createProperty(data: any): Promise<any> {
     const response = await apiClient.post('/api/A_Part/Property', [data]);
     return response.data;
   },
 
-  // ویرایش ویژگی (multipart/form-data)
   async updateProperty(formData: FormData): Promise<any> {
     const response = await apiClient.put('/api/A_Part/Property', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -36,29 +31,30 @@ export const propertyService = {
     return response.data;
   },
 
-  // حذف ویژگی
   async deleteProperty(id: string): Promise<any> {
-    const response = await apiClient.delete('/api/A_Part/Property', {
-      data: { id },
+    const response = await apiClient.delete('/api/A_Part/Property', { data: { id } });
+    return response.data;
+  },
+
+  async assignPropertyToPart(partId: string, propertyId: string): Promise<any> {
+    const formData = new FormData();
+    formData.append('Id', partId);
+    formData.append('PropertyId', propertyId);
+    const response = await apiClient.put('/api/A_Part/Part', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
   },
 
-  // دریافت لیست گروه‌های اصلی (PropertyParent)
+  // --- PropertyParents ---
   async getPropertyParents(params: PropertyParentFilterParams): Promise<PaginatedResponse<PropertyParentListItem>> {
     const response = await apiClient.get<PaginatedResponse<PropertyParentListItem>>(
       '/api/A_Part/PropertyParent',
-      {
-        params: {
-          isDeleted: false,
-          ...params,
-        },
-      }
+      { params: { isDeleted: false, ...params } }
     );
     return response.data;
   },
 
-  // ایجاد گروه ویژگی جدید (multipart/form-data)
   async createPropertyParent(formData: FormData): Promise<any> {
     const response = await apiClient.post('/api/A_Part/PropertyParent', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -66,7 +62,6 @@ export const propertyService = {
     return response.data;
   },
 
-  // ویرایش گروه ویژگی (multipart/form-data)
   async updatePropertyParent(formData: FormData): Promise<any> {
     const response = await apiClient.put('/api/A_Part/PropertyParent', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -74,11 +69,36 @@ export const propertyService = {
     return response.data;
   },
 
-  // حذف گروه ویژگی
   async deletePropertyParent(id: string): Promise<any> {
-    const response = await apiClient.delete('/api/A_Part/PropertyParent', {
-      data: { id },
+    const response = await apiClient.delete('/api/A_Part/PropertyParent', { data: { id } });
+    return response.data;
+  },
+
+  // --- PropertyMultiSelect ---
+  async getPropertyMultiSelects(params: PropertyMultiSelectFilterParams): Promise<PaginatedResponse<PropertyMultiSelectListItem>> {
+    const response = await apiClient.get<PaginatedResponse<PropertyMultiSelectListItem>>(
+      '/api/A_Part/PropertyMultiSelect',
+      { params: { isDeleted: false, ...params } }
+    );
+    return response.data;
+  },
+
+  async createPropertyMultiSelect(formData: FormData): Promise<any> {
+    const response = await apiClient.post('/api/A_Part/PropertyMultiSelect', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
+    return response.data;
+  },
+
+  async updatePropertyMultiSelect(formData: FormData): Promise<any> {
+    const response = await apiClient.put('/api/A_Part/PropertyMultiSelect', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  async deletePropertyMultiSelect(id: string): Promise<any> {
+    const response = await apiClient.delete('/api/A_Part/PropertyMultiSelect', { data: { id } });
     return response.data;
   },
 };

@@ -10,68 +10,43 @@ import {
   Layers,
   FileText,
   Car,
+  Factory,
   Award,
   Tag,
-  MessageSquare,
-  HelpCircle,
 } from 'lucide-react';
 import clsx from 'clsx';
 
-const menuItems = [
+const menuGroups = [
   {
-    title: 'صفحه اصلی داشبورد',
-    href: '/',
-    icon: LayoutDashboard,
+    title: 'اصلی',
+    items: [
+      { title: 'داشبورد', href: '/', icon: LayoutDashboard },
+      { title: 'محصولات (Products)', href: '/products', icon: Package },
+    ],
   },
   {
-    title: 'محصولات (Products)',
-    href: '/products',
-    icon: Package,
+    title: 'قطعات و ساختار',
+    items: [
+      { title: 'قطعات پایه (Part)', href: '/parts', icon: Cpu },
+      { title: 'دسته‌بندی قطعات', href: '/parts/categories', icon: Layers },
+      { title: 'ویژگی‌های قطعات', href: '/properties', icon: Sliders },
+      { title: 'توضیحات قطعه-خودرو', href: '/part-descriptions', icon: FileText },
+    ],
   },
   {
-    title: 'قطعات خودرو (Parts)',
-    href: '/parts',
-    icon: Cpu,
+    title: 'خودروها',
+    items: [
+      { title: 'مدل‌های خودرو (Cars)', href: '/cars', icon: Car },
+      { title: 'انواع خودرو (CarTypes)', href: '/cars/types', icon: Layers },
+      { title: 'شرکت‌های خودروساز', href: '/cars/manufacturers', icon: Factory },
+    ],
   },
   {
-    title: 'ویژگی‌های قطعات (Properties)',
-    href: '/properties',
-    icon: Sliders,
-  },
-  {
-    title: 'دسته‌بندی قطعات',
-    href: '/parts/categories',
-    icon: Layers,
-  },
-  {
-    title: 'توضیحات قطعه-خودرو',
-    href: '/part-descriptions',
-    icon: FileText,
-  },
-  {
-    title: 'مدیریت خودروها (Cars)',
-    href: '/cars',
-    icon: Car,
-  },
-  {
-    title: 'برندها (Brands)',
-    href: '/brands',
-    icon: Award,
-  },
-  {
-    title: 'برچسب‌ها (Tags)',
-    href: '/tags',
-    icon: Tag,
-  },
-  {
-    title: 'نظرات کاربران',
-    href: '/comments',
-    icon: MessageSquare,
-  },
-  {
-    title: 'پرسش و پاسخ‌ها',
-    href: '/inquiries',
-    icon: HelpCircle,
+    title: 'برند و برچسب',
+    items: [
+      { title: 'برندها (Brands)', href: '/brands', icon: Award },
+      { title: 'برچسب‌ها (Tags)', href: '/tags', icon: Tag },
+    ],
   },
 ];
 
@@ -92,32 +67,39 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* منوهای اصلی پنل */}
-        <nav className="space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            // منطق هایلایت هوشمند برای روت اصلی و روت‌های فرزند
-            const isActive =
-              item.href === '/'
-                ? pathname === '/'
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+        {/* منوهای دسته‌بندی‌شده */}
+        <nav className="space-y-5 overflow-y-auto max-h-[72vh] pr-1">
+          {menuGroups.map((group) => (
+            <div key={group.title} className="space-y-1">
+              <span className="px-3 text-[10px] font-bold text-neutral-500 uppercase tracking-wider block mb-1">
+                {group.title}
+              </span>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={clsx(
-                  'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all',
-                  isActive
-                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold'
-                    : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
-                )}
-              >
-                <Icon className={clsx('h-4 w-4', isActive ? 'text-amber-400' : 'text-neutral-500')} />
-                <span>{item.title}</span>
-              </Link>
-            );
-          })}
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  item.href === '/'
+                    ? pathname === '/'
+                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={clsx(
+                      'flex items-center gap-3 rounded-xl px-3.5 py-2 text-xs font-medium transition-all',
+                      isActive
+                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold'
+                        : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+                    )}
+                  >
+                    <Icon className={clsx('h-4 w-4', isActive ? 'text-amber-400' : 'text-neutral-500')} />
+                    <span>{item.title}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
       </div>
 

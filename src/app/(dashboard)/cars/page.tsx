@@ -5,38 +5,31 @@ import Link from 'next/link';
 import { useGetCars, useDeleteCar } from '@/features/cars/hooks/useCars';
 import CarTable from '@/features/cars/components/CarTable';
 import CarFilterBar from '@/features/cars/components/CarFilterBar';
+import CarSubNav from '@/features/cars/components/CarSubNav';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, Car } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CarsPage() {
-  const [page, setPage] = useState(1);
-
-  // فیلترهای کامل
-  const [model, setModel] = useState('');
-  const [englishTitle, setEnglishTitle] = useState('');
-  const [carManufacturerId, setCarManufacturerId] = useState('');
-  const [carTypeId, setCarTypeId] = useState('');
-  const [vehicleType, setVehicleType] = useState('');
-  const [isAutomatic, setIsAutomatic] = useState('');
-  const [creatorId, setCreatorId] = useState('');
-  const [isActive, setIsActive] = useState('');
+  // ⚠️ استفاده از استور ماندگار فیلترهای خودروها
+  const { carFilters, setCarFilter, resetCarFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // فراخوانی API خودروها
+  // فراخوانی API خودروها با فیلترهای ماندگار
   const { data, isLoading } = useGetCars({
-    pageNumber: page,
+    pageNumber: carFilters.page,
     pageSize: 20,
-    model: model || undefined,
-    englishTitle: englishTitle || undefined,
-    carManufacturerId: carManufacturerId || undefined,
-    carTypeId: carTypeId || undefined,
-    vehicleType: vehicleType ? (vehicleType as any) : undefined,
-    isAutomatic: isAutomatic === '' ? undefined : isAutomatic === 'true',
-    creatorId: creatorId || undefined,
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    model: carFilters.model || undefined,
+    englishTitle: carFilters.englishTitle || undefined,
+    carManufacturerId: carFilters.carManufacturerId || undefined,
+    carTypeId: carFilters.carTypeId || undefined,
+    vehicleType: carFilters.vehicleType ? (carFilters.vehicleType as any) : undefined,
+    isAutomatic: carFilters.isAutomatic === '' ? undefined : carFilters.isAutomatic === 'true',
+    creatorId: carFilters.creatorId || undefined,
+    isActive: carFilters.isActive === '' ? undefined : carFilters.isActive === 'true',
   });
 
   const deleteMutation = useDeleteCar();
@@ -49,18 +42,6 @@ export default function CarsPage() {
         setDeleteId(null);
       },
     });
-  };
-
-  const handleResetFilters = () => {
-    setModel('');
-    setEnglishTitle('');
-    setCarManufacturerId('');
-    setCarTypeId('');
-    setVehicleType('');
-    setIsAutomatic('');
-    setCreatorId('');
-    setIsActive('');
-    setPage(1);
   };
 
   return (
@@ -86,25 +67,28 @@ export default function CarsPage() {
         </Link>
       </div>
 
-      {/* نوار فیلتر کامل */}
+      {/* نوار تب‌های زیرمجموعه خودروها */}
+      <CarSubNav />
+
+      {/* نوار فیلتر متصل به استور ماندگار */}
       <CarFilterBar
-        model={model}
-        setModel={setModel}
-        englishTitle={englishTitle}
-        setEnglishTitle={setEnglishTitle}
-        carManufacturerId={carManufacturerId}
-        setCarManufacturerId={setCarManufacturerId}
-        carTypeId={carTypeId}
-        setCarTypeId={setCarTypeId}
-        vehicleType={vehicleType}
-        setVehicleType={setVehicleType}
-        isAutomatic={isAutomatic}
-        setIsAutomatic={setIsAutomatic}
-        creatorId={creatorId}
-        setCreatorId={setCreatorId}
-        isActive={isActive}
-        setIsActive={setIsActive}
-        onReset={handleResetFilters}
+        model={carFilters.model}
+        setModel={(val) => setCarFilter('model', val)}
+        englishTitle={carFilters.englishTitle}
+        setEnglishTitle={(val) => setCarFilter('englishTitle', val)}
+        carManufacturerId={carFilters.carManufacturerId}
+        setCarManufacturerId={(val) => setCarFilter('carManufacturerId', val)}
+        carTypeId={carFilters.carTypeId}
+        setCarTypeId={(val) => setCarFilter('carTypeId', val)}
+        vehicleType={carFilters.vehicleType}
+        setVehicleType={(val) => setCarFilter('vehicleType', val)}
+        isAutomatic={carFilters.isAutomatic}
+        setIsAutomatic={(val) => setCarFilter('isAutomatic', val)}
+        creatorId={carFilters.creatorId}
+        setCreatorId={(val) => setCarFilter('creatorId', val)}
+        isActive={carFilters.isActive}
+        setIsActive={(val) => setCarFilter('isActive', val)}
+        onReset={resetCarFilters}
       />
 
       {/* جدول خودروها */}
@@ -114,12 +98,12 @@ export default function CarsPage() {
         onDelete={(id) => setDeleteId(id)}
       />
 
-      {/* صفحه‌بندی وسط‌چین */}
+      {/* صفحه‌بندی متصل به استور ماندگار */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
           totalPages={data.totalPages}
-          onPageChange={(newPage) => setPage(newPage)}
+          onPageChange={(newPage) => setCarFilter('page', newPage)}
         />
       )}
 

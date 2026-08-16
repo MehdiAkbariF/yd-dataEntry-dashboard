@@ -48,3 +48,65 @@ export const useDeleteCar = () => {
     },
   });
 };
+
+// خودروسازان (CarManufacturer)
+export const useCreateCarManufacturer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => carService.createCarManufacturer(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['car-manufacturers'] });
+    },
+  });
+};
+
+export const useUpdateCarManufacturer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => carService.updateCarManufacturer(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['car-manufacturers'] });
+    },
+  });
+};
+
+export const useDeleteCarManufacturer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => carService.deleteCarManufacturer(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['car-manufacturers'] });
+    },
+  });
+};
+
+// انواع خودرو (CarType)
+export const useCreateCarType = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => carService.createCarType(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['car-types'] });
+    },
+  });
+};
+
+export const useUpdateCarType = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => carService.updateCarType(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['car-types'] });
+    },
+  });
+};
+
+export const useDeleteCarType = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => carService.deleteCarType(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['car-types'] });
+    },
+  });
+};

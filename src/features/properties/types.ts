@@ -21,17 +21,6 @@ export interface PropertyListItem {
   partsCount?: number;
 }
 
-export interface PropertyFilterParams extends BaseFilterParams {
-  id?: string;
-  priority?: number;
-  type?: string;
-  name?: string;
-  isMain?: boolean;
-  isFilter?: boolean;
-  isSearch?: boolean;
-  parentId?: string;
-}
-
 export interface PropertyParentListItem {
   id: string;
   priority: number;
@@ -45,8 +34,36 @@ export interface PropertyParentListItem {
   updater?: any;
 }
 
+export interface PropertyMultiSelectListItem {
+  id: string;
+  propertyId: string;
+  value: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  createDate: string;
+  property: PropertyListItem | null;
+  creator?: any;
+}
+
+export interface PropertyFilterParams extends BaseFilterParams {
+  id?: string;
+  priority?: number;
+  type?: string;
+  name?: string;
+  isMain?: boolean;
+  isFilter?: boolean;
+  isSearch?: boolean;
+  parentId?: string;
+}
+
 export interface PropertyParentFilterParams extends BaseFilterParams {
   id?: string;
   priority?: number;
   name?: string;
+}
+
+export interface PropertyMultiSelectFilterParams extends BaseFilterParams {
+  id?: string;
+  propertyId?: string;
+  value?: string;
 }

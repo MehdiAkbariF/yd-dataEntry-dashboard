@@ -7,39 +7,30 @@ import PartTable from '@/features/parts/components/PartTable';
 import PartFilterBar from '@/features/parts/components/PartFilterBar';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, Cpu } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PartsPage() {
-  const [page, setPage] = useState(1);
-
-  // فیلترهای کامل
-  const [name, setName] = useState('');
-  const [englishTitle, setEnglishTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [partCategoryId, setPartCategoryId] = useState('');
-  const [creatorId, setCreatorId] = useState('');
-  const [updaterId, setUpdaterId] = useState('');
-  const [hasSeo, setHasSeo] = useState('');
-  const [hasDescription, setHasDescription] = useState('');
-  const [isActive, setIsActive] = useState('');
+  // ⚠️ استفاده از استور ماندگار فیلترهای قطعات
+  const { partFilters, setPartFilter, resetPartFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // فراخوانی API قطعات با تمام فیلترهای کامل
+  // فراخوانی API قطعات با فیلترهای پایدار
   const { data, isLoading } = useGetParts({
-    pageNumber: page,
+    pageNumber: partFilters.page,
     pageSize: 20,
-    name: name || undefined,
-    englishTitle: englishTitle || undefined,
-    description: description || undefined,
-    partCategoryId: partCategoryId || undefined,
-    creatorId: creatorId || undefined,
-    updaterId: updaterId || undefined,
-    hasSeo: hasSeo === '' ? undefined : hasSeo === 'true',
-    hasDescription: hasDescription === '' ? undefined : (hasDescription as any),
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    name: partFilters.name || undefined,
+    englishTitle: partFilters.englishTitle || undefined,
+    description: partFilters.description || undefined,
+    partCategoryId: partFilters.partCategoryId || undefined,
+    creatorId: partFilters.creatorId || undefined,
+    updaterId: partFilters.updaterId || undefined,
+    hasSeo: partFilters.hasSeo === '' ? undefined : partFilters.hasSeo === 'true',
+    hasDescription: partFilters.hasDescription === '' ? undefined : (partFilters.hasDescription as any),
+    isActive: partFilters.isActive === '' ? undefined : partFilters.isActive === 'true',
   });
 
   const toggleMutation = useTogglePartStatus();
@@ -66,19 +57,6 @@ export default function PartsPage() {
     });
   };
 
-  const handleResetFilters = () => {
-    setName('');
-    setEnglishTitle('');
-    setDescription('');
-    setPartCategoryId('');
-    setCreatorId('');
-    setUpdaterId('');
-    setHasSeo('');
-    setHasDescription('');
-    setIsActive('');
-    setPage(1);
-  };
-
   return (
     <div className="space-y-6">
       {/* هدر صفحه */}
@@ -102,27 +80,27 @@ export default function PartsPage() {
         </Link>
       </div>
 
-      {/* نوار فیلتر جامع */}
+      {/* نوار فیلتر متصل به استور ماندگار */}
       <PartFilterBar
-        name={name}
-        setName={setName}
-        englishTitle={englishTitle}
-        setEnglishTitle={setEnglishTitle}
-        description={description}
-        setDescription={setDescription}
-        partCategoryId={partCategoryId}
-        setPartCategoryId={setPartCategoryId}
-        creatorId={creatorId}
-        setCreatorId={setCreatorId}
-        updaterId={updaterId}
-        setUpdaterId={setUpdaterId}
-        hasSeo={hasSeo}
-        setHasSeo={setHasSeo}
-        hasDescription={hasDescription}
-        setHasDescription={setHasDescription}
-        isActive={isActive}
-        setIsActive={setIsActive}
-        onReset={handleResetFilters}
+        name={partFilters.name}
+        setName={(val) => setPartFilter('name', val)}
+        englishTitle={partFilters.englishTitle}
+        setEnglishTitle={(val) => setPartFilter('englishTitle', val)}
+        description={partFilters.description}
+        setDescription={(val) => setPartFilter('description', val)}
+        partCategoryId={partFilters.partCategoryId}
+        setPartCategoryId={(val) => setPartFilter('partCategoryId', val)}
+        creatorId={partFilters.creatorId}
+        setCreatorId={(val) => setPartFilter('creatorId', val)}
+        updaterId={partFilters.updaterId}
+        setUpdaterId={(val) => setPartFilter('updaterId', val)}
+        hasSeo={partFilters.hasSeo}
+        setHasSeo={(val) => setPartFilter('hasSeo', val)}
+        hasDescription={partFilters.hasDescription}
+        setHasDescription={(val) => setPartFilter('hasDescription', val)}
+        isActive={partFilters.isActive}
+        setIsActive={(val) => setPartFilter('isActive', val)}
+        onReset={resetPartFilters}
       />
 
       {/* جدول قطعات */}
@@ -134,12 +112,12 @@ export default function PartsPage() {
         isTogglingId={togglingId}
       />
 
-      {/* صفحه‌بندی */}
+      {/* صفحه‌بندی متصل به استور ماندگار */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
           totalPages={data.totalPages}
-          onPageChange={(newPage) => setPage(newPage)}
+          onPageChange={(newPage) => setPartFilter('page', newPage)}
         />
       )}
 

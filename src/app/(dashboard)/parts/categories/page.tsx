@@ -7,34 +7,27 @@ import PartCategoryTable from '@/features/part-categories/components/PartCategor
 import PartCategoryFilterBar from '@/features/part-categories/components/PartCategoryFilterBar';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PartCategoriesPage() {
-  const [page, setPage] = useState(1);
-
-  // فیلترهای کامل
-  const [name, setName] = useState('');
-  const [englishTitle, setEnglishTitle] = useState('');
-  const [parent, setParent] = useState('');
-  const [thumbnailAlt, setThumbnailAlt] = useState('');
-  const [creatorId, setCreatorId] = useState('');
-  const [updaterId, setUpdaterId] = useState('');
-  const [isActive, setIsActive] = useState('');
+  // ⚠️ استفاده از استور ماندگار فیلترهای دسته‌بندی قطعات
+  const { partCategoryFilters, setPartCategoryFilter, resetPartCategoryFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // فراخوانی API با تمام فیلترهای کامل
+  // فراخوانی API با فیلترهای پایدار
   const { data, isLoading } = useGetPartCategories({
-    pageNumber: page,
+    pageNumber: partCategoryFilters.page,
     pageSize: 20,
-    name: name || undefined,
-    englishTitle: englishTitle || undefined,
-    parent: parent || undefined,
-    thumbnailAlt: thumbnailAlt || undefined,
-    creatorId: creatorId || undefined,
-    updaterId: updaterId || undefined,
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    name: partCategoryFilters.name || undefined,
+    englishTitle: partCategoryFilters.englishTitle || undefined,
+    parent: partCategoryFilters.parent || undefined,
+    thumbnailAlt: partCategoryFilters.thumbnailAlt || undefined,
+    creatorId: partCategoryFilters.creatorId || undefined,
+    updaterId: partCategoryFilters.updaterId || undefined,
+    isActive: partCategoryFilters.isActive === '' ? undefined : partCategoryFilters.isActive === 'true',
   });
 
   const deleteMutation = useDeletePartCategory();
@@ -47,17 +40,6 @@ export default function PartCategoriesPage() {
         setDeleteId(null);
       },
     });
-  };
-
-  const handleResetFilters = () => {
-    setName('');
-    setEnglishTitle('');
-    setParent('');
-    setThumbnailAlt('');
-    setCreatorId('');
-    setUpdaterId('');
-    setIsActive('');
-    setPage(1);
   };
 
   return (
@@ -82,38 +64,42 @@ export default function PartCategoriesPage() {
         </Link>
       </div>
 
+      {/* نوار فیلتر متصل به استور ماندگار */}
       <PartCategoryFilterBar
-        name={name}
-        setName={setName}
-        englishTitle={englishTitle}
-        setEnglishTitle={setEnglishTitle}
-        parent={parent}
-        setParent={setParent}
-        thumbnailAlt={thumbnailAlt}
-        setThumbnailAlt={setThumbnailAlt}
-        creatorId={creatorId}
-        setCreatorId={setCreatorId}
-        updaterId={updaterId}
-        setUpdaterId={setUpdaterId}
-        isActive={isActive}
-        setIsActive={setIsActive}
-        onReset={handleResetFilters}
+        name={partCategoryFilters.name}
+        setName={(val) => setPartCategoryFilter('name', val)}
+        englishTitle={partCategoryFilters.englishTitle}
+        setEnglishTitle={(val) => setPartCategoryFilter('englishTitle', val)}
+        parent={partCategoryFilters.parent}
+        setParent={(val) => setPartCategoryFilter('parent', val)}
+        thumbnailAlt={partCategoryFilters.thumbnailAlt}
+        setThumbnailAlt={(val) => setPartCategoryFilter('thumbnailAlt', val)}
+        creatorId={partCategoryFilters.creatorId}
+        setCreatorId={(val) => setPartCategoryFilter('creatorId', val)}
+        updaterId={partCategoryFilters.updaterId}
+        setUpdaterId={(val) => setPartCategoryFilter('updaterId', val)}
+        isActive={partCategoryFilters.isActive}
+        setIsActive={(val) => setPartCategoryFilter('isActive', val)}
+        onReset={resetPartCategoryFilters}
       />
 
+      {/* جدول دسته‌بندی‌ها */}
       <PartCategoryTable
         categories={data?.items || []}
         isLoading={isLoading}
         onDelete={(id) => setDeleteId(id)}
       />
 
+      {/* صفحه‌بندی متصل به استور ماندگار */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
           totalPages={data.totalPages}
-          onPageChange={(newPage) => setPage(newPage)}
+          onPageChange={(newPage) => setPartCategoryFilter('page', newPage)}
         />
       )}
 
+      {/* مودال حذف */}
       <ConfirmModal
         isOpen={!!deleteId}
         title="حذف دسته‌بندی"

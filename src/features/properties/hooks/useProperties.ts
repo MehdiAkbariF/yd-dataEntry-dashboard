@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { propertyService } from '@/services/propertyService';
-import { PropertyFilterParams, PropertyParentFilterParams } from '../types';
+import { PropertyFilterParams, PropertyParentFilterParams, PropertyMultiSelectFilterParams } from '../types';
 
 export const useGetProperties = (params: PropertyFilterParams) => {
   return useQuery({
@@ -13,9 +13,7 @@ export const useCreateProperty = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => propertyService.createProperty(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['properties'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
   });
 };
 
@@ -23,9 +21,7 @@ export const useUpdateProperty = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (formData: FormData) => propertyService.updateProperty(formData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['properties'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
   });
 };
 
@@ -33,13 +29,10 @@ export const useDeleteProperty = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => propertyService.deleteProperty(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['properties'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['properties'] }),
   });
 };
 
-// گروه‌های اصلی PropertyParent
 export const useGetPropertyParents = (params: PropertyParentFilterParams) => {
   return useQuery({
     queryKey: ['property-parents', params],
@@ -73,8 +66,38 @@ export const useDeletePropertyParent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => propertyService.deletePropertyParent(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['property-parents'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['property-parents'] }),
+  });
+};
+
+// --- Property Multi Select Hooks ---
+export const useGetPropertyMultiSelects = (params: PropertyMultiSelectFilterParams) => {
+  return useQuery({
+    queryKey: ['property-multi-selects', params],
+    queryFn: () => propertyService.getPropertyMultiSelects(params),
+  });
+};
+
+export const useCreatePropertyMultiSelect = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => propertyService.createPropertyMultiSelect(formData),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['property-multi-selects'] }),
+  });
+};
+
+export const useUpdatePropertyMultiSelect = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => propertyService.updatePropertyMultiSelect(formData),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['property-multi-selects'] }),
+  });
+};
+
+export const useDeletePropertyMultiSelect = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => propertyService.deletePropertyMultiSelect(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['property-multi-selects'] }),
   });
 };

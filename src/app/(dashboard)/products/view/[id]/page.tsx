@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import {
   ArrowRight, Edit, Trash2, Package, Car, Tag, Sparkles,
-  Calendar, User, Image as ImageIcon, Loader2
+  Calendar, User, Image as ImageIcon, Loader2, X
 } from 'lucide-react';
 
 export default function ViewProductPage() {
@@ -21,6 +21,7 @@ export default function ViewProductPage() {
   const productId = params?.id as string;
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
 
   const { data: product, isLoading, isError } = useGetProductById(productId);
   const deleteMutation = useDeleteProduct();
@@ -92,7 +93,6 @@ export default function ViewProductPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* ⚠️ تاگل آنی وضعیت فعال در صفحه View */}
           <div className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-1.5">
             <Switch
               checked={product.isActive}
@@ -119,7 +119,7 @@ export default function ViewProductPage() {
         </div>
       </div>
 
-      {/* کارت اصلی اطلاعات + تصویر */}
+      {/* کارت اصلی اطلاعات + تصویر و گالری کاملاً پویا */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-4">
           <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 flex items-center justify-center p-4">
@@ -128,7 +128,8 @@ export default function ViewProductPage() {
                 src={mainImageUrl}
                 alt={product.imageAlt || product.title}
                 fill
-                className="object-contain p-2"
+                className="object-contain p-2 cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => setSelectedPreviewImage(mainImageUrl)}
                 unoptimized
               />
             ) : (
@@ -136,16 +137,30 @@ export default function ViewProductPage() {
             )}
           </div>
 
+          {/* ⚠️ گالری عکس‌ها (۸ عکس کامل موجود در پاسخ سرور) */}
           {product.productImages && product.productImages.length > 0 && (
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-2">
-              <span className="text-xs font-bold text-amber-500">گالری تصاویر ({product.productImages.length})</span>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold text-amber-500">
+                <span>گالری تصاویر</span>
+                <span className="font-mono text-neutral-400">({product.productImages.length} عکس)</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
                 {product.productImages.map((imgItem: any) => {
                   const url = getImageUrl(imgItem?.image);
                   if (!url) return null;
                   return (
-                    <div key={imgItem.id} className="relative h-16 w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
-                      <Image src={url} alt={imgItem.imageAlt || 'گالری'} fill className="object-cover" unoptimized />
+                    <div
+                      key={imgItem.id}
+                      onClick={() => setSelectedPreviewImage(url)}
+                      className="relative h-16 w-full cursor-pointer overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 hover:border-amber-500 transition-all group"
+                    >
+                      <Image
+                        src={url}
+                        alt={imgItem.imageAlt || 'عکس گالری'}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform"
+                        unoptimized
+                      />
                     </div>
                   );
                 })}
@@ -253,7 +268,7 @@ export default function ViewProductPage() {
             <span>نقد و بررسی و توضیحات کامل</span>
           </div>
           <div
-            className="prose prose-invert max-w-none text-xs leading-relaxed text-neutral-200 p-2 rounded-xl bg-neutral-950/60 border border-neutral-800"
+            className="prose prose-invert max-w-none text-xs leading-relaxed text-neutral-200 p-3 rounded-xl bg-neutral-950/60 border border-neutral-800"
             dangerouslySetInnerHTML={{ __html: product.description }}
           />
         </div>
@@ -291,6 +306,21 @@ export default function ViewProductPage() {
           )}
         </div>
       </div>
+
+      {/* ⚠️ مودال نمایش بزرگنمایی عکس گالری با کلیک */}
+      {selectedPreviewImage && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <button
+            onClick={() => setSelectedPreviewImage(null)}
+            className="absolute top-4 right-4 rounded-full bg-neutral-900 p-2 text-white hover:bg-neutral-800"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="relative h-[80vh] w-full max-w-4xl">
+            <Image src={selectedPreviewImage} alt="بزرگنمایی" fill className="object-contain" unoptimized />
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={showDeleteModal}

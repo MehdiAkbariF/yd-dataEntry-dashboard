@@ -10,6 +10,7 @@ import ConfirmModal from '@/components/common/ConfirmModal';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ArrowRight, Edit, Trash2, Award, Calendar, User, Loader2 } from 'lucide-react';
+import { getMediaUrl } from '@/lib/config';
 
 export default function ViewBrandPage() {
   const params = useParams();
@@ -57,7 +58,7 @@ export default function ViewBrandPage() {
     );
   }
 
-  const imageUrl = getImageUrl(brand.image);
+  const imageUrl = getMediaUrl(brand.image);
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12">

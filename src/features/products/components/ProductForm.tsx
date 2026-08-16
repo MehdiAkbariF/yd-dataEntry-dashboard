@@ -31,8 +31,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const [title, setTitle] = useState(initialData?.title || '');
   const [englishTitle, setEnglishTitle] = useState(initialData?.englishTitle || '');
   const [partNumber, setPartNumber] = useState(initialData?.partNumber || '');
-  const [isActive, setIsActive] = useState(initialData?.isActive ?? true); // ⚠️ وضعیت فعال بودن
-  
+  const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
+
   const [brandId, setBrandId] = useState(initialData?.brandId || initialData?.brand?.id || '');
   const [brandName, setBrandName] = useState(initialData?.brand?.name || '');
 
@@ -88,6 +88,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // لود اولیه داده‌ها در حالت Edit (تبدیل کامل productImages سرور به galleryItems)
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || '');
@@ -116,6 +117,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       if (initialData.relatedProducts) {
         setRelatedProductIds(initialData.relatedProducts.map((r: any) => r.id));
         setInitialRelatedOptions(initialData.relatedProducts.map((r: any) => ({ value: r.id, label: r.title })));
+      }
+
+      // ⚠️ مپ کردن گالری تصاویر سرور به گالری فرم
+      if (initialData.productImages && Array.isArray(initialData.productImages)) {
+        const mappedGallery: GalleryFileItem[] = initialData.productImages.map((img: any) => ({
+          id: img.id,
+          file: null,
+          alt: img.imageAlt || '',
+          preview: img.image?.startsWith('http') ? img.image : `https://api.yadakchi.com${img.image}`,
+        }));
+        setGalleryItems(mappedGallery);
       }
 
       setHeight(initialData.height ? String(initialData.height) : '0');
@@ -186,6 +198,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     return Object.keys(errs).length === 0;
   };
 
+  const handleDeleteServerImage = async (imageId: string) => {
+    try {
+      await productService.deleteProductImage(imageId);
+      toast.success('تصویر گالری حذف گردید.');
+    } catch (e) {
+      console.error('Delete image error:', e);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -220,10 +241,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     tagIds.forEach((id) => formData.append('TagIds', id));
 
-    if (seoId) formData.append('SEOInformation.Id', seoId);
-    formData.append('SEOInformation.Title', seoTitle || title);
-    formData.append('SEOInformation.Description', seoDescription || title);
-    formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-'));
+    if (isEditMode && seoId) formData.append('SEOInformation.Id', seoId);
+    if (seoTitle.trim() || seoDescription.trim() || seoCanonicalUrl.trim()) {
+      formData.append('SEOInformation.Title', seoTitle || title);
+      formData.append('SEOInformation.Description', seoDescription || title);
+      formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-'));
+    }
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -232,14 +255,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         const productId = initialData?.id || resProduct?.id || resProduct;
 
         try {
-          // در صورت تغییر وضعیت فعال بودن در ویرایش
           if (isEditMode && productId) {
             await productService.toggleActiveStatus(productId, isActive);
           }
 
-          if (galleryItems.length > 0 && productId) {
-            const files = galleryItems.map((item) => item.file);
-            const alts = galleryItems.map((item) => item.alt || title);
+          // ⚠️ آپلود فقط تصاویر جدید اضافه شده به گالری
+          const newGalleryFiles = galleryItems.filter((item) => item.file !== null);
+          if (newGalleryFiles.length > 0 && productId) {
+            const files = newGalleryFiles.map((item) => item.file as File);
+            const alts = newGalleryFiles.map((item) => item.alt || title);
             await productService.uploadProductImages(productId, files, alts);
           }
 
@@ -247,7 +271,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             await productService.setProductRelations(productId, relatedProductIds);
           }
         } catch (e) {
-          console.error('Gallery, relation or status update error:', e);
+          console.error('Gallery or relation error:', e);
         }
 
         toast.success(isEditMode ? 'محصول با موفقیت به‌روزرسانی شد!' : 'محصول با موفقیت ثبت شد!');
@@ -278,7 +302,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           </div>
         </div>
 
-        {/* ⚠️ تاگل تغییر وضعیت در بالای فرم */}
         <div className="flex items-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/80 px-4 py-2">
           <Switch
             checked={isActive}
@@ -411,8 +434,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           />
         </div>
 
+        {/* گالری تصاویر محصول (سرور + جدید) */}
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6">
-          <ProductGalleryUploader items={galleryItems} onChange={setGalleryItems} />
+          <ProductGalleryUploader
+            items={galleryItems}
+            onChange={setGalleryItems}
+            onDeleteServerImage={handleDeleteServerImage}
+          />
         </div>
       </div>
 

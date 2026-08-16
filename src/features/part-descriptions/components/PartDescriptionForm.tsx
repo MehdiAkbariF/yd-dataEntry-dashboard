@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
@@ -20,7 +20,7 @@ interface PartDescriptionFormProps {
   isEditMode?: boolean;
 }
 
-export default function PartDescriptionForm({ initialData, isEditMode = false }: PartDescriptionFormProps) {
+function PartDescriptionFormContent({ initialData, isEditMode = false }: PartDescriptionFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const descType = (searchParams.get('type') as 'car' | 'carType') || 'car';
@@ -44,7 +44,8 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
   const [description, setDescription] = useState(initialData?.description || '');
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
 
-  // ⚠️ سئو SEO
+  // سئو SEO
+  const [seoId, setSeoId] = useState(initialData?.seoInformation?.id || '');
   const [seoTitle, setSeoTitle] = useState(initialData?.seoInformation?.title || '');
   const [seoDescription, setSeoDescription] = useState(initialData?.seoInformation?.description || '');
   const [seoCanonicalUrl, setSeoCanonicalUrl] = useState(initialData?.seoInformation?.canonicalUrl || '');
@@ -69,6 +70,7 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
       setIsActive(initialData.isActive ?? true);
 
       if (initialData.seoInformation) {
+        setSeoId(initialData.seoInformation.id || '');
         setSeoTitle(initialData.seoInformation.title || '');
         setSeoDescription(initialData.seoInformation.description || '');
         setSeoCanonicalUrl(initialData.seoInformation.canonicalUrl || '');
@@ -91,7 +93,6 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
     return list.map((t: any) => ({ value: t.id, label: t.name }));
   };
 
-  // کلید میانبر Ctrl + S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -136,9 +137,17 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
       formData.append('CarTypeId', carTypeId);
     }
 
-    formData.append('SEOInformation.Title', seoTitle || partName);
-    formData.append('SEOInformation.Description', seoDescription || partName);
-    formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || partName.toLowerCase().replace(/\s+/g, '-'));
+    const hasSeoInput = seoTitle.trim() || seoDescription.trim() || seoCanonicalUrl.trim();
+
+    if (isEditMode && seoId) {
+      formData.append('SEOInformation.Id', seoId);
+    }
+
+    if (hasSeoInput) {
+      if (seoTitle.trim()) formData.append('SEOInformation.Title', seoTitle.trim());
+      if (seoDescription.trim()) formData.append('SEOInformation.Description', seoDescription.trim());
+      if (seoCanonicalUrl.trim()) formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl.trim());
+    }
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -154,7 +163,6 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-6xl mx-auto pb-24">
-      {/* هدر صفحه */}
       <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
         <div className="flex items-center gap-3">
           <Link
@@ -176,7 +184,6 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
         </div>
       </div>
 
-      {/* ۱. انتخاب قطعه و خودروها */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
           <FileText className="h-4 w-4" />
@@ -224,7 +231,6 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
         </div>
       </div>
 
-      {/* ۲. توضیحات کامل با ادیتور */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-3">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
           <Sparkles className="h-4 w-4" />
@@ -234,10 +240,9 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
         {errors.description && <p className="text-[11px] text-red-400">{errors.description}</p>}
       </div>
 
-      {/* ⚠️ ۳. تنظیمات متاتگ‌های سئو (SEO Information) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
-          <h3 className="text-sm font-bold text-amber-500">تنظیمات سئو (SEO Information)</h3>
+          <h3 className="text-sm font-bold text-amber-500">تنظیمات سئو (اختیاری)</h3>
           <Input
             label="عنوان سئو (Meta Title)"
             placeholder="عنوان جهت نمایش در گوگل..."
@@ -259,7 +264,6 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
           />
         </div>
 
-        {/* پیش‌نمایش زنده سئو */}
         <SEOPreview
           title={seoTitle || partName}
           description={seoDescription}
@@ -267,7 +271,6 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
         />
       </div>
 
-      {/* نوار چسبان پایین */}
       <div className="sticky bottom-4 z-40 flex items-center justify-between rounded-2xl border border-neutral-800 bg-neutral-900/95 p-4 shadow-2xl backdrop-blur-xl">
         <button
           type="button"
@@ -297,5 +300,13 @@ export default function PartDescriptionForm({ initialData, isEditMode = false }:
         </button>
       </div>
     </form>
+  );
+}
+
+export default function PartDescriptionForm(props: PartDescriptionFormProps) {
+  return (
+    <Suspense fallback={null}>
+      <PartDescriptionFormContent {...props} />
+    </Suspense>
   );
 }

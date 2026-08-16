@@ -65,7 +65,6 @@ export default function ProductFilterBar({
   };
 
   return (
-    // ⚠️ اضافه شدن relative z-30 برای رو قرار گرفتن دراپ‌داون‌ها روی جدول
     <div className="relative z-30 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 backdrop-blur-xl space-y-4">
       <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-xs">
@@ -110,7 +109,7 @@ export default function ProductFilterBar({
         />
 
         <AsyncSelect
-          label="نوع قطعه (Part)"
+          label="نوع قطعه پایه (Part)"
           placeholder="انتخاب قطعه پایه..."
           value={partId}
           onChange={setPartId}

@@ -7,32 +7,27 @@ import BrandTable from '@/features/brands/components/BrandTable';
 import BrandFilterBar from '@/features/brands/components/BrandFilterBar';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { useFilterStore } from '@/store/useFilterStore';
 import { Plus, Award } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function BrandsPage() {
-  const [page, setPage] = useState(1);
-
-  // فیلترها
-  const [name, setName] = useState('');
-  const [englishTitle, setEnglishTitle] = useState('');
-  const [creatorId, setCreatorId] = useState('');
-  const [isInMain, setIsInMain] = useState('');
-  const [isConfirmed, setIsConfirmed] = useState('');
-  const [isActive, setIsActive] = useState('');
+  // ⚠️ استفاده از استور ماندگار فیلترهای برند
+  const { brandFilters, setBrandFilter, resetBrandFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
+  // فراخوانی API برندها با فیلترهای پایدار
   const { data, isLoading } = useGetBrands({
-    pageNumber: page,
+    pageNumber: brandFilters.page,
     pageSize: 20,
-    name: name || undefined,
-    englishTitle: englishTitle || undefined,
-    creatorId: creatorId || undefined,
-    isInMain: isInMain === '' ? undefined : isInMain === 'true',
-    isConfirmed: isConfirmed === '' ? undefined : isConfirmed === 'true',
-    isActive: isActive === '' ? undefined : isActive === 'true',
+    name: brandFilters.name || undefined,
+    englishTitle: brandFilters.englishTitle || undefined,
+    creatorId: brandFilters.creatorId || undefined,
+    isInMain: brandFilters.isInMain === '' ? undefined : brandFilters.isInMain === 'true',
+    isConfirmed: brandFilters.isConfirmed === '' ? undefined : brandFilters.isConfirmed === 'true',
+    isActive: brandFilters.isActive === '' ? undefined : brandFilters.isActive === 'true',
   });
 
   const confirmMutation = useConfirmBrand();
@@ -59,18 +54,9 @@ export default function BrandsPage() {
     });
   };
 
-  const handleResetFilters = () => {
-    setName('');
-    setEnglishTitle('');
-    setCreatorId('');
-    setIsInMain('');
-    setIsConfirmed('');
-    setIsActive('');
-    setPage(1);
-  };
-
   return (
     <div className="space-y-6">
+      {/* هدر صفحه */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
@@ -91,22 +77,24 @@ export default function BrandsPage() {
         </Link>
       </div>
 
+      {/* نوار فیلتر متصل به استور ماندگار */}
       <BrandFilterBar
-        name={name}
-        setName={setName}
-        englishTitle={englishTitle}
-        setEnglishTitle={setEnglishTitle}
-        creatorId={creatorId}
-        setCreatorId={setCreatorId}
-        isInMain={isInMain}
-        setIsInMain={setIsInMain}
-        isConfirmed={isConfirmed}
-        setIsConfirmed={setIsConfirmed}
-        isActive={isActive}
-        setIsActive={setIsActive}
-        onReset={handleResetFilters}
+        name={brandFilters.name}
+        setName={(val) => setBrandFilter('name', val)}
+        englishTitle={brandFilters.englishTitle}
+        setEnglishTitle={(val) => setBrandFilter('englishTitle', val)}
+        creatorId={brandFilters.creatorId}
+        setCreatorId={(val) => setBrandFilter('creatorId', val)}
+        isInMain={brandFilters.isInMain}
+        setIsInMain={(val) => setBrandFilter('isInMain', val)}
+        isConfirmed={brandFilters.isConfirmed}
+        setIsConfirmed={(val) => setBrandFilter('isConfirmed', val)}
+        isActive={brandFilters.isActive}
+        setIsActive={(val) => setBrandFilter('isActive', val)}
+        onReset={resetBrandFilters}
       />
 
+      {/* جدول نمایش برندها */}
       <BrandTable
         brands={data?.items || []}
         isLoading={isLoading}
@@ -115,14 +103,16 @@ export default function BrandsPage() {
         confirmingId={confirmingId}
       />
 
+      {/* صفحه‌بندی متصل به استور ماندگار */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
           totalPages={data.totalPages}
-          onPageChange={(newPage) => setPage(newPage)}
+          onPageChange={(newPage) => setBrandFilter('page', newPage)}
         />
       )}
 
+      {/* مودال حذف */}
       <ConfirmModal
         isOpen={!!deleteId}
         title="حذف برند"

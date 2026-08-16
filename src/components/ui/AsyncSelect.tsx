@@ -12,7 +12,7 @@ interface AsyncSelectProps {
   label?: string;
   placeholder?: string;
   value?: string;
-  initialLabel?: string; // ⚠️ برای پیش‌فرض حالت ویرایش
+  initialLabel?: string;
   onChange: (value: string) => void;
   fetchOptions: (searchQuery: string) => Promise<AsyncSelectOption[]>;
 }
@@ -33,12 +33,21 @@ export function AsyncSelect({
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ست کردن عنوان اولیه در حالت ویرایش
+  // ⚠️ رزولو خودکار عنوان فارسی آیدی ذخیره‌شده در استور
   useEffect(() => {
     if (initialLabel) {
       setSelectedLabel(initialLabel);
+    } else if (value && !selectedLabel) {
+      fetchOptions('').then((opts) => {
+        const found = opts.find((o) => o.value === value);
+        if (found) {
+          setSelectedLabel(found.label);
+        }
+      });
+    } else if (!value) {
+      setSelectedLabel('');
     }
-  }, [initialLabel]);
+  }, [value, initialLabel, fetchOptions]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

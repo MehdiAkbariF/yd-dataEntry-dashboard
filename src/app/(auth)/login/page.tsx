@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,6 @@ import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Smartphone, KeyRound, AlertCircle, Loader2, ShieldCheck, ArrowRight, RotateCcw } from 'lucide-react';
 
-// اسکیما مرحله ۱: شماره موبایل
 const phoneSchema = z.object({
   phoneNumber: z
     .string()
@@ -18,7 +17,6 @@ const phoneSchema = z.object({
     .regex(/^09\d{9}$/, 'فرمت شماره موبایل معتبر نیست (مثلاً 09123456789)'),
 });
 
-// اسکیما مرحله ۲: کد تایید
 const codeSchema = z.object({
   code: z.string().min(4, 'کد ورود را وارد کنید'),
 });
@@ -26,31 +24,26 @@ const codeSchema = z.object({
 type PhoneFormValues = z.infer<typeof phoneSchema>;
 type CodeFormValues = z.infer<typeof codeSchema>;
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isExpired = searchParams.get('expired') === 'true';
 
   const [step, setStep] = useState<1 | 2>(1);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [timer, setTimer] = useState(120); // تایمر ۲ دقیقه‌ای
+  const [timer, setTimer] = useState(120);
   const [canResend, setCanResend] = useState(false);
 
-  const { setAuthenticated } = useAuthStore();
+  const { setUser, setAuthenticated } = useAuthStore();
 
-  // فرم مرحله اول
   const phoneForm = useForm<PhoneFormValues>({
     resolver: zodResolver(phoneSchema),
   });
 
-  // فرم مرحله دوم
   const codeForm = useForm<CodeFormValues>({
     resolver: zodResolver(codeSchema),
   });
 
-  // مدیریت تایمر معکوس
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (step === 2 && timer > 0) {
@@ -63,7 +56,6 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, [step, timer]);
 
-  // ارسال شماره موبایل (Step 1)
   const onSendPhone = async (data: PhoneFormValues) => {
     setIsSubmitting(true);
     setServerError(null);
@@ -81,18 +73,27 @@ export default function LoginPage() {
     }
   };
 
-  // ارسال کد ورود (Step 2)
   const onConfirmCode = async (data: CodeFormValues) => {
     setIsSubmitting(true);
     setServerError(null);
 
     try {
-      await authService.confirmOtp({
+      const res = await authService.confirmOtp({
         phoneNumber,
         code: data.code,
       });
+
+      const loggedInUser = {
+        id: res?.id || res?.userId || res?.user?.id || '',
+        userName: phoneNumber,
+        fullName: res?.fullName || res?.user?.fullName || null,
+        phoneNumber: phoneNumber,
+        email: res?.email || res?.user?.email || null,
+      };
+
+      setUser(loggedInUser);
       setAuthenticated(true);
-      router.push('/'); // ورود به پنل
+      router.push('/');
     } catch (err: any) {
       setServerError(err.response?.data?.message || 'کد وارد شده اشتباه یا منقضی شده است.');
     } finally {
@@ -100,7 +101,6 @@ export default function LoginPage() {
     }
   };
 
-  // ارسال مجدد کد
   const handleResendCode = async () => {
     if (!canResend) return;
     setIsSubmitting(true);
@@ -129,13 +129,6 @@ export default function LoginPage() {
           <p className="mt-1 text-xs text-neutral-400">ورود اعضای تیم تولید محتوا و دیتا اینتری</p>
         </div>
 
-        {isExpired && (
-          <div className="mt-6 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-400">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>نشست کاری شما منقضی شده است. لطفاً مجدداً وارد شوید.</span>
-          </div>
-        )}
-
         {serverError && (
           <div className="mt-6 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400">
             <AlertCircle className="h-4 w-4 shrink-0" />
@@ -143,7 +136,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* مرحله ۱: دریافت شماره موبایل */}
         {step === 1 && (
           <form onSubmit={phoneForm.handleSubmit(onSendPhone)} className="mt-6 space-y-4">
             <div>
@@ -180,7 +172,6 @@ export default function LoginPage() {
           </form>
         )}
 
-        {/* مرحله ۲: تایید کد ورود (OTP) */}
         {step === 2 && (
           <form onSubmit={codeForm.handleSubmit(onConfirmCode)} className="mt-6 space-y-4">
             <div className="flex items-center justify-between rounded-xl bg-neutral-950/60 p-3 border border-neutral-800 text-xs">
@@ -213,7 +204,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* تایمر معکوس / ارسال مجدد */}
             <div className="flex items-center justify-center text-xs text-neutral-400">
               {canResend ? (
                 <button
@@ -249,5 +239,13 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

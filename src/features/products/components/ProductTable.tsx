@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ProductListItem } from '../types';
 import Badge from '@/components/ui/Badge';
 import { Edit, Trash2, Eye, Loader2, Image as ImageIcon } from 'lucide-react';
+import { getMediaUrl } from '@/lib/config';
 
 interface ProductTableProps {
   products: ProductListItem[];
@@ -21,12 +22,6 @@ export default function ProductTable({
   onDelete,
   isTogglingId,
 }: ProductTableProps) {
-  const getImageUrl = (path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `https://api.yadakchi.com${path}`;
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900/40">
@@ -61,10 +56,12 @@ export default function ProductTable({
         </thead>
         <tbody className="divide-y divide-neutral-800/60">
           {products.map((product) => {
-            const imageUrl = getImageUrl(product.image);
+            // ⚠️ استفاده از تابع مرکزی برای ساختن URL کامل تصویر
+            const imageUrl = getMediaUrl(product.image);
 
             return (
               <tr key={product.id} className="hover:bg-neutral-800/30 transition-all">
+                {/* تصویر */}
                 <td className="p-4">
                   <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 flex items-center justify-center">
                     {imageUrl ? (
@@ -81,6 +78,7 @@ export default function ProductTable({
                   </div>
                 </td>
 
+                {/* عنوان */}
                 <td className="p-4 max-w-xs">
                   <div className="flex flex-col gap-1">
                     <span className="font-bold text-white leading-relaxed line-clamp-1">{product.title}</span>
@@ -95,14 +93,17 @@ export default function ProductTable({
                   </div>
                 </td>
 
+                {/* ایجادکننده */}
                 <td className="p-4 text-neutral-300">
                   <span>{product.creator || 'سیستم'}</span>
                 </td>
 
+                {/* تاریخ */}
                 <td className="p-4 text-neutral-400 dir-ltr text-right font-mono text-[11px]">
                   {new Date(product.createDate).toLocaleDateString('fa-IR')}
                 </td>
 
+                {/* وضعیت */}
                 <td className="p-4 text-center">
                   <button
                     onClick={() => onToggleStatus(product.id, product.isActive)}
@@ -119,9 +120,10 @@ export default function ProductTable({
                   </button>
                 </td>
 
+                {/* عملیات */}
                 <td className="p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5">
-                    {/* دکمه جدید: مشاهده کامل جزئیات */}
+                    {/* مشاهده */}
                     <Link
                       href={`/products/view/${product.id}`}
                       className="rounded-lg border border-neutral-800 bg-neutral-950 p-2 text-neutral-400 hover:border-blue-500/30 hover:text-blue-400 transition-all"

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PartCategoryListItem } from '../types';
 import Badge from '@/components/ui/Badge';
 import { Edit, Trash2, Eye, Loader2, Layers as LayersIcon } from 'lucide-react';
+import { getMediaUrl } from '@/lib/config';
 
 interface PartCategoryTableProps {
   categories: PartCategoryListItem[];
@@ -57,7 +58,7 @@ export default function PartCategoryTable({
         </thead>
         <tbody className="divide-y divide-neutral-800/60">
           {categories.map((category) => {
-            const imageUrl = getImageUrl(category.thumbnail || category.icon);
+            const imageUrl = getMediaUrl(category.thumbnail || category.icon);
 
             return (
               <tr key={category.id} className="hover:bg-neutral-800/30 transition-all">
