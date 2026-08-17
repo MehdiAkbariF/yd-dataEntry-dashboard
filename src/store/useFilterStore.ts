@@ -10,6 +10,7 @@ interface ProductFilterState {
   updaterId: string;
   brandId: string;
   partId: string;
+  carId: string;
 }
 
 interface BrandFilterState {
@@ -148,6 +149,7 @@ const defaultProductFilters: ProductFilterState = {
   updaterId: '',
   brandId: '',
   partId: '',
+    carId: ''
 };
 
 const defaultBrandFilters: BrandFilterState = {

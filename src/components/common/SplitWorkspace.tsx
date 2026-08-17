@@ -21,7 +21,9 @@ import {
   MessageSquare,
   HelpCircle,
   Plus,
-  FileSpreadsheet
+  FileSpreadsheet,
+  LayoutDashboard,
+  Factory
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -30,20 +32,26 @@ interface SplitWorkspaceProps {
 }
 
 const INTERNAL_PAGES = [
+  { title: 'داشبورد اصلی', url: '/', category: 'اصلی', icon: LayoutDashboard },
   { title: 'لیست محصولات', url: '/products', category: 'محصولات', icon: Package },
   { title: 'ثبت محصول جدید', url: '/products/new', category: 'محصولات', icon: Plus },
   { title: 'لیست قطعات پایه (Part)', url: '/parts', category: 'قطعات', icon: Cpu },
   { title: 'تعریف قطعه پایه جدید', url: '/parts/new', category: 'قطعات', icon: Plus },
-  { title: 'ویژگی‌های قطعات (Properties)', url: '/properties', category: 'ویژگی‌ها', icon: Sliders },
-  { title: 'دسته‌بندی قطعات', url: '/parts/categories', category: 'دسته‌بندی', icon: Layers },
+  { title: 'مدیریت دسته‌بندی قطعات', url: '/parts/categories', category: 'دسته‌بندی', icon: Layers },
+  { title: 'تعریف دسته‌بندی جدید', url: '/parts/categories/new', category: 'دسته‌بندی', icon: Plus },
+  { title: 'مدیریت ویژگی‌های قطعات (Properties)', url: '/properties', category: 'ویژگی‌ها', icon: Sliders },
   { title: 'توضیحات تخصصی قطعه-خودرو', url: '/part-descriptions', category: 'توضیحات', icon: FileText },
-  { title: 'ثبت توضیحات قطعه-خودرو جدید', url: '/part-descriptions/new', category: 'توضیحات', icon: Plus },
-  { title: 'لیست خودروها', url: '/cars', category: 'خودروها', icon: Car },
-  { title: 'تعریف مدل خودرو جدید', url: '/cars/new', category: 'خودروها', icon: Plus },
-  { title: 'لیست برندها', url: '/brands', category: 'برندها', icon: Award },
-  { title: 'تعریف برند جدید', url: '/brands/new', category: 'برندها', icon: Plus },
+  { title: 'ثبت توضیحات تخصصی جدید', url: '/part-descriptions/new', category: 'توضیحات', icon: Plus },
+  { title: 'مدیریت مدل‌های خودرو (Cars)', url: '/cars', category: 'خودروها', icon: Car },
+  { title: 'تعریف خودرو جدید', url: '/cars/new', category: 'خودروها', icon: Plus },
+  { title: 'انواع خودرو (CarTypes)', url: '/cars/types', category: 'خودروها', icon: Layers },
+  { title: 'تعریف نوع خودرو جدید', url: '/cars/types/new', category: 'خودروها', icon: Plus },
+  { title: 'شرکت‌های خودروساز (CarManufacturers)', url: '/cars/manufacturers', category: 'خودروها', icon: Factory },
+  { title: 'تعریف خودروساز جدید', url: '/cars/manufacturers/new', category: 'خودروها', icon: Plus },
+  { title: 'مدیریت برندها (Brands)', url: '/brands', category: 'برندها', icon: Award },
+  { title: 'افزودن برند جدید', url: '/brands/new', category: 'برندها', icon: Plus },
   { title: 'مدیریت برچسب‌ها (Tags)', url: '/tags', category: 'تگ‌ها', icon: Tag },
-  { title: 'نظرات کاربران', url: '/comments', category: 'تعاملات', icon: MessageSquare },
+  { title: 'مدیریت نظرات کاربران', url: '/comments', category: 'تعاملات', icon: MessageSquare },
   { title: 'پرسش و پاسخ‌ها', url: '/inquiries', category: 'تعاملات', icon: HelpCircle },
 ];
 
@@ -59,24 +67,36 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
     setExternalUrl,
   } = useWorkspaceStore();
 
-  const [inputUrl, setInputUrl] = useState(
-    splitMode === 'internal' ? internalUrl : externalUrl
-  );
+  const [inputUrl, setInputUrl] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-
-  // ⚠️ استیت مربوط به فایل اکسل خوانده شده
   const [excelData, setExcelData] = useState<string | null>(null);
+  const [localFile, setLocalFile] = useState<{ type: 'excel' | 'other'; url: string; name: string } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // سینک کردن URL ها بر اساس مود انتخابی
   useEffect(() => {
-    setInputUrl(splitMode === 'internal' ? internalUrl : externalUrl);
-    // در صورتی که مود عوض شد یا URL جدید اومد و اکسل نبود، دیتای اکسل پاک بشه
-    if (!externalUrl.startsWith('excel:')) {
+    if (splitMode === 'internal') {
+      setInputUrl(internalUrl);
+      setLocalFile(null);
       setExcelData(null);
+    } else if (splitMode === 'external') {
+      // بررسی اینکه آیا آدرس external یک فایل محلی است یا خیر
+      if (externalUrl.startsWith('excel:')) {
+        const fileUrl = externalUrl.replace('excel:', '');
+        setLocalFile({ type: 'excel', url: fileUrl, name: 'فایل اکسل محلی' });
+        setInputUrl('فایل اکسل محلی سیستم');
+      } else if (externalUrl.startsWith('blob:')) {
+        setLocalFile({ type: 'other', url: externalUrl, name: 'فایل محلی' });
+        setInputUrl('فایل محلی سیستم');
+      } else {
+        setLocalFile(null);
+        setExcelData(null);
+        setInputUrl(externalUrl);
+      }
     }
   }, [splitMode, internalUrl, externalUrl]);
 
@@ -117,20 +137,17 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
     };
   }, [isDragging, setSplitRatio]);
 
-  // ⚠️ خوانش اختصاصی فایل اکسل و تبدیل آن به HTML
+  // خوانش فایل اکسل محلی
   useEffect(() => {
     const loadExcelFile = async () => {
-      if (externalUrl.startsWith('excel:')) {
+      if (localFile?.type === 'excel') {
         try {
-          const actualUrl = externalUrl.replace('excel:', '');
-          const response = await fetch(actualUrl);
+          const response = await fetch(localFile.url);
           const arrayBuffer = await response.arrayBuffer();
           const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
-          
-          // تبدیل به HTML Table برای رندر راحت‌تر
           const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'excel-table' });
           setExcelData(htmlString);
         } catch (error) {
@@ -141,13 +158,10 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
     };
 
     loadExcelFile();
-  }, [externalUrl]);
+  }, [localFile]);
 
   const formatExternalUrl = (url: string) => {
     let formatted = url.trim();
-    if (formatted.startsWith('blob:') || formatted.startsWith('excel:')) {
-      return formatted;
-    }
     if (!formatted.startsWith('http://') && !formatted.startsWith('https://')) {
       formatted = `https://${formatted}`;
     }
@@ -157,34 +171,41 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowDropdown(false);
+    
     if (splitMode === 'internal') {
-      setInternalUrl(inputUrl);
+      const separator = inputUrl.includes('?') ? '&' : '?';
+      const finalUrl = inputUrl.includes('embed=true') ? inputUrl : `${inputUrl}${separator}embed=true`;
+      setInternalUrl(finalUrl);
     } else {
+      // وقتی کاربر آدرس وب‌سایت تایپ می‌کند، فایل محلی پاک شود
+      setLocalFile(null);
+      setExcelData(null);
       const formatted = formatExternalUrl(inputUrl);
       setInputUrl(formatted);
       setExternalUrl(formatted);
-      if (iframeRef.current && !formatted.startsWith('excel:')) {
+      if (iframeRef.current) {
         iframeRef.current.src = formatted;
       }
     }
   };
 
   const handleSelectPage = (url: string) => {
+    const separator = url.includes('?') ? '&' : '?';
+    const finalUrl = url.includes('embed=true') ? url : `${url}${separator}embed=true`;
     setInputUrl(url);
-    setInternalUrl(url);
+    setInternalUrl(finalUrl);
     setShowDropdown(false);
   };
 
   const handleRefreshIframe = () => {
-    if (iframeRef.current && !inputUrl.startsWith('excel:')) {
+    if (iframeRef.current && !localFile) {
       iframeRef.current.src = getTargetUrl();
     }
   };
 
   const getTargetUrl = () => {
     if (splitMode === 'internal') {
-      const url = internalUrl || '/products';
-      return url.includes('?') ? `${url}&embed=true` : `${url}?embed=true`;
+      return internalUrl.includes('embed=true') ? internalUrl : `${internalUrl}?embed=true`;
     }
     return formatExternalUrl(externalUrl || 'https://www.google.com');
   };
@@ -203,8 +224,6 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
       p.url.includes(inputUrl) ||
       p.category.includes(inputUrl)
   );
-
-  const isLocalFile = inputUrl.startsWith('blob:') || inputUrl.startsWith('excel:');
 
   return (
     <div ref={containerRef} className="relative flex h-full w-full overflow-hidden select-none">
@@ -231,7 +250,6 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
         style={{ width: `${100 - splitRatio}%` }}
         className="flex h-full flex-col bg-neutral-900/90 backdrop-blur-xl"
       >
-        {/* نوار کنترل بالای پنجره مرجع */}
         <div className="flex items-center gap-2 border-b border-neutral-800 bg-neutral-950 p-2 text-xs relative z-40">
           <div className="flex items-center gap-1.5 text-amber-500 font-bold pl-2 border-l border-neutral-800 shrink-0">
             {splitMode === 'internal' ? (
@@ -239,17 +257,15 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
                 <Columns className="h-4 w-4" />
                 <span>مرجع پنل</span>
               </>
-            ) : inputUrl.startsWith('excel:') ? (
+            ) : localFile ? (
               <>
                 <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
-                <span className="text-emerald-400">فایل اکسل (Local)</span>
+                <span className="text-emerald-400">فایل محلی</span>
               </>
             ) : (
               <>
                 <Globe className="h-4 w-4 text-blue-400" />
-                <span className="text-blue-400">
-                  {isLocalFile ? 'فایل سیستم' : 'مرورگر همراه'}
-                </span>
+                <span className="text-blue-400">مرورگر همراه</span>
               </>
             )}
           </div>
@@ -258,19 +274,25 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
             <form onSubmit={handleUrlSubmit} className="flex items-center gap-1">
               <input
                 type="text"
-                value={isLocalFile ? 'فایل در حال نمایش از حافظه سیستم شماست...' : inputUrl}
-                onFocus={() => setShowDropdown(true)}
+                value={localFile ? `فایل: ${localFile.name}` : inputUrl}
+                onFocus={() => {
+                  if (localFile) {
+                    setLocalFile(null);
+                    setExcelData(null);
+                    setInputUrl('https://');
+                  }
+                  setShowDropdown(true);
+                }}
                 onChange={(e) => {
                   setInputUrl(e.target.value);
                   setShowDropdown(true);
                 }}
-                readOnly={isLocalFile}
                 placeholder={
                   splitMode === 'internal'
                     ? 'برای دیدن لیست صفحات کلیک کنید یا تایپ کنید...'
-                    : 'آدرس اینترنتی (مثلاً: wikipedia.org)...'
+                    : 'آدرس اینترنتی (مثلاً: google.com)...'
                 }
-                className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none font-mono dir-ltr text-left disabled:opacity-50"
+                className="w-full rounded-lg border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none font-mono dir-ltr text-left"
               />
               <button
                 type="submit"
@@ -282,9 +304,9 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
             </form>
 
             {splitMode === 'internal' && showDropdown && (
-              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-900 p-2 shadow-2xl backdrop-blur-2xl">
+              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-xl border border-neutral-800 bg-neutral-900 p-2 shadow-2xl backdrop-blur-2xl">
                 <div className="px-2 py-1 text-[10px] font-bold text-amber-500 border-b border-neutral-800 mb-1">
-                  انتخاب سریع صفحات مرجع پنل:
+                  انتخاب سریع از تمام صفحات پنل:
                 </div>
                 {filteredPages.length === 0 ? (
                   <div className="p-2 text-center text-[11px] text-neutral-500">صفحه‌ای یافت نشد.</div>
@@ -310,7 +332,7 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
             )}
           </div>
 
-          {!isLocalFile && splitMode === 'external' && (
+          {!localFile && splitMode === 'external' && (
             <a
               href={formatExternalUrl(inputUrl)}
               target="_blank"
@@ -339,25 +361,29 @@ export default function SplitWorkspace({ children }: SplitWorkspaceProps) {
           </button>
         </div>
 
-        {/* ⚠️ رندر فایل‌های سیستم و آی‌فریم */}
         <div className="flex-1 overflow-hidden bg-neutral-900 relative">
-          {inputUrl.startsWith('excel:') && excelData ? (
+          {localFile?.type === 'excel' && excelData ? (
             <div
               className="h-full w-full overflow-auto bg-white p-4 text-black text-sm excel-preview"
               dangerouslySetInnerHTML={{ __html: excelData }}
+            />
+          ) : localFile?.type === 'other' ? (
+            <iframe
+              src={localFile.url}
+              className="h-full w-full border-none bg-white"
+              title="فایل محلی"
             />
           ) : (
             <iframe
               ref={iframeRef}
               src={getTargetUrl()}
               className="h-full w-full border-none bg-white"
-              title="مرجع ورود اطلاعات"
+              title="مرورگر همراه"
             />
           )}
         </div>
       </div>
 
-      {/* استایل داخلی برای فرمت‌دهی جدول اکسل */}
       <style dangerouslySetInnerHTML={{__html: `
         .excel-preview table { width: 100%; border-collapse: collapse; text-align: right; direction: rtl; font-family: Tahoma, sans-serif; }
         .excel-preview th, .excel-preview td { border: 1px solid #d4d4d4; padding: 6px 10px; }

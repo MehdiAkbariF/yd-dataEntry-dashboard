@@ -12,8 +12,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const isEmbed = searchParams.get('embed') === 'true';
 
+  // ⚠️ اگر در حالت اسپلیت (Embed) بودیم، فقط محتوا بدون سایدبار تودرتو رندر شود
   if (isEmbed) {
-    return <div className="min-h-screen bg-neutral-950 p-6 text-neutral-100">{children}</div>;
+    return (
+      <div className="min-h-screen bg-neutral-950 p-4 md:p-6 text-neutral-100 overflow-y-auto">
+        {children}
+      </div>
+    );
   }
 
   return (

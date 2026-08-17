@@ -17,6 +17,34 @@ export const productService = {
     return response.data;
   },
 
+ async getProductDetails(productId: string): Promise<any> {
+    const response = await apiClient.get<any>('/api/Admin/A_Product/ProductDetail', {
+      params: { ProductId: productId, PageSize: 100 },
+    });
+    return response.data?.items || [];
+  },
+
+  async createProductDetail(formData: FormData): Promise<any> {
+    const response = await apiClient.post('/api/Admin/A_Product/ProductDetail', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  async updateProductDetail(formData: FormData): Promise<any> {
+    const response = await apiClient.put('/api/Admin/A_Product/ProductDetail', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  async deleteProductDetail(detailId: string): Promise<any> {
+    const response = await apiClient.delete('/api/Admin/A_Product/ProductDetail', {
+      data: { id: detailId },
+    });
+    return response.data;
+  },
+
   // دریافت اطلاعات کامل یک محصول با Id جهت ویرایش
   async getProductById(productId: string): Promise<any> {
     const response = await apiClient.get<any>('/api/Admin/A_Product/Product', {
@@ -98,3 +126,4 @@ export const productService = {
     return response.data;
   },
 };
+

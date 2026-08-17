@@ -12,13 +12,12 @@ import { Plus, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ProductsPage() {
-  // ⚠️ استفاده از استور ماندگار فیلترها (حفظ ۱۰۰٪ فیلترها و شماره صفحه)
   const { productFilters, setProductFilter, resetProductFilters } = useFilterStore();
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // فراخوانی API محصولات از استور پایدار
+  // فراخوانی API محصولات همراه با پارامتر carId
   const { data, isLoading } = useGetProducts({
     pageNumber: productFilters.page,
     pageSize: 20,
@@ -29,6 +28,7 @@ export default function ProductsPage() {
     updaterId: productFilters.updaterId || undefined,
     brandId: productFilters.brandId || undefined,
     partId: productFilters.partId || undefined,
+    carId: productFilters.carId || undefined, // 👈 ارسال فیلتر خودرو به سرور
   });
 
   const toggleMutation = useToggleProductStatus();
@@ -94,6 +94,8 @@ export default function ProductsPage() {
         setBrandId={(val) => setProductFilter('brandId', val)}
         partId={productFilters.partId}
         setPartId={(val) => setProductFilter('partId', val)}
+        carId={productFilters.carId} // 👈 افزودن فیلتر خودرو به بار
+        setCarId={(val) => setProductFilter('carId', val)}
         onReset={resetProductFilters}
       />
 

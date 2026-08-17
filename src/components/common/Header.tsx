@@ -18,10 +18,11 @@ export default function Header() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentUserId = user?.id || '';
 
+  // دریافت پروفایل کامل کاربر از سرور
   const { data: userProfile, isLoading: isUserLoading } = useQuery({
     queryKey: ['user-profile', currentUserId],
     queryFn: () => userService.getUserById(currentUserId),
-    enabled: !!currentUserId && currentUserId.length > 10,
+    enabled: !!currentUserId && currentUserId.length > 5,
   });
 
   const handleLogout = async () => {
@@ -30,13 +31,12 @@ export default function Header() {
     setIsLoggingOut(false);
   };
 
-  // ⚠️ هندلینگ خوانش فایل اکسل یا عکس و پی‌دی‌اف
+  // هندلینگ خوانش فایل اکسل یا عکس و پی‌دی‌اف
   const handleLocalFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const fileUrl = URL.createObjectURL(file);
       
-      // اگر فایل اکسل است یک پیشوند excel: اضافه می‌کنیم تا کامپوننت Split آن را به جدول تبدیل کند
       if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
         setExternalUrl(`excel:${fileUrl}`);
       } else {
@@ -46,6 +46,21 @@ export default function Header() {
       setSplitMode('external');
     }
   };
+
+  // ⚠️ اولویت‌بندی هوشمند برای نمایش نام و شماره موبایل کاربر
+  const displayName =
+    userProfile?.fullName ||
+    user?.fullName ||
+    userProfile?.userName ||
+    user?.userName ||
+    'مدیر سیستم';
+
+  const displayPhone =
+    userProfile?.phoneNumber ||
+    user?.phoneNumber ||
+    userProfile?.userName ||
+    user?.userName ||
+    '---';
 
   return (
     <header className="flex h-16 w-full items-center justify-between border-b border-neutral-800 bg-neutral-900/90 px-4 md:px-6 backdrop-blur-md transition-all">
@@ -90,7 +105,7 @@ export default function Header() {
           <span>مرورگر همراه</span>
         </button>
 
-        {/* ⚠️ دکمه انتخاب فایل اکسل، عکس و پی‌دی‌اف */}
+        {/* دکمه انتخاب فایل اکسل، عکس و پی‌دی‌اف */}
         <button
           onClick={() => fileInputRef.current?.click()}
           title="باز کردن فایل اکسل، PDF، عکس یا متن از کامپیوتر شما در پنجره کناری"
@@ -109,20 +124,21 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
-        <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-neutral-800 text-amber-400">
+        {/* باکس نمایش اطلاعات کاربر */}
+        <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-1.5 shadow-inner">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
             {isUserLoading ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <User className="h-4 w-4" />
             )}
           </div>
-          <div className="hidden flex-col text-right sm:flex">
-            <span className="text-xs font-bold text-white">
-              {userProfile?.fullName || user?.fullName || 'کاربر سیستم'}
+          <div className="flex flex-col text-right">
+            <span className="text-xs font-bold text-white leading-snug">
+              {displayName}
             </span>
             <span className="text-[10px] text-amber-500 font-mono dir-ltr text-right">
-              {userProfile?.phoneNumber || user?.phoneNumber || user?.userName || '---'}
+              {displayPhone}
             </span>
           </div>
         </div>

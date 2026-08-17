@@ -22,6 +22,8 @@ interface ProductFilterBarProps {
   setBrandId: (val: string) => void;
   partId: string;
   setPartId: (val: string) => void;
+  carId: string;
+  setCarId: (val: string) => void;
   onReset: () => void;
 }
 
@@ -40,6 +42,8 @@ export default function ProductFilterBar({
   setBrandId,
   partId,
   setPartId,
+  carId,
+  setCarId,
   onReset,
 }: ProductFilterBarProps) {
   const fetchUsers = async (query: string) => {
@@ -62,6 +66,14 @@ export default function ProductFilterBar({
       params: { Name: query, PageSize: 30 },
     });
     return (res.data.items || []).map((p: any) => ({ value: p.id, label: p.name }));
+  };
+
+  // ⚠️ تابع دریافت خودروها برای فیلتر
+  const fetchCars = async (query: string) => {
+    const res = await apiClient.get<any>('/api/Admin/A_Product/CarsName', {
+      params: { Model: query, PageSize: 30 },
+    });
+    return (res.data || []).map((c: any) => ({ value: c.id, label: `${c.model} (${c.englishTitle || ''})` }));
   };
 
   return (
@@ -122,6 +134,15 @@ export default function ProductFilterBar({
           value={brandId}
           onChange={setBrandId}
           fetchOptions={fetchBrands}
+        />
+
+        {/* ⚠️ فیلتر جدید خودرو */}
+        <AsyncSelect
+          label="خودروی سازگار (Car)"
+          placeholder="انتخاب مدل خودرو..."
+          value={carId}
+          onChange={setCarId}
+          fetchOptions={fetchCars}
         />
 
         <AsyncSelect
