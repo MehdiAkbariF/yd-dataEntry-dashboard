@@ -51,7 +51,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const [title, setTitle] = useState(initialData?.title || '');
   const [englishTitle, setEnglishTitle] = useState(initialData?.englishTitle || '');
   const [partNumber, setPartNumber] = useState(initialData?.partNumber || '');
-  const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
+  // ⚠️ اصلاح: در حالت create مقدار پیش‌فرض false، در حالت edit مقدار موجود
+  const [isActive, setIsActive] = useState(
+    isEditMode ? (initialData?.isActive ?? true) : false
+  );
 
   const [brandId, setBrandId] = useState(initialData?.brandId || initialData?.brand?.id || '');
   const [brandName, setBrandName] = useState(initialData?.brand?.name || '');
@@ -130,6 +133,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       setTitle(initialData.title || '');
       setEnglishTitle(initialData.englishTitle || '');
       setPartNumber(initialData.partNumber || '');
+      // ⚠️ در حالت ویرایش مقدار isActive از دیتا گرفته می‌شود
       setIsActive(initialData.isActive ?? true);
 
       const bId = initialData.brandId || initialData.brand?.id || '';
@@ -215,6 +219,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         setSeoDescription(initialData.seoInformation.description || '');
         setSeoCanonicalUrl(initialData.seoInformation.canonicalUrl || '');
       }
+    } else {
+      // ⚠️ در حالت create مقدار isActive باید false باشد
+      setIsActive(false);
     }
   }, [initialData, loadProperties, actions, setPropertyValues]);
 
@@ -532,7 +539,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             {activeProperties.map((prop: any) => {
               const propType = String(prop.type);
               const currentValue = propertyValues[prop.id] || [];
-if (propType === 'MultiSelect' || propType === '1') {
+              if (propType === 'MultiSelect' || propType === '1') {
                 const multiOptions = (dependencies.propertyMultiSelects[prop.id] || []).map((m: any) => ({
                   value: m.value,
                   label: m.value,

@@ -1,32 +1,36 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
+import {
+  useGetPartCarDescriptionById,
+  useGetCarTypePartDescriptionById,
+} from '@/features/part-descriptions/hooks/usePartDescriptions';
 import PartDescriptionForm from '@/features/part-descriptions/components/PartDescriptionForm';
-import { useGetPartCarDescriptionById } from '@/features/part-descriptions/hooks/usePartDescriptions';
 import { Loader2 } from 'lucide-react';
 
 export default function EditPartDescriptionPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params?.id as string;
+  const type = (searchParams.get('type') as 'car' | 'carType') || 'car';
 
-  const { data, isLoading, isError } = useGetPartCarDescriptionById(id);
+  const { data: carData, isLoading: isCarLoading } = useGetPartCarDescriptionById(
+    type === 'car' ? id : ''
+  );
+  const { data: carTypeData, isLoading: isCarTypeLoading } = useGetCarTypePartDescriptionById(
+    type === 'carType' ? id : ''
+  );
+
+  const isLoading = type === 'car' ? isCarLoading : isCarTypeLoading;
+  const initialData = type === 'car' ? carData : carTypeData;
 
   if (isLoading) {
     return (
-      <div className="flex h-96 w-full flex-col items-center justify-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/40">
+      <div className="flex h-96 w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
-        <span className="text-xs text-neutral-400">در حال دریافت اطلاعات...</span>
       </div>
     );
   }
 
-  if (isError || !data) {
-    return (
-      <div className="flex h-64 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-neutral-800 bg-neutral-900/40 text-red-400">
-        <span className="text-sm font-bold">اطلاعات یافت نشد.</span>
-      </div>
-    );
-  }
-
-  return <PartDescriptionForm initialData={data} isEditMode={true} />;
+  return <PartDescriptionForm initialData={initialData} isEditMode={true} />;
 }

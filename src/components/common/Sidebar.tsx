@@ -13,6 +13,7 @@ import {
   Factory,
   Award,
   Tag,
+  BookOpen,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -22,6 +23,7 @@ const menuGroups = [
     items: [
       { title: 'داشبورد', href: '/', icon: LayoutDashboard },
       { title: 'محصولات (Products)', href: '/products', icon: Package },
+      { title: 'وبلاگ و مقالات (Blog)', href: '/blogs', icon: BookOpen },
     ],
   },
   {
@@ -56,7 +58,6 @@ export default function Sidebar() {
   return (
     <aside className="w-64 shrink-0 border-l border-neutral-800 bg-neutral-900/60 p-4 flex flex-col justify-between hidden md:flex transition-colors">
       <div>
-        {/* برند لاگوی پنل */}
         <div className="flex items-center gap-3 px-3 py-4 border-b border-neutral-800 mb-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 font-black text-neutral-950 text-lg shadow-md shadow-amber-500/20">
             ید
@@ -67,7 +68,6 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* منوهای دسته‌بندی‌شده */}
         <nav className="space-y-5 overflow-y-auto max-h-[72vh] pr-1">
           {menuGroups.map((group) => (
             <div key={group.title} className="space-y-1">
@@ -103,7 +103,6 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* وضعیت اتصال پایین منو */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3 text-center">
         <p className="text-[11px] text-neutral-400">
           وضعیت اتصال: <span className="text-emerald-400 font-bold">برقرار</span>

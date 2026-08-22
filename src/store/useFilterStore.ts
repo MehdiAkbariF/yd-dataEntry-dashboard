@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface ProductFilterState {
   page: number;
@@ -93,51 +92,79 @@ interface CarManufacturerFilterState {
   isActive: string;
 }
 
+// --- استیت فیلترهای بخش بلاگ ---
+interface BlogPostFilterState {
+  page: number;
+  title: string;
+  blogCategoryId: string;
+  isActive: string;
+  userId: string;
+}
+
+interface BlogCategoryFilterState {
+  page: number;
+  title: string;
+  isActive: string;
+  userId: string;
+}
+
+interface BlogCommentFilterState {
+  page: number;
+  searchedValue: string;
+  blogPostId: string;
+  isConfirmed: string;
+  isReply: string;
+}
+
 interface FilterStore {
-  // فیلترهای محصولات
   productFilters: ProductFilterState;
   setProductFilter: (key: keyof ProductFilterState, value: any) => void;
   resetProductFilters: () => void;
 
-  // فیلترهای برندها
   brandFilters: BrandFilterState;
   setBrandFilter: (key: keyof BrandFilterState, value: any) => void;
   resetBrandFilters: () => void;
 
-  // فیلترهای قطعات پایه
   partFilters: PartFilterState;
   setPartFilter: (key: keyof PartFilterState, value: any) => void;
   resetPartFilters: () => void;
 
-  // فیلترهای دسته‌بندی قطعات
   partCategoryFilters: PartCategoryFilterState;
   setPartCategoryFilter: (key: keyof PartCategoryFilterState, value: any) => void;
   resetPartCategoryFilters: () => void;
 
-  // فیلترهای ویژگی‌های قطعات
   propertyFilters: PropertyFilterState;
   setPropertyFilter: (key: keyof PropertyFilterState, value: any) => void;
   resetPropertyFilters: () => void;
 
-  // فیلترهای توضیحات قطعه-خودرو
   partDescriptionFilters: PartDescriptionFilterState;
   setPartDescriptionFilter: (key: keyof PartDescriptionFilterState, value: any) => void;
   resetPartDescriptionFilters: () => void;
 
-  // فیلترهای مدل‌های خودرو
   carFilters: CarFilterState;
   setCarFilter: (key: keyof CarFilterState, value: any) => void;
   resetCarFilters: () => void;
 
-  // فیلترهای انواع خودرو (CarTypes)
   carTypeFilters: CarTypeFilterState;
   setCarTypeFilter: (key: keyof CarTypeFilterState, value: any) => void;
   resetCarTypeFilters: () => void;
 
-  // فیلترهای خودروسازان (CarManufacturers)
   carManufacturerFilters: CarManufacturerFilterState;
   setCarManufacturerFilter: (key: keyof CarManufacturerFilterState, value: any) => void;
   resetCarManufacturerFilters: () => void;
+
+  // وبلاگ
+  blogPostFilters: BlogPostFilterState;
+  setBlogPostFilter: (key: keyof BlogPostFilterState, value: any) => void;
+  resetBlogPostFilters: () => void;
+
+  blogCategoryFilters: BlogCategoryFilterState;
+  setBlogCategoryFilter: (key: keyof BlogCategoryFilterState, value: any) => void;
+  resetBlogCategoryFilters: () => void;
+
+  blogCommentFilters: BlogCommentFilterState;
+  setBlogCommentFilter: (key: keyof BlogCommentFilterState, value: any) => void;
+  resetBlogCommentFilters: () => void;
 }
 
 const defaultProductFilters: ProductFilterState = {
@@ -149,7 +176,7 @@ const defaultProductFilters: ProductFilterState = {
   updaterId: '',
   brandId: '',
   partId: '',
-    carId: ''
+  carId: '',
 };
 
 const defaultBrandFilters: BrandFilterState = {
@@ -232,110 +259,160 @@ const defaultCarManufacturerFilters: CarManufacturerFilterState = {
   isActive: '',
 };
 
-export const useFilterStore = create<FilterStore>()(
-  persist(
-    (set) => ({
-      productFilters: defaultProductFilters,
-      setProductFilter: (key, value) =>
-        set((state) => ({
-          productFilters: {
-            ...state.productFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetProductFilters: () => set({ productFilters: defaultProductFilters }),
+const defaultBlogPostFilters: BlogPostFilterState = {
+  page: 1,
+  title: '',
+  blogCategoryId: '',
+  isActive: '',
+  userId: '',
+};
 
-      brandFilters: defaultBrandFilters,
-      setBrandFilter: (key, value) =>
-        set((state) => ({
-          brandFilters: {
-            ...state.brandFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetBrandFilters: () => set({ brandFilters: defaultBrandFilters }),
+const defaultBlogCategoryFilters: BlogCategoryFilterState = {
+  page: 1,
+  title: '',
+  isActive: '',
+  userId: '',
+};
 
-      partFilters: defaultPartFilters,
-      setPartFilter: (key, value) =>
-        set((state) => ({
-          partFilters: {
-            ...state.partFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetPartFilters: () => set({ partFilters: defaultPartFilters }),
+const defaultBlogCommentFilters: BlogCommentFilterState = {
+  page: 1,
+  searchedValue: '',
+  blogPostId: '',
+  isConfirmed: '',
+  isReply: '',
+};
 
-      partCategoryFilters: defaultPartCategoryFilters,
-      setPartCategoryFilter: (key, value) =>
-        set((state) => ({
-          partCategoryFilters: {
-            ...state.partCategoryFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetPartCategoryFilters: () => set({ partCategoryFilters: defaultPartCategoryFilters }),
+export const useFilterStore = create<FilterStore>((set) => ({
+  productFilters: defaultProductFilters,
+  setProductFilter: (key, value) =>
+    set((state) => ({
+      productFilters: {
+        ...state.productFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetProductFilters: () => set({ productFilters: defaultProductFilters }),
 
-      propertyFilters: defaultPropertyFilters,
-      setPropertyFilter: (key, value) =>
-        set((state) => ({
-          propertyFilters: {
-            ...state.propertyFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetPropertyFilters: () => set({ propertyFilters: defaultPropertyFilters }),
+  brandFilters: defaultBrandFilters,
+  setBrandFilter: (key, value) =>
+    set((state) => ({
+      brandFilters: {
+        ...state.brandFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetBrandFilters: () => set({ brandFilters: defaultBrandFilters }),
 
-      partDescriptionFilters: defaultPartDescriptionFilters,
-      setPartDescriptionFilter: (key, value) =>
-        set((state) => ({
-          partDescriptionFilters: {
-            ...state.partDescriptionFilters,
-            [key]: value,
-            ...(key !== 'page' && key !== 'activeTab' ? { page: 1 } : {}),
-          },
-        })),
-      resetPartDescriptionFilters: () => set({ partDescriptionFilters: defaultPartDescriptionFilters }),
+  partFilters: defaultPartFilters,
+  setPartFilter: (key, value) =>
+    set((state) => ({
+      partFilters: {
+        ...state.partFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetPartFilters: () => set({ partFilters: defaultPartFilters }),
 
-      carFilters: defaultCarFilters,
-      setCarFilter: (key, value) =>
-        set((state) => ({
-          carFilters: {
-            ...state.carFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetCarFilters: () => set({ carFilters: defaultCarFilters }),
+  partCategoryFilters: defaultPartCategoryFilters,
+  setPartCategoryFilter: (key, value) =>
+    set((state) => ({
+      partCategoryFilters: {
+        ...state.partCategoryFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetPartCategoryFilters: () => set({ partCategoryFilters: defaultPartCategoryFilters }),
 
-      carTypeFilters: defaultCarTypeFilters,
-      setCarTypeFilter: (key, value) =>
-        set((state) => ({
-          carTypeFilters: {
-            ...state.carTypeFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetCarTypeFilters: () => set({ carTypeFilters: defaultCarTypeFilters }),
+  propertyFilters: defaultPropertyFilters,
+  setPropertyFilter: (key, value) =>
+    set((state) => ({
+      propertyFilters: {
+        ...state.propertyFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetPropertyFilters: () => set({ propertyFilters: defaultPropertyFilters }),
 
-      carManufacturerFilters: defaultCarManufacturerFilters,
-      setCarManufacturerFilter: (key, value) =>
-        set((state) => ({
-          carManufacturerFilters: {
-            ...state.carManufacturerFilters,
-            [key]: value,
-            ...(key !== 'page' ? { page: 1 } : {}),
-          },
-        })),
-      resetCarManufacturerFilters: () => set({ carManufacturerFilters: defaultCarManufacturerFilters }),
-    }),
-    {
-      name: 'yadakchi-persistent-filters-v9',
-    }
-  )
-);
+  partDescriptionFilters: defaultPartDescriptionFilters,
+  setPartDescriptionFilter: (key, value) =>
+    set((state) => ({
+      partDescriptionFilters: {
+        ...state.partDescriptionFilters,
+        [key]: value,
+        ...(key !== 'page' && key !== 'activeTab' ? { page: 1 } : {}),
+      },
+    })),
+  resetPartDescriptionFilters: () => set({ partDescriptionFilters: defaultPartDescriptionFilters }),
+
+  carFilters: defaultCarFilters,
+  setCarFilter: (key, value) =>
+    set((state) => ({
+      carFilters: {
+        ...state.carFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetCarFilters: () => set({ carFilters: defaultCarFilters }),
+
+  carTypeFilters: defaultCarTypeFilters,
+  setCarTypeFilter: (key, value) =>
+    set((state) => ({
+      carTypeFilters: {
+        ...state.carTypeFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetCarTypeFilters: () => set({ carTypeFilters: defaultCarTypeFilters }),
+
+  carManufacturerFilters: defaultCarManufacturerFilters,
+  setCarManufacturerFilter: (key, value) =>
+    set((state) => ({
+      carManufacturerFilters: {
+        ...state.carManufacturerFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetCarManufacturerFilters: () => set({ carManufacturerFilters: defaultCarManufacturerFilters }),
+
+  // بلاگ
+  blogPostFilters: defaultBlogPostFilters,
+  setBlogPostFilter: (key, value) =>
+    set((state) => ({
+      blogPostFilters: {
+        ...state.blogPostFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetBlogPostFilters: () => set({ blogPostFilters: defaultBlogPostFilters }),
+
+  blogCategoryFilters: defaultBlogCategoryFilters,
+  setBlogCategoryFilter: (key, value) =>
+    set((state) => ({
+      blogCategoryFilters: {
+        ...state.blogCategoryFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetBlogCategoryFilters: () => set({ blogCategoryFilters: defaultBlogCategoryFilters }),
+
+  blogCommentFilters: defaultBlogCommentFilters,
+  setBlogCommentFilter: (key, value) =>
+    set((state) => ({
+      blogCommentFilters: {
+        ...state.blogCommentFilters,
+        [key]: value,
+        ...(key !== 'page' ? { page: 1 } : {}),
+      },
+    })),
+  resetBlogCommentFilters: () => set({ blogCommentFilters: defaultBlogCommentFilters }),
+}));

@@ -75,17 +75,16 @@ export const partDescriptionService = {
   },
 
   // دریافت با Id برای CarTypePartDescription (همراه با PageNumber و PageSize الزامی)
-  async getCarTypePartDescriptionById(id: string): Promise<any> {
-    const response = await apiClient.get<any>('/api/A_Part/CarTypePartDescription', {
-      params: {
-        Id: id,
-        PageNumber: 1, // ⚠️ الزامی طبق مستندات سرور
-        PageSize: 30,  // ⚠️ الزامی طبق مستندات سرور
-      },
-    });
-    const items = response.data?.items || [];
-    return items.length > 0 ? items[0] : null; // بازگرداندن null به جای undefined
-  },
+async getCarTypePartDescriptionById(id: string): Promise<any> {
+  const response = await apiClient.get<any>('/api/A_Part/CarTypePartDescription', {
+    params: { Id: id },
+  });
+  // اگر سرور آبجکت مستقیم داد، همان را برمی‌گرداند؛ اگر داخل items بود اولین عضو را برمی‌گرداند
+  if (response.data?.items && Array.isArray(response.data.items)) {
+    return response.data.items[0] || null;
+  }
+  return response.data || null;
+},
 
   // ایجاد CarTypePartDescription
   async createCarTypePartDescription(formData: FormData): Promise<any> {

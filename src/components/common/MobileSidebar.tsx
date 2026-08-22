@@ -17,6 +17,7 @@ import {
   Factory,
   Award,
   Tag,
+  BookOpen,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -26,6 +27,7 @@ const menuGroups = [
     items: [
       { title: 'داشبورد', href: '/', icon: LayoutDashboard },
       { title: 'محصولات (Products)', href: '/products', icon: Package },
+      { title: 'وبلاگ و مقالات (Blog)', href: '/blogs', icon: BookOpen },
     ],
   },
   {
