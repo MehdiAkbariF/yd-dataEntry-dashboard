@@ -13,7 +13,16 @@ import MediaUploader from '@/components/common/MediaUploader';
 import { useCreatePart, useUpdatePart } from '../hooks/useParts';
 import { partService } from '@/services/partService';
 import { toast } from 'sonner';
-import { Save, Loader2, ArrowRight, Cpu, Sparkles, HelpCircle } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  ArrowRight,
+  Cpu,
+  Sparkles,
+  HelpCircle,
+  Ban,
+  Globe,
+} from 'lucide-react';
 
 // دریافت BASE_URL از env
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
@@ -109,6 +118,14 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
     return props.map((p: any) => ({ value: p.id, label: p.name }));
   };
 
+  // تابع پر کردن خودکار فیلدهای سئو با "no seo"
+  const handleSetNoSeo = () => {
+    setSeoTitle('no seo');
+    setSeoDescription('no seo');
+    setSeoCanonicalUrl('no seo');
+    toast.info('مقادیر سئو روی "no seo" تنظیم شدند.');
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -141,23 +158,25 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
       formData.append('Id', initialData.id);
     }
 
-    formData.append('Name', name);
+    formData.append('Name', name.trim());
     formData.append('PartCategoryId', partCategoryId);
     formData.append('YadakchiProfitPercent', yadakchiProfitPercent);
 
-    if (englishTitle) formData.append('EnglishTitle', englishTitle);
-    if (productNameEntryStandard) formData.append('ProductNameEntryStandard', productNameEntryStandard);
+    if (englishTitle) formData.append('EnglishTitle', englishTitle.trim());
+    if (productNameEntryStandard) formData.append('ProductNameEntryStandard', productNameEntryStandard.trim());
     if (description) formData.append('Description', description);
 
     if (iconFile) formData.append('IconFile', iconFile);
-    if (iconAlt) formData.append('IconAlt', iconAlt);
+    if (iconAlt) formData.append('IconAlt', iconAlt.trim());
 
     propertyIds.forEach((id) => formData.append('PropertyIds', id));
 
-    if (seoId) formData.append('SEOInformation.Id', seoId);
-    formData.append('SEOInformation.Title', seoTitle || name);
-    formData.append('SEOInformation.Description', seoDescription || name);
-    formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || name.toLowerCase().replace(/\s+/g, '-'));
+    if (isEditMode && seoId) formData.append('SEOInformation.Id', seoId);
+    if (seoTitle.trim() || seoDescription.trim() || seoCanonicalUrl.trim()) {
+      formData.append('SEOInformation.Title', seoTitle || name);
+      formData.append('SEOInformation.Description', seoDescription || name);
+      formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || name.toLowerCase().replace(/\s+/g, '-'));
+    }
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -308,9 +327,26 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
           />
         </div>
 
-        {/* تنظیمات سئو */}
+        {/* تنظیمات سئو همراه با دکمه عدم نیاز به سئو */}
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
-          <h3 className="text-sm font-bold text-amber-500">تنظیمات سئو (SEO Information)</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
+              <Globe className="h-4 w-4" />
+              <span>تنظیمات سئو (SEO Information)</span>
+            </div>
+
+            {/* دکمه عدم نیاز به سئو */}
+            <button
+              type="button"
+              onClick={handleSetNoSeo}
+              className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              title="پر کردن فیلدهای سئو با no seo"
+            >
+              <Ban className="h-3.5 w-3.5" />
+              <span>عدم نیاز به سئو</span>
+            </button>
+          </div>
+
           <Input
             label="عنوان سئو (Meta Title)"
             placeholder="خرید سنسور اکسیژن خودرو | قیمت و مشخصات"

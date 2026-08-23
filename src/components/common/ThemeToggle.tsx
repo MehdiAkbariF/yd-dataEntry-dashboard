@@ -17,7 +17,7 @@ export default function ThemeToggle() {
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       title={theme === 'dark' ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'}
-      className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900/80 text-neutral-400 hover:border-neutral-700 hover:text-white dark:border-neutral-800 dark:bg-neutral-950 transition-all active:scale-95"
+      className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-400 hover:border-neutral-700 hover:text-amber-400 transition-all active:scale-95 shadow-sm"
     >
       {theme === 'dark' ? (
         <Sun className="h-4 w-4 text-amber-400" />

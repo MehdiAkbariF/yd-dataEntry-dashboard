@@ -23,13 +23,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fa" dir="rtl" className={`dark ${iranYekan.variable}`}>
+    <html lang="fa" dir="rtl" suppressHydrationWarning className={iranYekan.variable}>
       <body className="bg-neutral-950 text-neutral-100 antialiased selection:bg-amber-500 selection:text-black">
         <ReactQueryProvider>
           <ThemeProvider>
             {children}
-            {/* سیستم نوتفیکیشن‌های دارک مود */}
-            <Toaster position="top-center" theme="dark" richColors />
+            <Toaster position="top-center" theme="system" richColors />
           </ThemeProvider>
         </ReactQueryProvider>
       </body>

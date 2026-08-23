@@ -13,7 +13,15 @@ import MediaUploader from '@/components/common/MediaUploader';
 import { useCreateCar, useUpdateCar } from '../hooks/useCars';
 import { carService } from '@/services/carService';
 import { toast } from 'sonner';
-import { Save, Loader2, ArrowRight, Car, Sparkles } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  ArrowRight,
+  Car,
+  Sparkles,
+  Ban,
+  Globe,
+} from 'lucide-react';
 
 // دریافت BASE_URL از env
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
@@ -104,6 +112,14 @@ export default function CarForm({ initialData, isEditMode = false }: CarFormProp
     return list.map((t: any) => ({ value: t.id, label: t.name }));
   };
 
+  // تابع پر کردن خودکار فیلدهای سئو با "no seo"
+  const handleSetNoSeo = () => {
+    setSeoTitle('no seo');
+    setSeoDescription('no seo');
+    setSeoCanonicalUrl('no seo');
+    toast.info('مقادیر سئو روی "no seo" تنظیم شدند.');
+  };
+
   // کلید میانبر Ctrl + S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -137,8 +153,8 @@ export default function CarForm({ initialData, isEditMode = false }: CarFormProp
       formData.append('Id', initialData.id);
     }
 
-    formData.append('Model', model);
-    formData.append('EnglishTitle', englishTitle);
+    formData.append('Model', model.trim());
+    formData.append('EnglishTitle', englishTitle.trim());
     formData.append('VehicleType', vehicleType);
     formData.append('IsAutomatic', String(isAutomatic));
     formData.append('IsUsedForProduct', String(isUsedForProduct));
@@ -149,12 +165,14 @@ export default function CarForm({ initialData, isEditMode = false }: CarFormProp
     if (description) formData.append('Description', description);
 
     if (coverFile) formData.append('Cover', coverFile);
-    if (coverAlt) formData.append('CoverAlt', coverAlt);
+    if (coverAlt) formData.append('CoverAlt', coverAlt.trim());
 
-    if (seoId) formData.append('SEOInformation.Id', seoId);
-    formData.append('SEOInformation.Title', seoTitle || model);
-    formData.append('SEOInformation.Description', seoDescription || model);
-    formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || model.toLowerCase().replace(/\s+/g, '-'));
+    if (isEditMode && seoId) formData.append('SEOInformation.Id', seoId);
+    if (seoTitle.trim() || seoDescription.trim() || seoCanonicalUrl.trim()) {
+      formData.append('SEOInformation.Title', seoTitle || model);
+      formData.append('SEOInformation.Description', seoDescription || model);
+      formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || model.toLowerCase().replace(/\s+/g, '-'));
+    }
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -285,9 +303,26 @@ export default function CarForm({ initialData, isEditMode = false }: CarFormProp
           />
         </div>
 
-        {/* تنظیمات سئو */}
+        {/* تنظیمات سئو همراه با دکمه عدم نیاز به سئو */}
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
-          <h3 className="text-sm font-bold text-amber-500">تنظیمات سئو (SEO Information)</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
+              <Globe className="h-4 w-4" />
+              <span>تنظیمات سئو (SEO Information)</span>
+            </div>
+
+            {/* دکمه عدم نیاز به سئو */}
+            <button
+              type="button"
+              onClick={handleSetNoSeo}
+              className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              title="پر کردن فیلدهای سئو با no seo"
+            >
+              <Ban className="h-3.5 w-3.5" />
+              <span>عدم نیاز به سئو</span>
+            </button>
+          </div>
+
           <Input
             label="عنوان سئو (Meta Title)"
             placeholder="خرید قطعات پژو 206 SD با بهترین قیمت"

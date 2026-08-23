@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { useQuery } from '@tanstack/react-query';
 import MobileSidebar from './MobileSidebar';
+import ThemeToggle from './ThemeToggle';
 import { LogOut, User, Search, Columns, Globe, Loader2, FileUp } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -47,7 +48,7 @@ export default function Header() {
     }
   };
 
-  // ⚠️ اولویت‌بندی هوشمند برای نمایش نام و شماره موبایل کاربر
+  // اولویت‌بندی هوشمند برای نمایش نام و شماره موبایل کاربر
   const displayName =
     userProfile?.fullName ||
     user?.fullName ||
@@ -124,6 +125,9 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
+        {/* دکمه تغییر تم لایت / دارک */}
+        <ThemeToggle />
+
         {/* باکس نمایش اطلاعات کاربر */}
         <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-1.5 shadow-inner">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">

@@ -17,7 +17,18 @@ import { useProductProperties } from '../hooks/useProductProperties';
 import { productService } from '@/services/productService';
 import { apiClient } from '@/lib/axios';
 import { toast } from 'sonner';
-import { Save, Loader2, ArrowRight, Package, Sparkles, Link2, Sliders, Info } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  ArrowRight,
+  Package,
+  Sparkles,
+  Link2,
+  Sliders,
+  Info,
+  Ban,
+  Globe,
+} from 'lucide-react';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
@@ -43,7 +54,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   const [existingDetails, setExistingDetails] = useState<any[]>([]);
 
-  // ⚠️ استیت مربوط به قوانین نام‌گذاری قطعه (productNameEntryStandard)
+  // استیت مربوط به قوانین نام‌گذاری قطعه (productNameEntryStandard)
   const [productNameStandard, setProductNameStandard] = useState<string | null>(
     initialData?.part?.productNameEntryStandard || null
   );
@@ -51,7 +62,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const [title, setTitle] = useState(initialData?.title || '');
   const [englishTitle, setEnglishTitle] = useState(initialData?.englishTitle || '');
   const [partNumber, setPartNumber] = useState(initialData?.partNumber || '');
-  // ⚠️ اصلاح: در حالت create مقدار پیش‌فرض false، در حالت edit مقدار موجود
   const [isActive, setIsActive] = useState(
     isEditMode ? (initialData?.isActive ?? true) : false
   );
@@ -108,7 +118,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // تابع برای دریافت اطلاعات کامل قطعه از API و استخراج productNameEntryStandard
+  // دریافت قوانین نام‌گذاری قطعه از سرور
   const fetchPartStandardRule = async (pId: string) => {
     if (!pId) {
       setProductNameStandard(null);
@@ -133,7 +143,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       setTitle(initialData.title || '');
       setEnglishTitle(initialData.englishTitle || '');
       setPartNumber(initialData.partNumber || '');
-      // ⚠️ در حالت ویرایش مقدار isActive از دیتا گرفته می‌شود
       setIsActive(initialData.isActive ?? true);
 
       const bId = initialData.brandId || initialData.brand?.id || '';
@@ -147,7 +156,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       if (pId) {
         loadProperties(pId);
         actions.fetchPropertiesForPart(pId);
-        // اگر در initialData استاندارد نبود، با API بگیر
         if (initialData?.part?.productNameEntryStandard) {
           setProductNameStandard(initialData.part.productNameEntryStandard);
         } else {
@@ -155,31 +163,40 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         }
       }
 
+      // بارگذاری مقادیر ویژگی‌های محصول موجود در دیتابیس
       if (initialData.id) {
-        productService.getProductDetails(initialData.id).then((details) => {
-          setExistingDetails(details);
-          if (details && details.length > 0) {
-            const mappedValues: Record<string, any> = {};
-            details.forEach((d: any) => {
-              if (d.propertyId) {
-                const rawVal = d.value;
-                if (rawVal && typeof rawVal === 'string' && rawVal.includes(',')) {
-                  mappedValues[d.propertyId] = rawVal.split(',').map((s: string) => s.trim());
-                } else if (rawVal && typeof rawVal === 'string') {
-                  mappedValues[d.propertyId] = [rawVal.trim()];
-                } else {
-                  mappedValues[d.propertyId] = rawVal;
+        productService
+          .getProductDetails(initialData.id)
+          .then((details) => {
+            setExistingDetails(details || []);
+            if (details && details.length > 0) {
+              const mappedValues: Record<string, any> = {};
+              details.forEach((d: any) => {
+                if (d.propertyId) {
+                  const rawVal = d.value;
+                  if (rawVal && typeof rawVal === 'string' && rawVal.includes(',')) {
+                    mappedValues[d.propertyId] = rawVal.split(',').map((s: string) => s.trim());
+                  } else if (rawVal && typeof rawVal === 'string') {
+                    mappedValues[d.propertyId] = [rawVal.trim()];
+                  } else {
+                    mappedValues[d.propertyId] = rawVal;
+                  }
                 }
-              }
-            });
-            setPropertyValues(mappedValues);
-          }
-        }).catch((err) => console.error('Error loading product details:', err));
+              });
+              setPropertyValues(mappedValues);
+            }
+          })
+          .catch((err) => console.error('Error loading product details:', err));
       }
 
       if (initialData.cars) {
         setCarIds(initialData.cars.map((c: any) => c.id));
-        setInitialCarOptions(initialData.cars.map((c: any) => ({ value: c.id, label: `${c.model} (${c.englishTitle || ''})` })));
+        setInitialCarOptions(
+          initialData.cars.map((c: any) => ({
+            value: c.id,
+            label: `${c.model} (${c.englishTitle || ''})`,
+          }))
+        );
       }
 
       if (initialData.tags) {
@@ -189,7 +206,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
       if (initialData.relatedProducts) {
         setRelatedProductIds(initialData.relatedProducts.map((r: any) => r.id));
-        setInitialRelatedOptions(initialData.relatedProducts.map((r: any) => ({ value: r.id, label: r.title })));
+        setInitialRelatedOptions(
+          initialData.relatedProducts.map((r: any) => ({ value: r.id, label: r.title }))
+        );
       }
 
       if (initialData.productImages && Array.isArray(initialData.productImages)) {
@@ -220,7 +239,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         setSeoCanonicalUrl(initialData.seoInformation.canonicalUrl || '');
       }
     } else {
-      // ⚠️ در حالت create مقدار isActive باید false باشد
       setIsActive(false);
     }
   }, [initialData, loadProperties, actions, setPropertyValues]);
@@ -231,11 +249,19 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     if (selectedPartId) {
       loadProperties(selectedPartId);
       actions.fetchPropertiesForPart(selectedPartId);
-      fetchPartStandardRule(selectedPartId); // 👈 فراخوانی گرفتن قانون نام‌گذاری
+      fetchPartStandardRule(selectedPartId);
     } else {
       resetProperties();
       setProductNameStandard(null);
     }
+  };
+
+  // پر کردن خودکار فیلدهای سئو
+  const handleSetNoSeo = () => {
+    setSeoTitle('no seo');
+    setSeoDescription('no seo');
+    setSeoCanonicalUrl('no seo');
+    toast.info('مقادیر سئو روی "no seo" تنظیم شدند.');
   };
 
   const fetchBrands = async (q: string) => {
@@ -308,27 +334,29 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const formData = new FormData();
     if (isEditMode && initialData?.id) {
       formData.append('Id', initialData.id);
+      formData.append('IsImageDeleted', String(false));
     }
 
-    formData.append('Title', title);
-    formData.append('EnglishTitle', englishTitle);
+    formData.append('Title', title.trim());
+    formData.append('EnglishTitle', englishTitle.trim());
     formData.append('BrandId', brandId);
     formData.append('PartId', partId);
+
     carIds.forEach((id) => formData.append('CarIds', id));
 
-    if (partNumber) formData.append('PartNumber', partNumber);
-    if (note) formData.append('Note', note);
+    if (partNumber) formData.append('PartNumber', partNumber.trim());
+    if (note) formData.append('Note', note.trim());
     if (description) formData.append('Description', description);
 
-    formData.append('Height', height);
-    formData.append('Width', width);
-    formData.append('Length', length);
-    formData.append('Weight', weight);
+    formData.append('Height', String(Math.round(Number(height) || 0)));
+    formData.append('Width', String(Math.round(Number(width) || 0)));
+    formData.append('Length', String(Math.round(Number(length) || 0)));
+    formData.append('Weight', String(Number(weight) || 0));
     formData.append('IsFragile', String(isFragile));
     formData.append('IsTipaxSendable', String(isTipaxSendable));
 
     if (mainImage) formData.append('Image', mainImage);
-    if (imageAlt) formData.append('ImageAlt', imageAlt);
+    if (imageAlt) formData.append('ImageAlt', imageAlt.trim());
 
     tagIds.forEach((id) => formData.append('TagIds', id));
 
@@ -338,6 +366,24 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       formData.append('SEOInformation.Description', seoDescription || title);
       formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-'));
     }
+
+    // ⭐️ ارسال دقیق ویژگی‌ها به فرمت ProductDetails[0] = JSON.stringify({ propertyId, value })
+    let detailIndex = 0;
+    Object.entries(propertyValues).forEach(([propId, val]) => {
+      if (val !== undefined && val !== null && val !== '') {
+        // در صورت چند انتخابی بودن، مقادیر با کاما جدا می‌شوند
+        const finalVal = Array.isArray(val) ? val.join(',') : String(val).trim();
+        if (finalVal) {
+          const detailItem = {
+            propertyId: propId,
+            value: finalVal,
+          };
+
+          formData.append(`ProductDetails[${detailIndex}]`, JSON.stringify(detailItem));
+          detailIndex++;
+        }
+      }
+    });
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -350,30 +396,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             await productService.toggleActiveStatus(productId, isActive);
           }
 
-          if (productId) {
-            await Promise.all(
-              Object.entries(propertyValues).map(async ([propId, val]) => {
-                if (val !== undefined && val !== null && val !== '') {
-                  const finalVal = Array.isArray(val) ? val.join(', ') : String(val);
-                  const foundExisting = existingDetails.find((d: any) => d.propertyId === propId);
-
-                  const detailForm = new FormData();
-
-                  if (foundExisting) {
-                    detailForm.append('Id', foundExisting.id);
-                    detailForm.append('Value', finalVal);
-                    await productService.updateProductDetail(detailForm);
-                  } else {
-                    detailForm.append('ProductId', productId);
-                    detailForm.append('PropertyId', propId);
-                    detailForm.append('Value', finalVal);
-                    await productService.createProductDetail(detailForm);
-                  }
-                }
-              })
-            );
-          }
-
+          // آپلود تصاویر گالری
           const newGalleryFiles = galleryItems.filter((item) => item.file !== null);
           if (newGalleryFiles.length > 0 && productId) {
             const files = newGalleryFiles.map((item) => item.file as File);
@@ -381,11 +404,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             await productService.uploadProductImages(productId, files, alts);
           }
 
+          // ذخیره محصولات مرتبط
           if (relatedProductIds.length > 0 && productId) {
             await productService.setProductRelations(productId, relatedProductIds);
           }
         } catch (e) {
-          console.error('Details, gallery or relation error:', e);
+          console.error('Gallery or relation error:', e);
         }
 
         toast.success(isEditMode ? 'محصول با موفقیت به‌روزرسانی شد!' : 'محصول با موفقیت ثبت شد!');
@@ -399,6 +423,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-6xl mx-auto pb-24">
+      {/* هدر صفحه */}
       <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
         <div className="flex items-center gap-3">
           <button
@@ -421,7 +446,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         </div>
       </div>
 
-      {/* ⚠️ بنر قوانین نام‌گذاری محصول (ProductNameEntryStandard) */}
+      {/* بنر قوانین نام‌گذاری قطعه */}
       {productNameStandard && (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 shadow-xl backdrop-blur-md animate-fadeIn">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -438,6 +463,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         </div>
       )}
 
+      {/* ۱. اطلاعات پایه و شناسنامه */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
           <Package className="h-4 w-4" />
@@ -519,6 +545,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         </div>
       </div>
 
+      {/* ۲. ویژگی‌های فنی قطعه */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
           <Sliders className="h-4 w-4" />
@@ -539,23 +566,26 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             {activeProperties.map((prop: any) => {
               const propType = String(prop.type);
               const currentValue = propertyValues[prop.id] || [];
+
               if (propType === 'MultiSelect' || propType === '1') {
                 const multiOptions = (dependencies.propertyMultiSelects[prop.id] || []).map((m: any) => ({
-                  value: m.value,
+                  value: m.id || m.value,
                   label: m.value,
                 }));
 
-                // ⚠️ دریافت مقادیر انتخاب شده به صورت آرایه امن
                 const selectedMultiValues = Array.isArray(currentValue)
                   ? currentValue
                   : typeof currentValue === 'string' && currentValue
                   ? currentValue.split(',').map((s) => s.trim())
                   : [];
 
-                const initialMultiOpts = selectedMultiValues.map((val: string) => ({
-                  value: val,
-                  label: val,
-                }));
+                const initialMultiOpts = selectedMultiValues.map((val: string) => {
+                  const matched = multiOptions.find((o: any) => o.value === val);
+                  return {
+                    value: val,
+                    label: matched ? matched.label : val,
+                  };
+                });
 
                 return (
                   <div key={prop.id} className="sm:col-span-2">
@@ -565,7 +595,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                       selectedValues={selectedMultiValues}
                       initialOptions={initialMultiOpts}
                       onChange={(vals: string[]) => {
-                        // ⚠️ ذخیره آرایه انتخاب‌شده در استیت propertyValues
                         setPropertyValue(prop.id, vals);
                       }}
                       fetchOptions={async () => multiOptions}
@@ -587,6 +616,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         )}
       </div>
 
+      {/* ۳. محصولات مرتبط */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
           <Link2 className="h-4 w-4" />
@@ -602,6 +632,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         />
       </div>
 
+      {/* ۴. نقد و بررسی و توضیحات */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-3">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
           <Sparkles className="h-4 w-4" />
@@ -610,6 +641,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         <ProEditor value={description} onChange={setDescription} />
       </div>
 
+      {/* ۵. تصویر اصلی و گالری */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
           <MediaUploader
@@ -634,6 +666,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         </div>
       </div>
 
+      {/* ۶. ابعاد و تنظیمات سئو */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
           <h3 className="text-sm font-bold text-amber-500">ابعاد، وزن و بسته‌بندی</h3>
@@ -674,8 +707,25 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           />
         </div>
 
+        {/* تنظیمات سئو */}
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
-          <h3 className="text-sm font-bold text-amber-500">تنظیمات سئو (SEO Information)</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
+              <Globe className="h-4 w-4" />
+              <span>تنظیمات سئو (SEO Information)</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSetNoSeo}
+              className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              title="پر کردن فیلدهای سئو با no seo"
+            >
+              <Ban className="h-3.5 w-3.5" />
+              <span>عدم نیاز به سئو</span>
+            </button>
+          </div>
+
           <Input
             label="عنوان سئو (Meta Title)"
             placeholder="خرید شمع موتور بوش با بهترین قیمت"
@@ -704,6 +754,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         canonicalUrl={seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-')}
       />
 
+      {/* نوار چسبان پایین */}
       <div className="sticky bottom-4 z-40 flex items-center justify-between rounded-2xl border border-neutral-800 bg-neutral-900/95 p-4 shadow-2xl backdrop-blur-xl">
         <button
           type="button"

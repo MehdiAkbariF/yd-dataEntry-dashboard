@@ -11,7 +11,15 @@ import MediaUploader from '@/components/common/MediaUploader';
 import { useCreatePartCategory, useUpdatePartCategory } from '../hooks/usePartCategories';
 import { partService } from '@/services/partService';
 import { toast } from 'sonner';
-import { Save, Loader2, ArrowRight, Layers, Sparkles } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  ArrowRight,
+  Layers,
+  Sparkles,
+  Ban,
+  Globe,
+} from 'lucide-react';
 
 // دریافت BASE_URL از env
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
@@ -74,6 +82,14 @@ export default function PartCategoryForm({ initialData, isEditMode = false }: Pa
     return categories.map((c: any) => ({ value: c.id, label: c.name }));
   };
 
+  // تابع پر کردن خودکار فیلدهای سئو با "no seo"
+  const handleSetNoSeo = () => {
+    setSeoTitle('no seo');
+    setSeoDescription('no seo');
+    setSeoCanonicalUrl('no seo');
+    toast.info('مقادیر سئو روی "no seo" تنظیم شدند.');
+  };
+
   // کلید میانبر Ctrl + S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -106,21 +122,23 @@ export default function PartCategoryForm({ initialData, isEditMode = false }: Pa
       formData.append('Id', initialData.id);
     }
 
-    formData.append('Name', name);
-    if (englishTitle) formData.append('EnglishTitle', englishTitle);
+    formData.append('Name', name.trim());
+    if (englishTitle) formData.append('EnglishTitle', englishTitle.trim());
     if (parentId) formData.append('ParentId', parentId);
     formData.append('IsInMain', String(isInMain));
     if (description) formData.append('Description', description);
 
     if (thumbnailFile) formData.append('ThumbnailFile', thumbnailFile);
-    if (thumbnailAlt) formData.append('ThumbnailAlt', thumbnailAlt);
+    if (thumbnailAlt) formData.append('ThumbnailAlt', thumbnailAlt.trim());
     if (iconFile) formData.append('IconFile', iconFile);
-    if (iconAlt) formData.append('IconAlt', iconAlt);
+    if (iconAlt) formData.append('IconAlt', iconAlt.trim());
 
-    if (seoId) formData.append('SEOInformation.Id', seoId);
-    formData.append('SEOInformation.Title', seoTitle || name);
-    formData.append('SEOInformation.Description', seoDescription || name);
-    formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || name.toLowerCase().replace(/\s+/g, '-'));
+    if (isEditMode && seoId) formData.append('SEOInformation.Id', seoId);
+    if (seoTitle.trim() || seoDescription.trim() || seoCanonicalUrl.trim()) {
+      formData.append('SEOInformation.Title', seoTitle || name);
+      formData.append('SEOInformation.Description', seoDescription || name);
+      formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || name.toLowerCase().replace(/\s+/g, '-'));
+    }
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -240,10 +258,27 @@ export default function PartCategoryForm({ initialData, isEditMode = false }: Pa
         </div>
       </div>
 
-      {/* ۴. سئو SEO */}
+      {/* ۴. سئو SEO همراه با دکمه عدم نیاز به سئو */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
-          <h3 className="text-sm font-bold text-amber-500">تنظیمات سئو (SEO Information)</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
+              <Globe className="h-4 w-4" />
+              <span>تنظیمات سئو (SEO Information)</span>
+            </div>
+
+            {/* دکمه عدم نیاز به سئو */}
+            <button
+              type="button"
+              onClick={handleSetNoSeo}
+              className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+              title="پر کردن فیلدهای سئو با no seo"
+            >
+              <Ban className="h-3.5 w-3.5" />
+              <span>عدم نیاز به سئو</span>
+            </button>
+          </div>
+
           <Input
             label="عنوان سئو (Meta Title)"
             placeholder="خرید قطعات سیستم تعلیق با بهترین قیمت"

@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
+import { AsyncSelect } from '@/components/ui/AsyncSelect';
 import { Switch } from '@/components/ui/Switch';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreateBrand, useUpdateBrand } from '../hooks/useBrands';
+import { apiClient } from '@/lib/axios';
 import { toast } from 'sonner';
-import { Save, Loader2, ArrowRight, Award } from 'lucide-react';
+import { Save, Loader2, ArrowRight, Award, Globe } from 'lucide-react';
 
 // دریافت BASE_URL از env
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
@@ -26,7 +28,17 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
   const [name, setName] = useState(initialData?.name || '');
   const [englishTitle, setEnglishTitle] = useState(initialData?.englishTitle || '');
   const [imageAlt, setImageAlt] = useState(initialData?.imageAlt || '');
-  const [countryId, setCountryId] = useState(initialData?.countryId || '');
+  
+  // استیت‌های مربوط به کشور سازنده
+  const [countryId, setCountryId] = useState(
+    initialData?.countryId || initialData?.country?.id || ''
+  );
+  const [countryName, setCountryName] = useState(
+    typeof initialData?.country === 'string'
+      ? initialData.country
+      : initialData?.country?.name || ''
+  );
+
   const [isInMain, setIsInMain] = useState(initialData?.isInMain || false);
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
 
@@ -38,11 +50,40 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
       setName(initialData.name || '');
       setEnglishTitle(initialData.englishTitle || '');
       setImageAlt(initialData.imageAlt || '');
-      setCountryId(initialData.countryId || '');
+      
+      const cId = initialData.countryId || initialData.country?.id || '';
+      setCountryId(cId);
+      setCountryName(
+        typeof initialData.country === 'string'
+          ? initialData.country
+          : initialData.country?.name || ''
+      );
+
       setIsInMain(initialData.isInMain || false);
       setIsActive(initialData.isActive ?? true);
     }
   }, [initialData]);
+
+  // دریافت لیست کشورها از API
+  const fetchCountries = async (query: string) => {
+    try {
+      const res = await apiClient.get<any>('/api/Admin/A_Miscellanies/Country', {
+        params: {
+          PageNumber: 1,
+          PageSize: 50,
+          Name: query || undefined,
+        },
+      });
+      const items = Array.isArray(res.data) ? res.data : res.data?.items || [];
+      return items.map((c: any) => ({
+        value: c.id,
+        label: c.name,
+      }));
+    } catch (error) {
+      console.error('Failed to fetch countries:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,14 +117,14 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
       formData.append('Id', initialData.id);
     }
 
-    formData.append('Name', name);
-    formData.append('EnglishTitle', englishTitle);
+    formData.append('Name', name.trim());
+    formData.append('EnglishTitle', englishTitle.trim());
     formData.append('IsInMain', String(isInMain));
     formData.append('IsActive', String(isActive));
 
     if (countryId) formData.append('CountryId', countryId);
     if (imageFile) formData.append('Image', imageFile);
-    if (imageAlt) formData.append('ImageAlt', imageAlt);
+    if (imageAlt) formData.append('ImageAlt', imageAlt.trim());
 
     const activeMutation = isEditMode ? updateMutation : createMutation;
 
@@ -150,7 +191,19 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
             dir="ltr"
           />
 
-          <div className="flex items-center gap-6 pt-4">
+          {/* فیلد انتخاب کشور سازنده */}
+          <div className="sm:col-span-2">
+            <AsyncSelect
+              label="کشور سازنده (Country)"
+              placeholder="جستجو و انتخاب کشور سازنده..."
+              value={countryId}
+              initialLabel={countryName}
+              onChange={setCountryId}
+              fetchOptions={fetchCountries}
+            />
+          </div>
+
+          <div className="flex items-center gap-6 pt-2 sm:col-span-2">
             <Switch
               checked={isInMain}
               onChange={setIsInMain}

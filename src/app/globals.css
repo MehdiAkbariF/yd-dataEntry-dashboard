@@ -4,16 +4,80 @@
   --font-sans: var(--font-iran-yekan), system-ui, sans-serif;
 }
 
+/* =========================================================
+   پالت رنگی هوشمند لایت مود و دارک مود (Tailwind v4)
+   ========================================================= */
 :root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* بازتعریف طیف خاکستری در حالت Light */
+  --color-neutral-950: #f8fafc; /* پس‌زمینه اصلی صفحات */
+  --color-neutral-900: #ffffff; /* کارت‌ها، سایدبار و باکس‌ها */
+  --color-neutral-850: #f1f5f9;
+  --color-neutral-800: #e2e8f0; /* بوردرها و خطوط جداکننده */
+  --color-neutral-700: #cbd5e1;
+  --color-neutral-600: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-400: #475569; /* متون کم‌رنگ و زیرعنوان‌ها */
+  --color-neutral-300: #334155;
+  --color-neutral-200: #1e293b;
+  --color-neutral-100: #0f172a; /* متون اصلی تیره */
+}
+
+.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
+
+  /* بازتعریف طیف خاکستری در حالت Dark */
+  --color-neutral-950: #0a0a0a;
+  --color-neutral-900: #141416;
+  --color-neutral-850: #1c1c1f;
+  --color-neutral-800: #262626;
+  --color-neutral-700: #404040;
+  --color-neutral-600: #525252;
+  --color-neutral-500: #737373;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-100: #f5f5f5;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-iran-yekan), system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* اصلاح رنگ متون سفید در حالت لایت‌مود */
+:root:not(.dark) h1.text-white,
+:root:not(.dark) h2.text-white,
+:root:not(.dark) h3.text-white,
+:root:not(.dark) h4.text-white,
+:root:not(.dark) span.text-white,
+:root:not(.dark) td.text-white,
+:root:not(.dark) p.text-white,
+:root:not(.dark) strong.text-white,
+:root:not(.dark) input.text-white,
+:root:not(.dark) textarea.text-white {
+  color: #0f172a !important;
+}
+
+/* اصلاح رنگ پس‌زمینه‌های شفاف با بلور */
+:root:not(.dark) .bg-neutral-900\/60,
+:root:not(.dark) .bg-neutral-900\/80,
+:root:not(.dark) .bg-neutral-900\/90,
+:root:not(.dark) .bg-neutral-900\/95 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+:root:not(.dark) .bg-neutral-950\/60,
+:root:not(.dark) .bg-neutral-950\/80,
+:root:not(.dark) .bg-neutral-950\/90 {
+  background-color: rgba(248, 250, 252, 0.9) !important;
+}
+
 /* =========================================================
    استایل‌های فوق تخصصی ProseMirror برای Tiptap Editor
    ========================================================= */
@@ -28,7 +92,7 @@ body {
 
 /* Placeholder */
 .ProseMirror p.is-editor-empty:first-child::before {
-  color: #525252;
+  color: var(--color-neutral-500);
   content: attr(data-placeholder);
   float: right;
   height: 0;
@@ -42,14 +106,14 @@ body {
   color: #f59e0b;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
-  border-bottom: 1px solid #262626;
+  border-bottom: 1px solid var(--color-neutral-800);
   padding-bottom: 0.5rem;
 }
 
 .ProseMirror h2 {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--color-neutral-100);
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
 }
@@ -57,7 +121,7 @@ body {
 .ProseMirror h3 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e5e5e5;
+  color: var(--color-neutral-200);
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
@@ -65,7 +129,7 @@ body {
 .ProseMirror h4 {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #d4d4d4;
+  color: var(--color-neutral-300);
   margin-top: 0.75rem;
   margin-bottom: 0.25rem;
 }
@@ -74,7 +138,7 @@ body {
 .ProseMirror p {
   font-size: 0.825rem;
   line-height: 1.8;
-  color: #e5e5e5;
+  color: var(--color-neutral-200);
   margin-bottom: 0.75rem;
 }
 
@@ -94,7 +158,7 @@ body {
 .ProseMirror li {
   font-size: 0.825rem;
   line-height: 1.7;
-  color: #d4d4d4;
+  color: var(--color-neutral-300);
   margin-bottom: 0.25rem;
 }
 
@@ -128,14 +192,14 @@ body {
   margin: 1.25rem 0;
   overflow: hidden;
   border-radius: 0.75rem;
-  border: 1px solid #262626;
-  background-color: rgba(20, 20, 23, 0.6);
+  border: 1px solid var(--color-neutral-800);
+  background-color: var(--color-neutral-900);
 }
 
 .ProseMirror td,
 .ProseMirror th {
   min-width: 1em;
-  border: 1px solid #262626;
+  border: 1px solid var(--color-neutral-800);
   padding: 0.6rem 0.85rem;
   vertical-align: top;
   box-sizing: border-box;
@@ -146,7 +210,7 @@ body {
 .ProseMirror th {
   font-weight: bold;
   text-align: right;
-  background-color: #171717;
+  background-color: var(--color-neutral-950);
   color: #f59e0b;
 }
 
@@ -156,7 +220,7 @@ body {
   padding: 0.75rem 1rem;
   margin: 1.25rem 0;
   font-style: italic;
-  color: #f5f5f5;
+  color: var(--color-neutral-100);
   background-color: rgba(245, 158, 11, 0.08);
   border-radius: 0.5rem 0 0 0.5rem;
 }
@@ -166,22 +230,22 @@ body {
   max-width: 100%;
   height: auto;
   border-radius: 0.85rem;
-  border: 1px solid #262626;
+  border: 1px solid var(--color-neutral-800);
   margin: 1.25rem 0;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 .ProseMirror iframe {
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 0.85rem;
-  border: 1px solid #262626;
+  border: 1px solid var(--color-neutral-800);
   margin: 1.25rem 0;
 }
 
 /* کدها */
 .ProseMirror code {
-  background-color: #1f1f23;
+  background-color: var(--color-neutral-800);
   color: #f59e0b;
   padding: 0.2rem 0.4rem;
   border-radius: 0.375rem;
