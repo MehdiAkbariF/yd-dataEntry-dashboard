@@ -8,15 +8,13 @@ import SEOPreview from '@/components/common/SEOPreview';
 import Badge from '@/components/ui/Badge';
 import { Switch } from '@/components/ui/Switch';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
-  ArrowRight, Edit, Trash2, Cpu, Sparkles, HelpCircle,
+  ArrowRight, Edit, Trash2, Sparkles, HelpCircle,
   Calendar, User, Cpu as CpuIcon, Loader2
 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 export default function ViewPartPage() {
   const params = useParams();
@@ -28,13 +26,6 @@ export default function ViewPartPage() {
   const { data: part, isLoading, isError } = useGetPartById(partId);
   const deleteMutation = useDeletePart();
   const toggleMutation = useTogglePartStatus();
-
-  // استفاده از BASE_URL به جای هاردکد
-  const getIconUrl = (path: string | null) => {
-    if (!path || path === '/noimage.webp') return null;
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
-  };
 
   const handleToggleStatus = (newStatus: boolean) => {
     toggleMutation.mutate(
@@ -72,7 +63,7 @@ export default function ViewPartPage() {
     );
   }
 
-  const iconUrl = getIconUrl(part.icon);
+  const iconUrl = getMediaUrl(part.icon);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12">
@@ -95,7 +86,6 @@ export default function ViewPartPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* ⚠️ تاگل آنی وضعیت فعال در صفحه View */}
           <div className="flex items-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-1.5">
             <Switch
               checked={part.isActive}

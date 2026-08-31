@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { AsyncSelect } from '@/components/ui/AsyncSelect';
 import ProEditor from '@/components/editor/ProEditor';
@@ -10,6 +9,7 @@ import SEOPreview from '@/components/common/SEOPreview';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreatePartCategory, useUpdatePartCategory } from '../hooks/usePartCategories';
 import { partService } from '@/services/partService';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { toast } from 'sonner';
 import {
   Save,
@@ -20,9 +20,6 @@ import {
   Ban,
   Globe,
 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 interface PartCategoryFormProps {
   initialData?: any;
@@ -233,7 +230,7 @@ export default function PartCategoryForm({ initialData, isEditMode = false }: Pa
           <MediaUploader
             label="تصویر کاور / بنر دسته‌بندی (Thumbnail)"
             onFileSelect={setThumbnailFile}
-            previewUrl={initialData?.thumbnail ? `${BASE_URL}${initialData.thumbnail}` : null}
+            previewUrl={getMediaUrl(initialData?.thumbnail)}
           />
           <Input
             label="متن جایگزین کاور (ThumbnailAlt)"
@@ -247,7 +244,7 @@ export default function PartCategoryForm({ initialData, isEditMode = false }: Pa
           <MediaUploader
             label="آیکون نمادین دسته‌بندی (Icon)"
             onFileSelect={setIconFile}
-            previewUrl={initialData?.icon ? `${BASE_URL}${initialData.icon}` : null}
+            previewUrl={getMediaUrl(initialData?.icon)}
           />
           <Input
             label="متن جایگزین آیکون (IconAlt)"

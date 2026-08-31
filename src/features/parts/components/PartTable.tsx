@@ -4,10 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PartListItem } from '../types';
 import Badge from '@/components/ui/Badge';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { Edit, Trash2, Eye, Loader2, Cpu } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 interface PartTableProps {
   parts: PartListItem[];
@@ -24,13 +22,6 @@ export default function PartTable({
   onDelete,
   isTogglingId,
 }: PartTableProps) {
-  // استفاده از BASE_URL به جای هاردکد
-  const getIconUrl = (path: string | null) => {
-    if (!path || path === '/noimage.webp') return null;
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-900/40">
@@ -66,7 +57,7 @@ export default function PartTable({
         </thead>
         <tbody className="divide-y divide-neutral-800/60">
           {parts.map((part) => {
-            const iconUrl = getIconUrl(part.icon);
+            const iconUrl = getMediaUrl(part.icon);
 
             return (
               <tr key={part.id} className="hover:bg-neutral-800/30 transition-all">

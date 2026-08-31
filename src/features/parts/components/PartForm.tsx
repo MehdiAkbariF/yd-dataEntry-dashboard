@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { AsyncSelect } from '@/components/ui/AsyncSelect';
 import { MultiAsyncSelect, SelectOption } from '@/components/ui/MultiAsyncSelect';
@@ -12,6 +11,7 @@ import SEOPreview from '@/components/common/SEOPreview';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreatePart, useUpdatePart } from '../hooks/useParts';
 import { partService } from '@/services/partService';
+import { getMediaUrl } from '@/lib/config'; // 👈 ایمپورت تابع پروکسی مرکزی
 import { toast } from 'sonner';
 import {
   Save,
@@ -23,9 +23,6 @@ import {
   Ban,
   Globe,
 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 interface PartFormProps {
   initialData?: any;
@@ -46,7 +43,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
   const [yadakchiProfitPercent, setYadakchiProfitPercent] = useState(
     initialData?.yadakchiProfitPercent ? String(initialData.yadakchiProfitPercent) : '0'
   );
-  const [isActive, setIsActive] = useState(initialData?.isActive ?? true); // ⚠️ تاگل وضعیت
+  const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
 
   const [partCategoryId, setPartCategoryId] = useState(
     initialData?.partCategoryId || initialData?.partCategory?.id || ''
@@ -220,7 +217,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
           </div>
         </div>
 
-        {/* ⚠️ تاگل وضعیت فعال در هدر فرم */}
+        {/* تاگل وضعیت فعال در هدر فرم */}
         <div className="flex items-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/80 px-4 py-2">
           <Switch
             checked={isActive}
@@ -302,7 +299,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
         </div>
       </div>
 
-      {/* ۲. توضیحات قطعه با تکست ادیتور فوق حرفه‌ای */}
+      {/* ۲. توضیحات قطعه با ادیتور */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-3">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
           <Sparkles className="h-4 w-4" />
@@ -317,7 +314,7 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
           <MediaUploader
             label="آیکون یا تصویر نمادین قطعه"
             onFileSelect={setIconFile}
-            previewUrl={initialData?.icon ? `${BASE_URL}${initialData.icon}` : null}
+            previewUrl={getMediaUrl(initialData?.icon)}
           />
           <Input
             label="متن جایگزین آیکون (IconAlt)"
@@ -335,7 +332,6 @@ export default function PartForm({ initialData, isEditMode = false }: PartFormPr
               <span>تنظیمات سئو (SEO Information)</span>
             </div>
 
-            {/* دکمه عدم نیاز به سئو */}
             <button
               type="button"
               onClick={handleSetNoSeo}

@@ -8,15 +8,13 @@ import SEOPreview from '@/components/common/SEOPreview';
 import Badge from '@/components/ui/Badge';
 import { Switch } from '@/components/ui/Switch';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { getMediaUrl } from '@/lib/config'; // 👈 ۱. ایمپورت تابع استاندارد
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
   ArrowRight, Edit, Trash2, Package, Car, Tag, Sparkles,
   Calendar, User, Image as ImageIcon, Loader2, X
 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 export default function ViewProductPage() {
   const params = useParams();
@@ -29,13 +27,6 @@ export default function ViewProductPage() {
   const { data: product, isLoading, isError } = useGetProductById(productId);
   const deleteMutation = useDeleteProduct();
   const toggleMutation = useToggleProductStatus();
-
-  // استفاده از BASE_URL به جای هاردکد
-  const getImageUrl = (path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
-  };
 
   const handleToggleStatus = (newStatus: boolean) => {
     toggleMutation.mutate(
@@ -73,7 +64,8 @@ export default function ViewProductPage() {
     );
   }
 
-  const mainImageUrl = getImageUrl(product.image);
+  // 👈 ۲. استفاده از getMediaUrl برای تصویر اصلی
+  const mainImageUrl = getMediaUrl(product.image);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12">
@@ -123,7 +115,7 @@ export default function ViewProductPage() {
         </div>
       </div>
 
-      {/* کارت اصلی اطلاعات + تصویر و گالری کاملاً پویا */}
+      {/* کارت اصلی اطلاعات + تصویر و گالری */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="space-y-4">
           <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 flex items-center justify-center p-4">
@@ -141,7 +133,7 @@ export default function ViewProductPage() {
             )}
           </div>
 
-          {/* ⚠️ گالری عکس‌ها (۸ عکس کامل موجود در پاسخ سرور) */}
+          {/* گالری تصاویر */}
           {product.productImages && product.productImages.length > 0 && (
             <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3">
               <div className="flex items-center justify-between text-xs font-bold text-amber-500">
@@ -150,7 +142,8 @@ export default function ViewProductPage() {
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {product.productImages.map((imgItem: any) => {
-                  const url = getImageUrl(imgItem?.image);
+                  // 👈 ۳. استفاده از getMediaUrl برای تک‌تک عکس‌های گالری
+                  const url = getMediaUrl(imgItem?.image);
                   if (!url) return null;
                   return (
                     <div
@@ -311,7 +304,7 @@ export default function ViewProductPage() {
         </div>
       </div>
 
-      {/* ⚠️ مودال نمایش بزرگنمایی عکس گالری با کلیک */}
+      {/* مودال نمایش بزرگنمایی عکس */}
       {selectedPreviewImage && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
           <button

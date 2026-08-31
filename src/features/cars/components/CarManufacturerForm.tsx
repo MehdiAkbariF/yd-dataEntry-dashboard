@@ -7,11 +7,9 @@ import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/Switch';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreateCarManufacturer, useUpdateCarManufacturer } from '../hooks/useCars';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Factory } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 interface CarManufacturerFormProps {
   initialData?: any;
@@ -145,7 +143,7 @@ export default function CarManufacturerForm({ initialData, isEditMode = false }:
         <MediaUploader
           label="آیکون یا لوگوی شرکت خودروساز"
           onFileSelect={setIconFile}
-          previewUrl={initialData?.icon ? `${BASE_URL}${initialData.icon}` : null}
+          previewUrl={getMediaUrl(initialData?.icon)}
         />
         <Input
           label="متن جایگزین آیکون (IconAlt)"

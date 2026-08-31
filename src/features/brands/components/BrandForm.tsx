@@ -9,11 +9,9 @@ import { Switch } from '@/components/ui/Switch';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreateBrand, useUpdateBrand } from '../hooks/useBrands';
 import { apiClient } from '@/lib/axios';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { toast } from 'sonner';
-import { Save, Loader2, ArrowRight, Award, Globe } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
+import { Save, Loader2, ArrowRight, Award } from 'lucide-react';
 
 interface BrandFormProps {
   initialData?: any;
@@ -218,7 +216,7 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
         <MediaUploader
           label="تصویر لوگوی برند"
           onFileSelect={setImageFile}
-          previewUrl={initialData?.image ? `${BASE_URL}${initialData.image}` : null}
+          previewUrl={getMediaUrl(initialData?.image)}
         />
         <Input
           label="متن جایگزین لوگو (ImageAlt)"

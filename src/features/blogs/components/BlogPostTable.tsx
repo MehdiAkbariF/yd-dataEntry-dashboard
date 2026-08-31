@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BlogPostListItem } from '../types';
 import Badge from '@/components/ui/Badge';
-import { getMediaUrl } from '@/lib/config';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از پروکسی مرکزی
 import { Edit, Trash2, Loader2, BookOpen, Clock, Send } from 'lucide-react';
 
 interface BlogPostTableProps {

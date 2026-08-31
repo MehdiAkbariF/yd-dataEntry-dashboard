@@ -7,11 +7,9 @@ import { useGetPartCategoryById, useDeletePartCategory } from '@/features/part-c
 import SEOPreview from '@/components/common/SEOPreview';
 import Badge from '@/components/ui/Badge';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { useState } from 'react';
 import { ArrowRight, Edit, Trash2, Layers, Sparkles, Loader2 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 export default function ViewPartCategoryPage() {
   const params = useParams();
@@ -21,13 +19,6 @@ export default function ViewPartCategoryPage() {
 
   const { data: category, isLoading, isError } = useGetPartCategoryById(categoryId);
   const deleteMutation = useDeletePartCategory();
-
-  // استفاده از BASE_URL به جای هاردکد
-  const getImageUrl = (path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
-  };
 
   if (isLoading) {
     return (
@@ -46,8 +37,8 @@ export default function ViewPartCategoryPage() {
     );
   }
 
-  const thumbnailUrl = getImageUrl(category.thumbnail);
-  const iconUrl = getImageUrl(category.icon);
+  const thumbnailUrl = getMediaUrl(category.thumbnail);
+  const iconUrl = getMediaUrl(category.icon);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12">
@@ -92,8 +83,8 @@ export default function ViewPartCategoryPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950 flex items-center justify-center p-4">
-          {thumbnailUrl ? (
-            <Image src={thumbnailUrl} alt={category.name} fill className="object-contain p-2" unoptimized />
+          {thumbnailUrl || iconUrl ? (
+            <Image src={thumbnailUrl || (iconUrl as string)} alt={category.name} fill className="object-contain p-2" unoptimized />
           ) : (
             <Layers className="h-16 w-16 text-amber-500/50" />
           )}

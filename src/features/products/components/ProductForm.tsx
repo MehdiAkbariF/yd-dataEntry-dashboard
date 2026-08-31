@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
 import { AsyncSelect } from '@/components/ui/AsyncSelect';
 import { MultiAsyncSelect, SelectOption } from '@/components/ui/MultiAsyncSelect';
@@ -16,6 +15,7 @@ import { useProductForm } from '../hooks/useProductForm';
 import { useProductProperties } from '../hooks/useProductProperties';
 import { productService } from '@/services/productService';
 import { apiClient } from '@/lib/axios';
+import { getMediaUrl } from '@/lib/config'; // 👈 ایمپورت تابع پروکسی مرکزی
 import { toast } from 'sonner';
 import {
   Save,
@@ -29,8 +29,6 @@ import {
   Ban,
   Globe,
 } from 'lucide-react';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 interface ProductFormProps {
   initialData?: any;
@@ -52,7 +50,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     resetProperties,
   } = useProductProperties();
 
-  const [existingDetails, setExistingDetails] = useState<any[]>([]);
+  const [, setExistingDetails] = useState<any[]>([]);
 
   // استیت مربوط به قوانین نام‌گذاری قطعه (productNameEntryStandard)
   const [productNameStandard, setProductNameStandard] = useState<string | null>(
@@ -163,7 +161,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         }
       }
 
-      // بارگذاری مقادیر ویژگی‌های محصول موجود در دیتابیس
+      // بارگذاری مقادیر ویژگی‌های محصول
       if (initialData.id) {
         productService
           .getProductDetails(initialData.id)
@@ -211,12 +209,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         );
       }
 
+      // 👈 استفاده از getMediaUrl برای گالری
       if (initialData.productImages && Array.isArray(initialData.productImages)) {
         const mappedGallery: GalleryFileItem[] = initialData.productImages.map((img: any) => ({
           id: img.id,
           file: null,
           alt: img.imageAlt || '',
-          preview: img.image?.startsWith('http') ? img.image : `${BASE_URL}${img.image}`,
+          preview: getMediaUrl(img.image) || '',
         }));
         setGalleryItems(mappedGallery);
       }
@@ -256,7 +255,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     }
   };
 
-  // پر کردن خودکار فیلدهای سئو
   const handleSetNoSeo = () => {
     setSeoTitle('no seo');
     setSeoDescription('no seo');
@@ -367,18 +365,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       formData.append('SEOInformation.CanonicalUrl', seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-'));
     }
 
-    // ⭐️ ارسال دقیق ویژگی‌ها به فرمت ProductDetails[0] = JSON.stringify({ propertyId, value })
+    // ارسال مقادیر ویژگی‌ها
     let detailIndex = 0;
     Object.entries(propertyValues).forEach(([propId, val]) => {
       if (val !== undefined && val !== null && val !== '') {
-        // در صورت چند انتخابی بودن، مقادیر با کاما جدا می‌شوند
         const finalVal = Array.isArray(val) ? val.join(',') : String(val).trim();
         if (finalVal) {
           const detailItem = {
             propertyId: propId,
             value: finalVal,
           };
-
           formData.append(`ProductDetails[${detailIndex}]`, JSON.stringify(detailItem));
           detailIndex++;
         }
@@ -647,7 +643,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
           <MediaUploader
             label="تصویر اصلی محصول"
             onFileSelect={setMainImage}
-            previewUrl={initialData?.image ? `${BASE_URL}${initialData.image}` : null}
+            previewUrl={getMediaUrl(initialData?.image)}
           />
           <Input
             label="متن جایگزین تصویر اصلی (ImageAlt)"

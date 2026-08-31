@@ -6,10 +6,8 @@ import Link from 'next/link';
 import { carService } from '@/services/carService';
 import { useQuery } from '@tanstack/react-query';
 import Badge from '@/components/ui/Badge';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
 import { ArrowRight, Edit, Factory, Loader2 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 export default function ViewCarManufacturerPage() {
   const params = useParams();
@@ -32,8 +30,8 @@ export default function ViewCarManufacturerPage() {
     );
   }
 
-  // استفاده از BASE_URL به جای هاردکد
-  const iconUrl = manufacturer.icon ? `${BASE_URL}${manufacturer.icon}` : null;
+  // 👈 استفاده از تابع getMediaUrl برای پروکسی تصویر
+  const iconUrl = getMediaUrl(manufacturer.icon);
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12">
@@ -41,7 +39,7 @@ export default function ViewCarManufacturerPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/cars/manufacturers"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 text-neutral-400 hover:text-white transition-all"
           >
             <ArrowRight className="h-4 w-4" />
           </Link>
@@ -50,7 +48,7 @@ export default function ViewCarManufacturerPage() {
 
         <Link
           href={`/cars/manufacturers/edit/${manufacturer.id}`}
-          className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-400"
+          className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500 hover:text-black transition-all"
         >
           <Edit className="h-4 w-4" />
           <span>ویرایش</span>

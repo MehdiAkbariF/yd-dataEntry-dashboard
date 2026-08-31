@@ -13,7 +13,7 @@ import { useCreateBlogPost, useUpdateBlogPost } from '../hooks/useBlogs';
 import { blogService } from '@/services/blogService';
 import { carService } from '@/services/carService';
 import { apiClient } from '@/lib/axios';
-import { getMediaUrl } from '@/lib/config';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از پروکسی مرکزی
 import { toast } from 'sonner';
 import { BlogPostFAQ } from '../types';
 import {
@@ -347,7 +347,7 @@ export default function BlogPostForm({ initialData, isEditMode = false }: BlogPo
         <MediaUploader
           label="تصویر اصلی مقاله *"
           onFileSelect={setImageFile}
-          previewUrl={initialData?.imageUrl ? getMediaUrl(initialData.imageUrl) : null}
+          previewUrl={getMediaUrl(initialData?.imageUrl)}
         />
         {errors.image && <p className="text-[11px] text-red-400">{errors.image}</p>}
         <Input

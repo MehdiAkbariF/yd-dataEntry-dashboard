@@ -12,6 +12,7 @@ import SEOPreview from '@/components/common/SEOPreview';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreateCar, useUpdateCar } from '../hooks/useCars';
 import { carService } from '@/services/carService';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از پروکسی مرکزی
 import { toast } from 'sonner';
 import {
   Save,
@@ -22,9 +23,6 @@ import {
   Ban,
   Globe,
 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 interface CarFormProps {
   initialData?: any;
@@ -293,7 +291,7 @@ export default function CarForm({ initialData, isEditMode = false }: CarFormProp
           <MediaUploader
             label="تصویر کاور خودرو"
             onFileSelect={setCoverFile}
-            previewUrl={initialData?.cover ? `${BASE_URL}${initialData.cover}` : null}
+            previewUrl={getMediaUrl(initialData?.cover)}
           />
           <Input
             label="متن جایگزین کاور (CoverAlt)"

@@ -8,15 +8,13 @@ import SEOPreview from '@/components/common/SEOPreview';
 import Badge from '@/components/ui/Badge';
 import { Switch } from '@/components/ui/Switch';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از پروکسی مرکزی
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
   ArrowRight, Edit, Trash2, Car, Sparkles,
   Calendar, User, Car as CarIcon, Loader2
 } from 'lucide-react';
-
-// دریافت BASE_URL از env
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.yadakchi.com';
 
 export default function ViewCarPage() {
   const params = useParams();
@@ -28,13 +26,6 @@ export default function ViewCarPage() {
   const { data: car, isLoading, isError } = useGetCarById(carId);
   const deleteMutation = useDeleteCar();
   const updateMutation = useUpdateCar();
-
-  // استفاده از BASE_URL به جای هاردکد
-  const getCoverUrl = (path: string | null) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `${BASE_URL}${path}`;
-  };
 
   const handleToggleStatus = (newStatus: boolean) => {
     if (!car) return;
@@ -75,7 +66,7 @@ export default function ViewCarPage() {
     );
   }
 
-  const coverUrl = getCoverUrl(car.cover);
+  const coverUrl = getMediaUrl(car.cover);
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12">

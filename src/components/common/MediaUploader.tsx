@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { UploadCloud, X, Image as ImageIcon } from 'lucide-react';
+import { UploadCloud, X } from 'lucide-react';
 
 interface MediaUploaderProps {
   label?: string;
@@ -12,6 +12,11 @@ interface MediaUploaderProps {
 
 export default function MediaUploader({ label, onFileSelect, previewUrl }: MediaUploaderProps) {
   const [localPreview, setLocalPreview] = useState<string | null>(previewUrl || null);
+
+  // هماهنگ‌سازی پیش‌نمایش در صورت تغییر مقدار ورودی از سرور
+  useEffect(() => {
+    setLocalPreview(previewUrl || null);
+  }, [previewUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,6 +42,7 @@ export default function MediaUploader({ label, onFileSelect, previewUrl }: Media
             type="button"
             onClick={handleRemove}
             className="absolute top-3 left-3 rounded-xl bg-red-500/80 p-1.5 text-white hover:bg-red-600 transition-all shadow-lg"
+            title="حذف تصویر"
           >
             <X className="h-4 w-4" />
           </button>
