@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProductListItem } from '../types';
 import Badge from '@/components/ui/Badge';
-import { Edit, Trash2, Eye, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Edit, Trash2, Eye, Loader2, Image as ImageIcon, Copy } from 'lucide-react';
 import { getMediaUrl } from '@/lib/config';
 
 interface ProductTableProps {
@@ -13,6 +13,8 @@ interface ProductTableProps {
   onToggleStatus: (id: string, currentStatus: boolean) => void;
   onDelete: (id: string) => void;
   isTogglingId: string | null;
+  currentPage?: number;
+  pageSize?: number;
 }
 
 export default function ProductTable({
@@ -21,6 +23,8 @@ export default function ProductTable({
   onToggleStatus,
   onDelete,
   isTogglingId,
+  currentPage = 1,
+  pageSize = 20,
 }: ProductTableProps) {
   if (isLoading) {
     return (
@@ -46,21 +50,28 @@ export default function ProductTable({
       <table className="w-full text-right text-xs">
         <thead className="border-b border-neutral-800 bg-neutral-950/80 text-neutral-400">
           <tr>
+            <th className="p-4 text-center w-14">ردیف</th>
             <th className="p-4">تصویر</th>
             <th className="p-4">عنوان محصول / کد</th>
             <th className="p-4">ایجادکننده</th>
+            <th className="p-4">ویرایش‌کننده</th>
             <th className="p-4">تاریخ ثبت</th>
             <th className="p-4 text-center">وضعیت نمایش</th>
             <th className="p-4 text-center">عملیات</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-800/60">
-          {products.map((product) => {
-            // ⚠️ استفاده از تابع مرکزی برای ساختن URL کامل تصویر
+          {products.map((product, index) => {
+            const rowNumber = (currentPage - 1) * pageSize + index + 1;
             const imageUrl = getMediaUrl(product.image);
 
             return (
               <tr key={product.id} className="hover:bg-neutral-800/30 transition-all">
+                {/* شماره ردیف */}
+                <td className="p-4 text-center font-mono text-[12px] font-bold text-neutral-400">
+                  {rowNumber}
+                </td>
+
                 {/* تصویر */}
                 <td className="p-4">
                   <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 flex items-center justify-center">
@@ -98,7 +109,12 @@ export default function ProductTable({
                   <span>{product.creator || 'سیستم'}</span>
                 </td>
 
-                {/* تاریخ */}
+                {/* ویرایش‌کننده */}
+                <td className="p-4 text-neutral-300">
+                  <span>{(product as any).updater || '—'}</span>
+                </td>
+
+                {/* تاریخ ثبت */}
                 <td className="p-4 text-neutral-400 dir-ltr text-right font-mono text-[11px]">
                   {new Date(product.createDate).toLocaleDateString('fa-IR')}
                 </td>
@@ -130,6 +146,15 @@ export default function ProductTable({
                       title="مشاهده جزئیات محصول"
                     >
                       <Eye className="h-4 w-4" />
+                    </Link>
+
+                    {/* تکثیر / داپلیکیت محصول */}
+                    <Link
+                      href={`/products/duplicate/${product.id}`}
+                      className="rounded-lg border border-neutral-800 bg-neutral-950 p-2 text-neutral-400 hover:border-cyan-500/30 hover:text-cyan-400 transition-all"
+                      title="تکثیر (داپلیکیت) محصول"
+                    >
+                      <Copy className="h-4 w-4" />
                     </Link>
 
                     {/* ویرایش */}

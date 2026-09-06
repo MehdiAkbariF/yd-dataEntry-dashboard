@@ -15,7 +15,7 @@ import { useProductForm } from '../hooks/useProductForm';
 import { useProductProperties } from '../hooks/useProductProperties';
 import { productService } from '@/services/productService';
 import { apiClient } from '@/lib/axios';
-import { getMediaUrl } from '@/lib/config'; // 👈 ایمپورت تابع پروکسی مرکزی
+import { getMediaUrl } from '@/lib/config';
 import { toast } from 'sonner';
 import {
   Save,
@@ -209,7 +209,6 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         );
       }
 
-      // 👈 استفاده از getMediaUrl برای گالری
       if (initialData.productImages && Array.isArray(initialData.productImages)) {
         const mappedGallery: GalleryFileItem[] = initialData.productImages.map((img: any) => ({
           id: img.id,
@@ -241,6 +240,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
       setIsActive(false);
     }
   }, [initialData, loadProperties, actions, setPropertyValues]);
+
+  // پاک شدن خودکار عدد صفر هنگام کلیک روی اینپوت
+  const handleNumberFocus = (value: string | number, setter: (val: string) => void) => {
+    if (value === '0' || value === 0) {
+      setter('');
+    }
+  };
 
   const handlePartChange = (selectedPartId: string) => {
     setPartId(selectedPartId);
@@ -418,7 +424,16 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
   const activeProperties = properties.length > 0 ? properties : dependencies.partProperties;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-6xl mx-auto pb-24">
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        // جلوگیری از سابمیت ناخواسته فرم با زدن کلید Enter در اینپوت‌ها
+        if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+          e.preventDefault();
+        }
+      }}
+      className="space-y-8 max-w-6xl mx-auto pb-24"
+    >
       {/* هدر صفحه */}
       <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
         <div className="flex items-center gap-3">
@@ -541,7 +556,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         </div>
       </div>
 
-      {/* ۲. ویژگی‌های فنی قطعه */}
+      {/* ۲. ویژگی‌های فنی قطعه (استفاده از TextField / Textarea برای مقادیر متنی) */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
           <Sliders className="h-4 w-4" />
@@ -598,14 +613,27 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                   </div>
                 );
               }
+
+              // برای فیلدهای متنی: تبدیل به TextField چندخطی به همراه جلوگیری از سابمیت با Enter
               return (
-                <Input
-                  key={prop.id}
-                  label={`${prop.name} ${prop.isRequired ? '*' : ''}`}
-                  placeholder={`مقدار ${prop.name} را وارد کنید...`}
-                  value={typeof currentValue === 'string' ? currentValue : currentValue[0] || ''}
-                  onChange={(e) => setPropertyValue(prop.id, e.target.value)}
-                />
+                <div key={prop.id} className="space-y-1.5">
+                  <label className="block text-xs font-medium text-neutral-300">
+                    {prop.name} {prop.isRequired && <span className="text-red-400">*</span>}
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder={`مقدار ${prop.name} را وارد کنید...`}
+                    value={typeof currentValue === 'string' ? currentValue : currentValue[0] || ''}
+                    onChange={(e) => setPropertyValue(prop.id, e.target.value)}
+                    onKeyDown={(e) => {
+                      // جلوگیری از تداخل Enter با سابمیت فرم
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.stopPropagation();
+                      }
+                    }}
+                    className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-all resize-y min-h-[44px]"
+                  />
+                </div>
               );
             })}
           </div>
@@ -667,10 +695,39 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4">
           <h3 className="text-sm font-bold text-amber-500">ابعاد، وزن و بسته‌بندی</h3>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="طول (cm)" type="number" value={length} onChange={(e) => setLength(e.target.value)} dir="ltr" />
-            <Input label="عرض (cm)" type="number" value={width} onChange={(e) => setWidth(e.target.value)} dir="ltr" />
-            <Input label="ارتفاع (cm)" type="number" value={height} onChange={(e) => setHeight(e.target.value)} dir="ltr" />
-            <Input label="وزن (kg)" type="number" step="0.1" value={weight} onChange={(e) => setWeight(e.target.value)} dir="ltr" />
+            <Input
+              label="طول (cm)"
+              type="number"
+              value={length}
+              onChange={(e) => setLength(e.target.value)}
+              onFocus={() => handleNumberFocus(length, setLength)}
+              dir="ltr"
+            />
+            <Input
+              label="عرض (cm)"
+              type="number"
+              value={width}
+              onChange={(e) => setWidth(e.target.value)}
+              onFocus={() => handleNumberFocus(width, setWidth)}
+              dir="ltr"
+            />
+            <Input
+              label="ارتفاع (cm)"
+              type="number"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+              onFocus={() => handleNumberFocus(height, setHeight)}
+              dir="ltr"
+            />
+            <Input
+              label="وزن (kg)"
+              type="number"
+              step="0.1"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              onFocus={() => handleNumberFocus(weight, setWeight)}
+              dir="ltr"
+            />
           </div>
 
           <div className="flex items-center gap-6 pt-2">

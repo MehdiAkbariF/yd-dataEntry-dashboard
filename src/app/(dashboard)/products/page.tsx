@@ -28,7 +28,7 @@ export default function ProductsPage() {
     updaterId: productFilters.updaterId || undefined,
     brandId: productFilters.brandId || undefined,
     partId: productFilters.partId || undefined,
-    carId: productFilters.carId || undefined, // 👈 ارسال فیلتر خودرو به سرور
+    carId: productFilters.carId || undefined,
   });
 
   const toggleMutation = useToggleProductStatus();
@@ -94,21 +94,23 @@ export default function ProductsPage() {
         setBrandId={(val) => setProductFilter('brandId', val)}
         partId={productFilters.partId}
         setPartId={(val) => setProductFilter('partId', val)}
-        carId={productFilters.carId} // 👈 افزودن فیلتر خودرو به بار
+        carId={productFilters.carId}
         setCarId={(val) => setProductFilter('carId', val)}
         onReset={resetProductFilters}
       />
 
-      {/* جدول لیست محصولات */}
+      {/* جدول لیست محصولات با قابلیت شماره‌گذاری و داپلیکیت */}
       <ProductTable
         products={data?.items || []}
         isLoading={isLoading}
         onToggleStatus={handleToggleStatus}
         onDelete={(id) => setDeleteId(id)}
         isTogglingId={togglingId}
+        currentPage={data?.currentPage || 1}
+        pageSize={20}
       />
 
-      {/* صفحه‌بندی متصل به استور ماندگار */}
+      {/* صفحه‌بندی */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
@@ -117,7 +119,7 @@ export default function ProductsPage() {
         />
       )}
 
-      {/* مودال حذف */}
+      {/* مودال تایید حذف */}
       <ConfirmModal
         isOpen={!!deleteId}
         title="حذف محصول"

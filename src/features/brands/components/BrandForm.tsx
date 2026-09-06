@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/Input';
@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/Switch';
 import MediaUploader from '@/components/common/MediaUploader';
 import { useCreateBrand, useUpdateBrand } from '../hooks/useBrands';
 import { apiClient } from '@/lib/axios';
-import { getMediaUrl } from '@/lib/config'; // 👈 استفاده از تابع پروکسی مرکزی
+import { getMediaUrl } from '@/lib/config';
 import { toast } from 'sonner';
 import { Save, Loader2, ArrowRight, Award } from 'lucide-react';
 
@@ -43,6 +43,9 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // کش کردن کشورها برای جلوگیری از ریکوئست‌های تکراری و بالا بردن سرعت سرچ
+  const cachedCountriesRef = useRef<any[] | null>(null);
+
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || '');
@@ -62,20 +65,44 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
     }
   }, [initialData]);
 
-  // دریافت لیست کشورها از API
+  // دریافت و جستجوی هوشمند کشورها (با پشتیبانی از حروف بزرگ/کوچک و مخفف)
   const fetchCountries = async (query: string) => {
     try {
-      const res = await apiClient.get<any>('/api/Admin/A_Miscellanies/Country', {
-        params: {
-          PageNumber: 1,
-          PageSize: 50,
-          Name: query || undefined,
-        },
-      });
-      const items = Array.isArray(res.data) ? res.data : res.data?.items || [];
-      return items.map((c: any) => ({
+      let countries = cachedCountriesRef.current;
+
+      if (!countries) {
+        const res = await apiClient.get<any>('/api/Admin/A_Miscellanies/Country', {
+          params: {
+            PageNumber: 1,
+            PageSize: 300,
+            isDeleted: false,
+          },
+        });
+
+        const rawData = res.data;
+        countries = Array.isArray(rawData)
+          ? rawData
+          : Array.isArray(rawData?.items)
+          ? rawData.items
+          : [];
+
+        cachedCountriesRef.current = countries;
+      }
+
+      const q = query ? query.trim().toLowerCase() : '';
+
+      // فیلتر کردن هم بر اساس نام کشور و هم بر اساس کد اختصاری (مثلاً DE، IR، US)
+      const filtered = q
+        ? countries.filter((c: any) => {
+            const countryNameStr = (c.name || '').toLowerCase();
+            const countryAbbr = (c.abbreviation || '').toLowerCase();
+            return countryNameStr.includes(q) || countryAbbr.includes(q);
+          })
+        : countries;
+
+      return filtered.map((c: any) => ({
         value: c.id,
-        label: c.name,
+        label: c.abbreviation ? `${c.name} (${c.abbreviation.toUpperCase()})` : c.name,
       }));
     } catch (error) {
       console.error('Failed to fetch countries:', error);
@@ -137,7 +164,16 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-24">
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={(e) => {
+        // جلوگیری از سابمیت ناخواسته فرم با زدن کلید Enter
+        if (e.key === 'Enter' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+          e.preventDefault();
+        }
+      }}
+      className="space-y-8 max-w-4xl mx-auto pb-24"
+    >
       {/* هدر صفحه */}
       <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
         <div className="flex items-center gap-3">
@@ -193,10 +229,10 @@ export default function BrandForm({ initialData, isEditMode = false }: BrandForm
           <div className="sm:col-span-2">
             <AsyncSelect
               label="کشور سازنده (Country)"
-              placeholder="جستجو و انتخاب کشور سازنده..."
+              placeholder="جستجو و انتخاب کشور سازنده (مثال: Iran, Germany, Japan)..."
               value={countryId}
               initialLabel={countryName}
-              onChange={setCountryId}
+              onChange={(val) => setCountryId(val)}
               fetchOptions={fetchCountries}
             />
           </div>

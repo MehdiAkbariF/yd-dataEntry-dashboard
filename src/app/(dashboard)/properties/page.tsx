@@ -12,6 +12,7 @@ import {
   useDeletePropertyParent,
 } from '@/features/properties/hooks/useProperties';
 import { propertyService } from '@/services/propertyService';
+import { apiClient } from '@/lib/axios';
 import PropertyTable from '@/features/properties/components/PropertyTable';
 import PropertyFilterBar from '@/features/properties/components/PropertyFilterBar';
 import PropertyModal from '@/features/properties/components/PropertyModal';
@@ -60,8 +61,15 @@ export default function PropertiesPage() {
   const updateParentMutation = useUpdatePropertyParent();
   const deleteParentMutation = useDeletePropertyParent();
 
-  // ⚠️ عملیات ذخیره و اتصال موازی ویژگی به قطعات و مقادیر چندتایی
-  const handleSaveProperty = async ({ data, formData, isEdit, partIds, multiSelectValues }: any) => {
+  // عملیات ذخیره، اتصال قطعات جدید و حذف اتصال قطعات برداشته‌شده با DeletePartProperty
+  const handleSaveProperty = async ({
+    data,
+    formData,
+    isEdit,
+    partIds = [],
+    initialPartIds = [],
+    multiSelectValues,
+  }: any) => {
     try {
       let currentPropertyId = selectedProperty?.id;
 
@@ -75,9 +83,59 @@ export default function PropertiesPage() {
       }
 
       if (currentPropertyId) {
-        // ۱. اتصال به قطعات
-        if (partIds && partIds.length > 0) {
-          await Promise.all(partIds.map((pId: string) => propertyService.assignPropertyToPart(pId, currentPropertyId)));
+        // ۱. استخراج دقیق لیست قطعات اولیه متصل به این ویژگی
+        let existingPartIds: string[] = Array.isArray(initialPartIds) && initialPartIds.length > 0 
+          ? [...initialPartIds] 
+          : [];
+
+        if (isEdit && existingPartIds.length === 0) {
+          try {
+            const res = await apiClient.get('/api/A_Part/Property', {
+              params: { Id: currentPropertyId },
+            });
+            const propDetails = res.data?.data || res.data;
+            const targetObj = Array.isArray(propDetails) ? propDetails[0] : propDetails;
+            const rawParts =
+              targetObj?.parts ||
+              targetObj?.partProperties ||
+              targetObj?.partIds ||
+              [];
+            existingPartIds = rawParts.map((p: any) =>
+              typeof p === 'object' && p !== null ? (p.partId || p.id) : p
+            );
+          } catch (err) {
+            console.error('خطا در دریافت لیست قبلی قطعات:', err);
+          }
+        }
+
+        // تفکیک قطعات جدید
+        const newlyAddedPartIds = isEdit
+          ? partIds.filter((pId: string) => !existingPartIds.includes(pId))
+          : partIds;
+
+        // تفکیک قطعاتی که قبلاً بودند اما اکنون کاربر تیک آن‌ها را برداشته است
+        const removedPartIds = isEdit
+          ? existingPartIds.filter((pId: string) => !partIds.includes(pId))
+          : [];
+
+        // الف) اتصال قطعات جدید
+        const uniqueNewPartIds = Array.from(new Set(newlyAddedPartIds));
+        if (uniqueNewPartIds.length > 0) {
+          await Promise.all(
+            uniqueNewPartIds.map((pId: any) =>
+              propertyService.assignPropertyToPart(String(pId), currentPropertyId!)
+            )
+          );
+        }
+
+        // ب) حذف قطعات حذف‌شده با استفاده از اندپوینت DeletePartProperty
+        const uniqueRemovedPartIds = Array.from(new Set(removedPartIds));
+        if (uniqueRemovedPartIds.length > 0) {
+          await Promise.all(
+            uniqueRemovedPartIds.map((pId: any) =>
+              propertyService.deletePartProperty(String(pId), [currentPropertyId!])
+            )
+          );
         }
 
         // ۲. پردازش مقادیر MultiSelect
@@ -86,7 +144,6 @@ export default function PropertiesPage() {
           const updateValues = multiSelectValues.filter((v: any) => v.id && !v.isDeleted && v.isEdited);
           const deleteValues = multiSelectValues.filter((v: any) => v.id && v.isDeleted);
 
-          // ایجاد مقادیر جدید به صورت گروهی
           if (newValues.length > 0) {
             const form = new FormData();
             form.append('PropertyId', currentPropertyId);
@@ -94,7 +151,6 @@ export default function PropertiesPage() {
             await propertyService.createPropertyMultiSelect(form);
           }
 
-          // ویرایش مقادیر تغییر یافته (ویرایش متن یا تاگل فعال/غیرفعال)
           if (updateValues.length > 0) {
             await Promise.all(
               updateValues.map((v: any) => {
@@ -108,7 +164,6 @@ export default function PropertiesPage() {
             );
           }
 
-          // حذف مقادیر دیلیت شده
           if (deleteValues.length > 0) {
             await Promise.all(deleteValues.map((v: any) => propertyService.deletePropertyMultiSelect(v.id)));
           }

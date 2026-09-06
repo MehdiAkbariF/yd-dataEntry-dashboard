@@ -18,7 +18,27 @@ export const propertyService = {
     );
     return response.data;
   },
-
+async unassignPropertyFromPart(partId: string): Promise<any> {
+    const formData = new FormData();
+    formData.append('Id', partId);
+    formData.append('PropertyId', ''); // مقدار خالی برای null شدن ویژگی در قطعه
+    const response = await apiClient.put('/api/A_Part/Part', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+  async deletePartProperty(partId: string, propertyIds: string[]): Promise<any> {
+    const formData = new FormData();
+    formData.append('PartId', partId);
+    propertyIds.forEach((propId) => {
+      formData.append('PropertyIds', propId);
+    });
+    const response = await apiClient.delete('/api/A_Part/DeletePartProperty', {
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
   async createProperty(data: any): Promise<any> {
     const response = await apiClient.post('/api/A_Part/Property', [data]);
     return response.data;

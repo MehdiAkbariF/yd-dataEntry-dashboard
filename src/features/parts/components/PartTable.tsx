@@ -13,6 +13,8 @@ interface PartTableProps {
   onToggleStatus: (id: string, currentStatus: boolean) => void;
   onDelete: (id: string) => void;
   isTogglingId: string | null;
+  currentPage?: number;
+  pageSize?: number;
 }
 
 export default function PartTable({
@@ -21,6 +23,8 @@ export default function PartTable({
   onToggleStatus,
   onDelete,
   isTogglingId,
+  currentPage = 1,
+  pageSize = 20,
 }: PartTableProps) {
   if (isLoading) {
     return (
@@ -46,6 +50,7 @@ export default function PartTable({
       <table className="w-full text-right text-xs">
         <thead className="border-b border-neutral-800 bg-neutral-950/80 text-neutral-400">
           <tr>
+            <th className="p-4 text-center w-14">ردیف</th>
             <th className="p-4">آیکون</th>
             <th className="p-4">نام قطعه / انگلیسی</th>
             <th className="p-4">دسته‌بندی</th>
@@ -56,11 +61,18 @@ export default function PartTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-800/60">
-          {parts.map((part) => {
+          {parts.map((part, index) => {
+            // محاسبه شماره ردیف با احتساب صفحه فعلی
+            const rowNumber = (currentPage - 1) * pageSize + index + 1;
             const iconUrl = getMediaUrl(part.icon);
 
             return (
               <tr key={part.id} className="hover:bg-neutral-800/30 transition-all">
+                {/* شماره ردیف */}
+                <td className="p-4 text-center font-mono text-[12px] font-bold text-neutral-400">
+                  {rowNumber}
+                </td>
+
                 {/* آیکون */}
                 <td className="p-4">
                   <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950 flex items-center justify-center">
