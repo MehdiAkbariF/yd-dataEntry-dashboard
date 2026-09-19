@@ -118,6 +118,7 @@ export default function PartsPage() {
           currentPage={data.currentPage}
           totalPages={data.totalPages}
           onPageChange={(newPage) => setPartFilter('page', newPage)}
+          totalCount={data?.totalCount}
         />
       )}
 

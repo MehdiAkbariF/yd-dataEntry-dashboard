@@ -173,6 +173,7 @@ export default function PartDescriptionsPage() {
           currentPage={currentData.currentPage}
           totalPages={currentData.totalPages}
           onPageChange={(newPage) => setPartDescriptionFilter('page', newPage)}
+          
         />
       )}
 

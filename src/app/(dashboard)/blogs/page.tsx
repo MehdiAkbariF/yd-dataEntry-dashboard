@@ -101,6 +101,7 @@ export default function BlogPostsPage() {
           currentPage={data.currentPage}
           totalPages={data.totalPages}
           onPageChange={(newPage) => setBlogPostFilter('page', newPage)}
+          totalCount={data?.totalCount}
         />
       )}
 

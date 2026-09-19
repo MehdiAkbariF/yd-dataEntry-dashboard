@@ -1,3 +1,4 @@
+// src/app/(dashboard)/products/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -16,11 +17,11 @@ export default function ProductsPage() {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [pageSize, setPageSize] = useState<number>(20);
 
-  // فراخوانی API محصولات همراه با پارامتر carId
   const { data, isLoading } = useGetProducts({
     pageNumber: productFilters.page,
-    pageSize: 20,
+    pageSize: pageSize,
     title: productFilters.title || undefined,
     productCode: productFilters.productCode || undefined,
     isActive: productFilters.isActive === '' ? undefined : productFilters.isActive === 'true',
@@ -55,6 +56,11 @@ export default function ProductsPage() {
     });
   };
 
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setProductFilter('page', 1);
+  };
+
   return (
     <div className="space-y-6">
       {/* هدر صفحه */}
@@ -71,14 +77,14 @@ export default function ProductsPage() {
 
         <Link
           href="/products/new"
-          className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-black hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10"
+          className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-xs font-bold text-black hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>ایجاد محصول جدید</span>
         </Link>
       </div>
 
-      {/* نوار فیلتر متصل به استور ماندگار */}
+      {/* نوار فیلتر */}
       <ProductFilterBar
         title={productFilters.title}
         setTitle={(val) => setProductFilter('title', val)}
@@ -97,9 +103,10 @@ export default function ProductsPage() {
         carId={productFilters.carId}
         setCarId={(val) => setProductFilter('carId', val)}
         onReset={resetProductFilters}
+        totalCount={data?.totalCount}
       />
 
-      {/* جدول لیست محصولات با قابلیت شماره‌گذاری و داپلیکیت */}
+      {/* جدول لیست محصولات */}
       <ProductTable
         products={data?.items || []}
         isLoading={isLoading}
@@ -107,14 +114,18 @@ export default function ProductsPage() {
         onDelete={(id) => setDeleteId(id)}
         isTogglingId={togglingId}
         currentPage={data?.currentPage || 1}
-        pageSize={20}
+        pageSize={pageSize}
       />
 
-      {/* صفحه‌بندی */}
+      {/* صفحه‌بندی کامل با تعداد کل، تعداد در صفحه و پرش سریع */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
           totalPages={data.totalPages}
+          totalCount={data.totalCount}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 20, 50, 100]}
+          onPageSizeChange={handlePageSizeChange}
           onPageChange={(newPage) => setProductFilter('page', newPage)}
         />
       )}

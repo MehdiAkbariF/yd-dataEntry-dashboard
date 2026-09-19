@@ -109,6 +109,7 @@ export default function BrandsPage() {
           currentPage={data.currentPage}
           totalPages={data.totalPages}
           onPageChange={(newPage) => setBrandFilter('page', newPage)}
+          totalCount={data?.totalCount}
         />
       )}
 
