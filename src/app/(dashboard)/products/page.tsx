@@ -4,11 +4,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useGetProducts, useToggleProductStatus, useDeleteProduct } from '@/features/products/hooks/useProducts';
+import { useProductExcelExport } from '@/features/products/hooks/useProductExcelExport';
 import ProductTable from '@/features/products/components/ProductTable';
 import ProductFilterBar from '@/features/products/components/ProductFilterBar';
 import Pagination from '@/components/common/Pagination';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import { useFilterStore } from '@/store/useFilterStore';
+import { ProductListItem } from '@/features/products/types';
 import { Plus, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -17,6 +19,7 @@ export default function ProductsPage() {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
   const [pageSize, setPageSize] = useState<number>(20);
 
   const { data, isLoading } = useGetProducts({
@@ -34,6 +37,7 @@ export default function ProductsPage() {
 
   const toggleMutation = useToggleProductStatus();
   const deleteMutation = useDeleteProduct();
+  const { exportProductsToExcel } = useProductExcelExport();
 
   const handleToggleStatus = (id: string, currentStatus: boolean) => {
     setTogglingId(id);
@@ -59,6 +63,16 @@ export default function ProductsPage() {
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
     setProductFilter('page', 1);
+  };
+
+  // 📊 دانلود اکسل (نام محصول + ویژگی‌ها) برای یک محصول
+  const handleExportExcel = async (product: ProductListItem) => {
+    setExportingId(product.id);
+    try {
+      await exportProductsToExcel([product]);
+    } finally {
+      setExportingId(null);
+    }
   };
 
   return (
@@ -115,9 +129,11 @@ export default function ProductsPage() {
         isTogglingId={togglingId}
         currentPage={data?.currentPage || 1}
         pageSize={pageSize}
+        onExportExcel={handleExportExcel}
+        exportingId={exportingId}
       />
 
-      {/* صفحه‌بندی کامل با تعداد کل، تعداد در صفحه و پرش سریع */}
+      {/* صفحه‌بندی */}
       {data && (
         <Pagination
           currentPage={data.currentPage}
@@ -130,7 +146,7 @@ export default function ProductsPage() {
         />
       )}
 
-      {/* مودال تایید حذف */}
+      {/* مودال تأیید حذف */}
       <ConfirmModal
         isOpen={!!deleteId}
         title="حذف محصول"

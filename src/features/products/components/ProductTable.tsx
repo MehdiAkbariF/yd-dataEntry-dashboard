@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProductListItem } from '../types';
 import Badge from '@/components/ui/Badge';
-import { Edit, Trash2, Eye, Loader2, Image as ImageIcon, Copy } from 'lucide-react';
+import { Edit, Trash2, Eye, Loader2, Image as ImageIcon, Copy, FileSpreadsheet } from 'lucide-react';
 import { getMediaUrl } from '@/lib/config';
 
 interface ProductTableProps {
@@ -15,6 +15,8 @@ interface ProductTableProps {
   isTogglingId: string | null;
   currentPage?: number;
   pageSize?: number;
+  onExportExcel?: (product: ProductListItem) => void;
+  exportingId?: string | null;
 }
 
 export default function ProductTable({
@@ -25,6 +27,8 @@ export default function ProductTable({
   isTogglingId,
   currentPage = 1,
   pageSize = 20,
+  onExportExcel,
+  exportingId = null,
 }: ProductTableProps) {
   if (isLoading) {
     return (
@@ -64,6 +68,7 @@ export default function ProductTable({
           {products.map((product, index) => {
             const rowNumber = (currentPage - 1) * pageSize + index + 1;
             const imageUrl = getMediaUrl(product.image);
+            const isRowExporting = exportingId === product.id;
 
             return (
               <tr key={product.id} className="hover:bg-neutral-800/30 transition-all">
@@ -148,7 +153,21 @@ export default function ProductTable({
                       <Eye className="h-4 w-4" />
                     </Link>
 
-                    {/* تکثیر / داپلیکیت محصول */}
+                    {/* دانلود اکسل (نام + ویژگی‌ها) */}
+                    <button
+                      onClick={() => onExportExcel?.(product)}
+                      disabled={isRowExporting}
+                      className="rounded-lg border border-neutral-800 bg-neutral-950 p-2 text-neutral-400 hover:border-emerald-500/30 hover:text-emerald-400 transition-all disabled:opacity-50"
+                      title="دانلود نام محصول و ویژگی‌ها به صورت اکسل"
+                    >
+                      {isRowExporting ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
+                      ) : (
+                        <FileSpreadsheet className="h-4 w-4" />
+                      )}
+                    </button>
+
+                    {/* تکثیر */}
                     <Link
                       href={`/products/duplicate/${product.id}`}
                       className="rounded-lg border border-neutral-800 bg-neutral-950 p-2 text-neutral-400 hover:border-cyan-500/30 hover:text-cyan-400 transition-all"
