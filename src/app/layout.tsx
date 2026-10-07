@@ -4,7 +4,8 @@ import './globals.css';
 import ReactQueryProvider from '@/providers/ReactQueryProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { Toaster } from 'sonner';
-
+import '@measured/puck/puck.css';
+import './puck-overrides.css';
 const iranYekan = localFont({
   src: [
     { path: '../../public/Font/IranYekan/woff2/IRANYekanXFaNum-Regular.woff2', weight: '400', style: 'normal' },

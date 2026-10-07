@@ -50,6 +50,13 @@ const menuGroups = [
       { title: 'برچسب‌ها (Tags)', href: '/tags', icon: Tag },
     ],
   },
+  {
+    title: 'صفحات استاتیک',
+    items: [
+      { title: 'صفحات', href: '/pages', icon: Award },
+  
+    ],
+  },
 ];
 
 export default function Sidebar() {

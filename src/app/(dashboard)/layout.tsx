@@ -7,7 +7,8 @@ import Sidebar from '@/components/common/Sidebar';
 import ScratchpadDrawer from '@/components/scratchpad/ScratchpadDrawer';
 import SplitWorkspace from '@/components/common/SplitWorkspace';
 import AuthGuard from '@/components/common/AuthGuard';
-
+import '@measured/puck/puck.css';
+import './puck-overrides.css';
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const isEmbed = searchParams.get('embed') === 'true';

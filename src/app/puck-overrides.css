@@ -1,0 +1,26 @@
+/* Puck UI RTL + theme overrides */
+
+.Puck {
+  direction: rtl !important;
+  font-family: 'IRANYekan', system-ui, sans-serif !important;
+}
+
+/* دکمه Publish */
+.Puck [data-puck-publish] {
+  background-color: #f59e0b !important;
+  color: #000 !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+}
+
+/* سایدبار بلوک‌ها */
+.Puck [class*="Sidebar"] {
+  border-right: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* پنل راست (fields) */
+.Puck [class*="RightSidebar"] {
+  border-left: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}

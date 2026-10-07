@@ -252,3 +252,19 @@ body {
   font-family: monospace;
   font-size: 0.775rem;
 }
+/* Page Builder - Puck overrides */
+@import '@measured/puck/puck.css';
+/* Puck UI RTL + theme overrides */
+
+.Puck {
+  direction: rtl;
+  font-family: 'IRANYekan', system-ui, sans-serif;
+}
+
+/* دکمه Publish */
+.Puck [data-puck-publish] {
+  background-color: #f59e0b !important;
+  color: #000 !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+}

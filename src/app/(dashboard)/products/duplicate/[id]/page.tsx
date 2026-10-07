@@ -15,7 +15,9 @@ export default function DuplicateProductPage() {
     return (
       <div className="flex h-[80vh] w-full flex-col items-center justify-center gap-4 rounded-3xl border border-neutral-800 bg-neutral-900/40 backdrop-blur-sm">
         <Loader2 className="h-10 w-10 animate-spin text-amber-500" />
-        <span className="text-sm font-medium text-neutral-400">در حال دریافت و کپی اطلاعات کاتالوگ محصول...</span>
+        <span className="text-sm font-medium text-neutral-400">
+          در حال دریافت و کپی اطلاعات کاتالوگ محصول...
+        </span>
       </div>
     );
   }
@@ -24,15 +26,18 @@ export default function DuplicateProductPage() {
     return (
       <div className="flex h-64 w-full flex-col items-center justify-center gap-3 rounded-3xl border border-red-500/20 bg-red-500/5 text-red-400">
         <span className="text-sm font-bold">خطا در دریافت اطلاعات محصول.</span>
-        <span className="text-xs text-neutral-500">ممکن است محصول مرجع حذف شده باشد.</span>
+        <span className="text-xs text-neutral-500">
+          ممکن است محصول مرجع حذف شده باشد.
+        </span>
       </div>
     );
   }
 
-  // آماده‌سازی دقیق داده‌ها برای ایجاد محصول کپی
+  // ✅ آماده‌سازی دقیق داده‌ها برای ایجاد محصول کپی
   const duplicateInitialData = {
     ...productData,
     id: undefined, // 🚨 حذف شناسه اصلی تا یک محصول کاملاً جدید ایجاد شود نه آپدیت
+    referenceId: productData.id, // ✅ کلید مرجع برای لود کردن Product Details (مشخصات فنی) در حالت کپی
     title: `${productData.title} (کپی)`,
     englishTitle: `${productData.englishTitle || ''} (Copy)`.trim(),
     productCode: '', // خالی کردن کد محصول تا در سیستم تکراری تولید نشود
@@ -50,6 +55,8 @@ export default function DuplicateProductPage() {
     tags: productData.tags || [],
     relatedProducts: productData.relatedProducts || [],
     productImages: productData.productImages || [],
+    // ✅ نگه‌داشتن ProductDetails اصلی برای کپی مقادیر مشخصات فنی
+    productDetails: (productData as any).productDetails || (productData as any).details || [],
   };
 
   return (
@@ -60,12 +67,18 @@ export default function DuplicateProductPage() {
         </div>
         <div>
           <h1 className="text-lg font-bold text-white">تکثیر محصول</h1>
-          <p className="text-xs text-neutral-400">ایجاد محصول جدید بر پایه ساختار محصول: {productData.title}</p>
+          <p className="text-xs text-neutral-400">
+            ایجاد محصول جدید بر پایه ساختار محصول: {productData.title}
+          </p>
         </div>
       </div>
-      
+
       {/* پاس دادن داده‌ها با حالت isEditMode = false (چون قراره Create بشه) و flag جدید isDuplicateMode */}
-      <ProductForm initialData={duplicateInitialData} isEditMode={false} isDuplicateMode={true} />
+      <ProductForm
+        initialData={duplicateInitialData}
+        isEditMode={false}
+        isDuplicateMode={true}
+      />
     </div>
   );
 }
