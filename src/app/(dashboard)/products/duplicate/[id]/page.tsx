@@ -1,3 +1,5 @@
+// src/app/(dashboard)/products/duplicate/[id]/page.tsx
+
 'use client';
 
 import { useParams } from 'next/navigation';
@@ -41,13 +43,11 @@ export default function DuplicateProductPage() {
     title: `${productData.title} (کپی)`,
     englishTitle: `${productData.englishTitle || ''} (Copy)`.trim(),
     productCode: '', // خالی کردن کد محصول تا در سیستم تکراری تولید نشود
-    partNumber: '', // پیشنهاد می‌شود پارت نامبر هم خالی شود یا بماند (بسته به سیاست سیستم)
-    seoInformation: {
-      ...productData.seoInformation,
-      id: undefined,
-      title: `(کپی) ${productData.seoInformation?.title || productData.title}`,
-      canonicalUrl: `${productData.seoInformation?.canonicalUrl || ''}-copy`,
-    },
+    partNumber: '',
+
+    // 🚨 SEO باید کاملاً خالی باشه - کاربر باید مجدد پر کنه
+    seoInformation: undefined,
+
     // اطمینان از قرار گرفتن کامل آبجکت‌های برند و قطعه برای لود صحیح دراپ‌داون‌ها
     brand: productData.brand,
     part: productData.part,
@@ -55,8 +55,12 @@ export default function DuplicateProductPage() {
     tags: productData.tags || [],
     relatedProducts: productData.relatedProducts || [],
     productImages: productData.productImages || [],
+
     // ✅ نگه‌داشتن ProductDetails اصلی برای کپی مقادیر مشخصات فنی
-    productDetails: (productData as any).productDetails || (productData as any).details || [],
+    productDetails:
+      (productData as any).productDetails ||
+      (productData as any).details ||
+      [],
   };
 
   return (

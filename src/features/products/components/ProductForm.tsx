@@ -1,15 +1,22 @@
+// src/features/products/components/ProductForm.tsx
+
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { AsyncSelect } from '@/components/ui/AsyncSelect';
-import { MultiAsyncSelect, SelectOption } from '@/components/ui/MultiAsyncSelect';
+import {
+  MultiAsyncSelect,
+  SelectOption,
+} from '@/components/ui/MultiAsyncSelect';
 import { Switch } from '@/components/ui/Switch';
 import ProEditor from '@/components/editor/ProEditor';
 import SEOPreview from '@/components/common/SEOPreview';
 import MediaUploader from '@/components/common/MediaUploader';
-import ProductGalleryUploader, { GalleryFileItem } from '@/components/common/ProductGalleryUploader';
+import ProductGalleryUploader, {
+  GalleryFileItem,
+} from '@/components/common/ProductGalleryUploader';
 import { useCreateProduct, useUpdateProduct } from '../hooks/useProducts';
 import { useProductForm } from '../hooks/useProductForm';
 import { useProductProperties } from '../hooks/useProductProperties';
@@ -57,12 +64,20 @@ export default function ProductForm({
 
   const [, setExistingDetails] = useState<any[]>([]);
 
+  // ============================================================
+  // ✅ Ref برای جلوگیری از re-run مکرر effect بارگذاری
+  // ============================================================
+  const loadedPartIdRef = useRef<string | null>(null);
+  const loadedReferenceIdRef = useRef<string | null>(null);
+
   const [productNameStandard, setProductNameStandard] = useState<string | null>(
     initialData?.part?.productNameEntryStandard || null
   );
 
   const [title, setTitle] = useState(initialData?.title || '');
-  const [englishTitle, setEnglishTitle] = useState(initialData?.englishTitle || '');
+  const [englishTitle, setEnglishTitle] = useState(
+    initialData?.englishTitle || ''
+  );
   const [partNumber, setPartNumber] = useState(initialData?.partNumber || '');
   const [isActive, setIsActive] = useState(
     isEditMode ? initialData?.isActive ?? true : false
@@ -113,15 +128,18 @@ export default function ProductForm({
   const [note, setNote] = useState(initialData?.note || '');
   const [description, setDescription] = useState(initialData?.description || '');
 
-  const [seoId, setSeoId] = useState(initialData?.seoInformation?.id || '');
+  // 🚨 SEO باید در حالت Duplicate خالی بشه
+  const [seoId, setSeoId] = useState(
+    isDuplicateMode ? '' : initialData?.seoInformation?.id || ''
+  );
   const [seoTitle, setSeoTitle] = useState(
-    initialData?.seoInformation?.title || ''
+    isDuplicateMode ? '' : initialData?.seoInformation?.title || ''
   );
   const [seoDescription, setSeoDescription] = useState(
-    initialData?.seoInformation?.description || ''
+    isDuplicateMode ? '' : initialData?.seoInformation?.description || ''
   );
   const [seoCanonicalUrl, setSeoCanonicalUrl] = useState(
-    initialData?.seoInformation?.canonicalUrl || ''
+    isDuplicateMode ? '' : initialData?.seoInformation?.canonicalUrl || ''
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -165,36 +183,41 @@ export default function ProductForm({
   });
 
   // ============================================================
-  // ✅ گزینه‌های اولیه داینامیک برای هر MultiSelect
-  // این memo ها همیشه با selectedIds و cache همگام هستند
+  // ✅ گزینه‌های اولیه برای MultiSelect
+  //
+  // 🚨 نکته مهم: از useMemo استفاده می‌کنیم که reference ثابت بمونه
+  // و باعث re-render های بی‌پایان و flicker دراپ‌داون نشه.
   // ============================================================
 
-  const carInitialOptions = useMemo<SelectOption[]>(
-    () =>
-      carIds.map((id) => ({
-        value: id,
-        label: carOptionsCache.get(id) || id,
-      })),
-    [carIds, carOptionsCache]
-  );
+  const carInitialOptions = useMemo<SelectOption[]>(() => {
+    return carIds
+      .map((id) => {
+        const label = carOptionsCache.get(id);
+        if (!label) return null;
+        return { value: id, label };
+      })
+      .filter((o): o is SelectOption => o !== null);
+  }, [carIds, carOptionsCache]);
 
-  const tagInitialOptions = useMemo<SelectOption[]>(
-    () =>
-      tagIds.map((id) => ({
-        value: id,
-        label: tagOptionsCache.get(id) || id,
-      })),
-    [tagIds, tagOptionsCache]
-  );
+  const tagInitialOptions = useMemo<SelectOption[]>(() => {
+    return tagIds
+      .map((id) => {
+        const label = tagOptionsCache.get(id);
+        if (!label) return null;
+        return { value: id, label };
+      })
+      .filter((o): o is SelectOption => o !== null);
+  }, [tagIds, tagOptionsCache]);
 
-  const relatedInitialOptions = useMemo<SelectOption[]>(
-    () =>
-      relatedProductIds.map((id) => ({
-        value: id,
-        label: relatedOptionsCache.get(id) || id,
-      })),
-    [relatedProductIds, relatedOptionsCache]
-  );
+  const relatedInitialOptions = useMemo<SelectOption[]>(() => {
+    return relatedProductIds
+      .map((id) => {
+        const label = relatedOptionsCache.get(id);
+        if (!label) return null;
+        return { value: id, label };
+      })
+      .filter((o): o is SelectOption => o !== null);
+  }, [relatedProductIds, relatedOptionsCache]);
 
   // ============================================================
   // ✅ Fetch Part Standard Rule
@@ -221,6 +244,7 @@ export default function ProductForm({
 
   // ============================================================
   // ✅ Effect اصلی: مقداردهی اولیه فرم
+  // 🚨 این effect فقط یک بار در mount اجرا میشه (deps پایدار)
   // ============================================================
   useEffect(() => {
     if (!initialData) {
@@ -313,20 +337,24 @@ export default function ProductForm({
     setNote(initialData.note || '');
     setDescription(initialData.description || '');
 
-    // --- SEO ---
-    if (initialData.seoInformation) {
-      setSeoId(isDuplicateMode ? '' : initialData.seoInformation.id || '');
+    // 🚨 SEO در حالت Duplicate کاملاً خالی می‌مونه
+    if (isDuplicateMode) {
+      setSeoId('');
+      setSeoTitle('');
+      setSeoDescription('');
+      setSeoCanonicalUrl('');
+    } else if (initialData.seoInformation) {
+      setSeoId(initialData.seoInformation.id || '');
       setSeoTitle(initialData.seoInformation.title || '');
       setSeoDescription(initialData.seoInformation.description || '');
       setSeoCanonicalUrl(initialData.seoInformation.canonicalUrl || '');
     }
-  }, [initialData, isDuplicateMode, isEditMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData?.id, isDuplicateMode, isEditMode]);
 
   // ============================================================
   // ✅ Effect مستقل: بارگذاری Properties + مقادیرشان
-  // این effect بعد از effect اصلی اجرا می‌شود و مسئول:
-  //   1. لود properties مربوط به partId
-  //   2. لود مقادیر property مربوط به محصول مرجع (در حالت Edit یا Duplicate)
+  // 🚨 این effect با ref محافظت شده که فقط یک بار برای هر partId اجرا بشه
   // ============================================================
   useEffect(() => {
     if (!initialData) return;
@@ -345,20 +373,35 @@ export default function ProductForm({
       fetchPartStandardRule(pId);
     }
 
+    // ✅ جلوگیری از اجرای مکرر برای همون partId
+    const referenceProductId =
+      initialData.id || (isDuplicateMode ? initialData.referenceId : null);
+
+    if (loadedPartIdRef.current === pId) {
+      // partId قبلاً لود شده - فقط چک کن مقادیر لود شده‌اند یا نه
+      return;
+    }
+
+    loadedPartIdRef.current = pId;
+
     // ✅ لود کردن Properties و مقادیر به صورت orchestrated
     const loadPropsAndValues = async () => {
-      // 1) اول properties (فیلدهای فنی) قطعه را لود کن
-      await loadProperties(pId);
-      actions.fetchPropertiesForPart(pId);
-
-      // 2) سپس مقادیر (values) را از محصول مرجع لود کن
-      const referenceProductId =
-        initialData.id || (isDuplicateMode ? initialData.referenceId : null);
-
-      if (!referenceProductId) return;
-
       try {
-        const details = await productService.getProductDetails(referenceProductId);
+        // 1) اول properties (فیلدهای فنی) قطعه را لود کن
+        await loadProperties(pId);
+        actions.fetchPropertiesForPart(pId);
+
+        // 2) سپس مقادیر (values) را از محصول مرجع لود کن
+        if (!referenceProductId) return;
+
+        if (loadedReferenceIdRef.current === referenceProductId) {
+          return;
+        }
+        loadedReferenceIdRef.current = referenceProductId;
+
+        const details = await productService.getProductDetails(
+          referenceProductId
+        );
         setExistingDetails(details || []);
 
         if (details && details.length > 0) {
@@ -389,15 +432,8 @@ export default function ProductForm({
     };
 
     loadPropsAndValues();
-  }, [
-    initialData,
-    isDuplicateMode,
-    loadProperties,
-    actions,
-    setPropertyValues,
-    resetProperties,
-    fetchPartStandardRule,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData?.partId, initialData?.id, isDuplicateMode]);
 
   // ============================================================
   // ✅ Keyboard Shortcut: Ctrl+S
@@ -435,6 +471,7 @@ export default function ProductForm({
     setPartName(label);
     setErrors((prev) => ({ ...prev, partId: '' }));
     setPropertyValues({});
+    loadedPartIdRef.current = null; // 🚨 ریست کن چون کاربر عوض کرد
     if (val) {
       loadProperties(val);
       actions.fetchPropertiesForPart(val);
@@ -489,11 +526,17 @@ export default function ProductForm({
       label: `${c.model} (${c.englishTitle || ''})`,
     }));
 
-    // ✅ آپدیت cache
+    // ✅ آپدیت cache فقط اگر تغییر کرده باشه
     setCarOptionsCache((prev) => {
       const next = new Map(prev);
-      options.forEach((opt: SelectOption) => next.set(opt.value, opt.label));
-      return next;
+      let changed = false;
+      options.forEach((opt: SelectOption) => {
+        if (next.get(opt.value) !== opt.label) {
+          next.set(opt.value, opt.label);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
     });
 
     return options;
@@ -508,31 +551,40 @@ export default function ProductForm({
       label: t.value,
     }));
 
-    // ✅ آپدیت cache
     setTagOptionsCache((prev) => {
       const next = new Map(prev);
-      options.forEach((opt: SelectOption) => next.set(opt.value, opt.label));
-      return next;
+      let changed = false;
+      options.forEach((opt: SelectOption) => {
+        if (next.get(opt.value) !== opt.label) {
+          next.set(opt.value, opt.label);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
     });
 
     return options;
   };
 
   const fetchProductTitles = async (q: string) => {
-    const res = await apiClient.get<any>(
-      '/api/Admin/A_Product/ProductTitles',
-      { params: { Title: q, PageNumber: 1 } }
-    );
+    const res = await apiClient.get<any>('/api/Admin/A_Product/ProductTitles', {
+      params: { Title: q, PageNumber: 1 },
+    });
     const options = (res.data.items || []).map((p: any) => ({
       value: p.id,
       label: p.title,
     }));
 
-    // ✅ آپدیت cache
     setRelatedOptionsCache((prev) => {
       const next = new Map(prev);
-      options.forEach((opt: SelectOption) => next.set(opt.value, opt.label));
-      return next;
+      let changed = false;
+      options.forEach((opt: SelectOption) => {
+        if (next.get(opt.value) !== opt.label) {
+          next.set(opt.value, opt.label);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
     });
 
     return options;
@@ -608,11 +660,13 @@ export default function ProductForm({
 
     if (isEditMode && seoId && !isDuplicateMode)
       formData.append('SEOInformation.Id', seoId);
-    if (
-      seoTitle.trim() ||
-      seoDescription.trim() ||
-      seoCanonicalUrl.trim()
-    ) {
+
+    // 🚨 در Duplicate: اگر SEO خالی بود، چیزی نفرست
+    // اگر کاربر پر کرد، ارسال کن
+    const hasSeoContent =
+      seoTitle.trim() || seoDescription.trim() || seoCanonicalUrl.trim();
+
+    if (hasSeoContent) {
       formData.append('SEOInformation.Title', seoTitle || title);
       formData.append('SEOInformation.Description', seoDescription || title);
       formData.append(
@@ -624,9 +678,7 @@ export default function ProductForm({
     let detailIndex = 0;
     Object.entries(propertyValues).forEach(([propId, val]) => {
       if (val !== undefined && val !== null && val !== '') {
-        const finalVal = Array.isArray(val)
-          ? val.join(',')
-          : String(val).trim();
+        const finalVal = Array.isArray(val) ? val.join(',') : String(val).trim();
         if (finalVal) {
           const detailItem = {
             propertyId: propId,
@@ -660,17 +712,9 @@ export default function ProductForm({
             (item) => item.file !== null
           );
           if (newGalleryFiles.length > 0 && newProductId) {
-            const files = newGalleryFiles.map(
-              (item) => item.file as File
-            );
-            const alts = newGalleryFiles.map(
-              (item) => item.alt || title
-            );
-            await productService.uploadProductImages(
-              newProductId,
-              files,
-              alts
-            );
+            const files = newGalleryFiles.map((item) => item.file as File);
+            const alts = newGalleryFiles.map((item) => item.alt || title);
+            await productService.uploadProductImages(newProductId, files, alts);
           }
 
           if (relatedProductIds.length > 0 && newProductId) {
@@ -812,9 +856,7 @@ export default function ProductForm({
               fetchOptions={fetchParts}
             />
             {errors.partId && (
-              <p className="mt-1 text-[11px] text-red-400">
-                {errors.partId}
-              </p>
+              <p className="mt-1 text-[11px] text-red-400">{errors.partId}</p>
             )}
           </div>
 
@@ -829,13 +871,10 @@ export default function ProductForm({
               fetchOptions={fetchBrands}
             />
             {errors.brandId && (
-              <p className="mt-1 text-[11px] text-red-400">
-                {errors.brandId}
-              </p>
+              <p className="mt-1 text-[11px] text-red-400">{errors.brandId}</p>
             )}
           </div>
 
-          {/* ✅ خودروها: key ثابت + initialOptions داینامیک */}
           <div className="sm:col-span-2 lg:col-span-3">
             <MultiAsyncSelect
               key="cars-multiselect"
@@ -850,13 +889,10 @@ export default function ProductForm({
               fetchOptions={fetchCars}
             />
             {errors.carIds && (
-              <p className="mt-1 text-[11px] text-red-400">
-                {errors.carIds}
-              </p>
+              <p className="mt-1 text-[11px] text-red-400">{errors.carIds}</p>
             )}
           </div>
 
-          {/* ✅ تگ‌ها: key ثابت + initialOptions داینامیک */}
           <div className="sm:col-span-2 lg:col-span-3">
             <MultiAsyncSelect
               key="tags-multiselect"
@@ -875,9 +911,7 @@ export default function ProductForm({
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
           <Sliders className="h-4 w-4" />
-          <span>
-            مشخصات فنی و ویژگی‌های قطعه (Product Properties)
-          </span>
+          <span>مشخصات فنی و ویژگی‌های قطعه (Product Properties)</span>
         </div>
 
         {propertiesLoading ? (
@@ -911,21 +945,21 @@ export default function ProductForm({
                   ? currentValue.split(',').map((s) => s.trim())
                   : [];
 
-                const initialMultiOpts = selectedMultiValues.map(
-                  (val: string) => {
+                const initialMultiOpts = selectedMultiValues
+                  .map((val: string) => {
                     const matched = multiOptions.find(
                       (o: any) => o.value === val
                     );
-                    return {
-                      value: val,
-                      label: matched ? matched.label : val,
-                    };
-                  }
-                );
+                    if (matched) {
+                      return { value: val, label: matched.label };
+                    }
+                    return { value: val, label: val };
+                  })
+                  .filter(Boolean);
 
                 return (
                   <div
-                    key={`${prop.id}-${selectedMultiValues.length}`}
+                    key={prop.id}
                     className="sm:col-span-2"
                   >
                     <MultiAsyncSelect
@@ -946,9 +980,7 @@ export default function ProductForm({
                 <div key={prop.id} className="space-y-1.5">
                   <label className="block text-xs font-medium text-neutral-300">
                     {prop.name}{' '}
-                    {prop.isRequired && (
-                      <span className="text-red-400">*</span>
-                    )}
+                    {prop.isRequired && <span className="text-red-400">*</span>}
                   </label>
                   <textarea
                     rows={2}
@@ -958,9 +990,7 @@ export default function ProductForm({
                         ? currentValue
                         : currentValue[0] || ''
                     }
-                    onChange={(e) =>
-                      setPropertyValue(prop.id, e.target.value)
-                    }
+                    onChange={(e) => setPropertyValue(prop.id, e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.stopPropagation();
@@ -1007,11 +1037,7 @@ export default function ProductForm({
           <MediaUploader
             label="تصویر اصلی محصول"
             onFileSelect={setMainImage}
-            previewUrl={
-              isDuplicateMode && initialData?.image
-                ? getMediaUrl(initialData.image)
-                : getMediaUrl(initialData?.image)
-            }
+            previewUrl={getMediaUrl(initialData?.image)}
           />
           <Input
             label="متن جایگزین تصویر اصلی (ImageAlt)"
@@ -1122,6 +1148,15 @@ export default function ProductForm({
             </button>
           </div>
 
+          {isDuplicateMode && (
+            <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-3">
+              <p className="text-[11px] text-blue-400 leading-relaxed">
+                در حالت تکثیر، اطلاعات سئو کپی نمی‌شود. لطفاً اطلاعات سئو
+                مخصوص محصول جدید را وارد کنید.
+              </p>
+            </div>
+          )}
+
           <div className="space-y-4">
             <Input
               label="عنوان سئو (Meta Title)"
@@ -1149,9 +1184,7 @@ export default function ProductForm({
       <SEOPreview
         title={seoTitle || title}
         description={seoDescription}
-        canonicalUrl={
-          seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-')
-        }
+        canonicalUrl={seoCanonicalUrl || title.toLowerCase().replace(/\s+/g, '-')}
       />
 
       {/* ============ Sticky Footer ============ */}
