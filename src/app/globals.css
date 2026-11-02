@@ -5,83 +5,109 @@
 }
 
 /* =========================================================
-   پالت رنگی هوشمند لایت مود و دارک مود (Tailwind v4)
+   ☀️ LIGHT MODE — پالت نرم و خوانا
    ========================================================= */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f5f6f8;
+  --foreground: #1a1f2e;
 
-  /* بازتعریف طیف خاکستری در حالت Light */
-  --color-neutral-950: #f8fafc; /* پس‌زمینه اصلی صفحات */
-  --color-neutral-900: #ffffff; /* کارت‌ها، سایدبار و باکس‌ها */
-  --color-neutral-850: #f1f5f9;
-  --color-neutral-800: #e2e8f0; /* بوردرها و خطوط جداکننده */
-  --color-neutral-700: #cbd5e1;
-  --color-neutral-600: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-400: #475569; /* متون کم‌رنگ و زیرعنوان‌ها */
-  --color-neutral-300: #334155;
-  --color-neutral-200: #1e293b;
-  --color-neutral-100: #0f172a; /* متون اصلی تیره */
+  /* فامیل neutral — از روشن به تیره (نه برعکس!) */
+  --color-neutral-950: #ffffff;   /* سطح صفر: کارت‌ها و مودال‌ها */
+  --color-neutral-900: #f8f9fb;   /* سطح یک: پس‌زمینه اصلی */
+  --color-neutral-850: #eef0f4;
+  --color-neutral-800: #e2e5eb;   /* borders و dividers */
+  --color-neutral-700: #cfd4dd;
+  --color-neutral-600: #a8b0bd;
+  --color-neutral-500: #7a8494;   /* متن کم‌رنگ */
+  --color-neutral-400: #5c6678;   /* متن ثانویه */
+  --color-neutral-300: #454e60;   /* متن بدنه */
+  --color-neutral-200: #333b4a;
+  --color-neutral-100: #1a1f2e;   /* متن اصلی */
 }
 
+/* =========================================================
+   🌙 DARK MODE — پالت تیره با کنتراست بالا
+   ========================================================= */
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #0b0d10;
+  --foreground: #e8eaed;
 
-  /* بازتعریف طیف خاکستری در حالت Dark */
-  --color-neutral-950: #0a0a0a;
-  --color-neutral-900: #141416;
-  --color-neutral-850: #1c1c1f;
-  --color-neutral-800: #262626;
-  --color-neutral-700: #404040;
-  --color-neutral-600: #525252;
-  --color-neutral-500: #737373;
-  --color-neutral-400: #a3a3a3;
-  --color-neutral-300: #d4d4d4;
-  --color-neutral-200: #e5e5e5;
-  --color-neutral-100: #f5f5f5;
+  --color-neutral-950: #0b0d10;
+  --color-neutral-900: #12151a;
+  --color-neutral-850: #1a1e25;
+  --color-neutral-800: #242931;
+  --color-neutral-700: #353b45;
+  --color-neutral-600: #4a5260;
+  --color-neutral-500: #6b7380;
+  --color-neutral-400: #9199a6;
+  --color-neutral-300: #b8bfc9;
+  --color-neutral-200: #d5dae1;
+  --color-neutral-100: #eceff3;
 }
 
+/* =========================================================
+   پایه
+   ========================================================= */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-iran-yekan), system-ui, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* اصلاح رنگ متون سفید در حالت لایت‌مود */
-:root:not(.dark) h1.text-white,
-:root:not(.dark) h2.text-white,
-:root:not(.dark) h3.text-white,
-:root:not(.dark) h4.text-white,
-:root:not(.dark) span.text-white,
-:root:not(.dark) td.text-white,
-:root:not(.dark) p.text-white,
-:root:not(.dark) strong.text-white,
-:root:not(.dark) input.text-white,
-:root:not(.dark) textarea.text-white {
-  color: #0f172a !important;
-}
-
-/* اصلاح رنگ پس‌زمینه‌های شفاف با بلور */
-:root:not(.dark) .bg-neutral-900\/60,
-:root:not(.dark) .bg-neutral-900\/80,
-:root:not(.dark) .bg-neutral-900\/90,
-:root:not(.dark) .bg-neutral-900\/95 {
-  background-color: rgba(255, 255, 255, 0.85) !important;
-}
-
-:root:not(.dark) .bg-neutral-950\/60,
-:root:not(.dark) .bg-neutral-950\/80,
-:root:not(.dark) .bg-neutral-950\/90 {
-  background-color: rgba(248, 250, 252, 0.9) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* =========================================================
-   استایل‌های فوق تخصصی ProseMirror برای Tiptap Editor
+   🔧 اصلاح رنگ‌های هاردکد در لایت مود
+   (کامپوننت‌های زیادی text-white، bg-black/80 و ... دارند)
    ========================================================= */
 
+/* متن سفید در لایت‌مود → متن اصلی تیره */
+:root:not(.dark) .text-white,
+:root:not(.dark) input.text-white,
+:root:not(.dark) textarea.text-white,
+:root:not(.dark) select.text-white {
+  color: #1a1f2e !important;
+}
+
+/* پس‌زمینه‌های شفاف در لایت‌مود → سفید نرم */
+:root:not(.dark) [class*="bg-neutral-900/"] {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(12px);
+}
+
+:root:not(.dark) [class*="bg-neutral-950/"] {
+  background-color: rgba(248, 249, 251, 0.85) !important;
+  backdrop-filter: blur(12px);
+}
+
+:root:not(.dark) .bg-black\/80 {
+  background-color: rgba(26, 31, 46, 0.4) !important;
+}
+
+/* اَمبر: کم‌رنگ‌تر و ملایم‌تر در لایت‌مود (روی سفید خیلی خشن است) */
+:root:not(.dark) .bg-amber-500 {
+  background-color: #d97706 !important; /* amber-600 */
+}
+
+:root:not(.dark) .text-amber-500,
+:root:not(.dark) .text-amber-400 {
+  color: #b45309 !important; /* amber-700 */
+}
+
+:root:not(.dark) .border-amber-500\/20,
+:root:not(.dark) .border-amber-500\/30 {
+  border-color: rgba(180, 83, 9, 0.25) !important;
+}
+
+/* بنرهای رنگی (destructive, emerald, blue) هم کم‌رنگ‌تر */
+:root:not(.dark) .bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.08) !important; }
+:root:not(.dark) .bg-red-500\/10    { background-color: rgba(239, 68, 68, 0.08) !important; }
+:root:not(.dark) .bg-blue-500\/10   { background-color: rgba(59, 130, 246, 0.08) !important; }
+
+/* =========================================================
+   ProseMirror (ادیتور)
+   ========================================================= */
 .ProseMirror {
   min-height: 350px;
   padding: 1.25rem;
@@ -90,7 +116,6 @@ body {
   text-align: right;
 }
 
-/* Placeholder */
 .ProseMirror p.is-editor-empty:first-child::before {
   color: var(--color-neutral-500);
   content: attr(data-placeholder);
@@ -99,11 +124,10 @@ body {
   pointer-events: none;
 }
 
-/* تیترها (Headings) */
 .ProseMirror h1 {
   font-size: 1.5rem;
   font-weight: 900;
-  color: #f59e0b;
+  color: #d97706;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   border-bottom: 1px solid var(--color-neutral-800);
@@ -134,7 +158,6 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* پاراگراف‌ها */
 .ProseMirror p {
   font-size: 0.825rem;
   line-height: 1.8;
@@ -142,7 +165,6 @@ body {
   margin-bottom: 0.75rem;
 }
 
-/* لیست‌های نقطه‌ای و عددی */
 .ProseMirror ul:not([data-type="taskList"]) {
   list-style-type: disc;
   padding-right: 1.5rem;
@@ -162,7 +184,6 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* چک لیست‌ها (Task List) */
 .ProseMirror ul[data-type="taskList"] {
   list-style: none;
   padding-right: 0.5rem;
@@ -178,13 +199,12 @@ body {
 
 .ProseMirror ul[data-type="taskList"] li input[type="checkbox"] {
   cursor: pointer;
-  accent-color: #f59e0b;
+  accent-color: #d97706;
   margin-top: 0.25rem;
   width: 1rem;
   height: 1rem;
 }
 
-/* جدول‌ها */
 .ProseMirror table {
   border-collapse: collapse;
   table-layout: fixed;
@@ -211,21 +231,19 @@ body {
   font-weight: bold;
   text-align: right;
   background-color: var(--color-neutral-950);
-  color: #f59e0b;
+  color: #d97706;
 }
 
-/* کادر نقل قول و نکات */
 .ProseMirror blockquote {
-  border-right: 4px solid #f59e0b;
+  border-right: 4px solid #d97706;
   padding: 0.75rem 1rem;
   margin: 1.25rem 0;
   font-style: italic;
   color: var(--color-neutral-100);
-  background-color: rgba(245, 158, 11, 0.08);
+  background-color: rgba(217, 119, 6, 0.08);
   border-radius: 0.5rem 0 0 0.5rem;
 }
 
-/* تصاویر و ویدیوها */
 .ProseMirror img {
   max-width: 100%;
   height: auto;
@@ -243,28 +261,26 @@ body {
   margin: 1.25rem 0;
 }
 
-/* کدها */
 .ProseMirror code {
   background-color: var(--color-neutral-800);
-  color: #f59e0b;
+  color: #d97706;
   padding: 0.2rem 0.4rem;
   border-radius: 0.375rem;
   font-family: monospace;
   font-size: 0.775rem;
 }
-/* Page Builder - Puck overrides */
-@import '@measured/puck/puck.css';
-/* Puck UI RTL + theme overrides */
 
+/* =========================================================
+   Puck
+   ========================================================= */
 .Puck {
   direction: rtl;
   font-family: 'IRANYekan', system-ui, sans-serif;
 }
 
-/* دکمه Publish */
 .Puck [data-puck-publish] {
-  background-color: #f59e0b !important;
-  color: #000 !important;
+  background-color: #d97706 !important;
+  color: #ffffff !important;
   border-radius: 12px !important;
   font-weight: 700 !important;
 }

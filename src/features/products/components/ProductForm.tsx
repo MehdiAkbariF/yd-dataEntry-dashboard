@@ -813,7 +813,7 @@ export default function ProductForm({
       )}
 
       {/* ============ اطلاعات پایه ============ */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
+     <div className="relative z-10 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
         <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
           <Package className="h-4 w-4" />
           <span>اطلاعات پایه و شناسنامه محصول</span>
@@ -908,11 +908,11 @@ export default function ProductForm({
       </div>
 
       {/* ============ مشخصات فنی ============ */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
-        <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
-          <Sliders className="h-4 w-4" />
-          <span>مشخصات فنی و ویژگی‌های قطعه (Product Properties)</span>
-        </div>
+<div className="relative z-30 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
+  <div className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
+    <Sliders className="h-4 w-4" />
+    <span>مشخصات فنی و ویژگی‌های قطعه (Product Properties)</span>
+  </div>
 
         {propertiesLoading ? (
           <div className="flex items-center justify-center py-8 gap-2 text-neutral-400 text-xs">
@@ -1006,21 +1006,21 @@ export default function ProductForm({
       </div>
 
       {/* ============ محصولات مرتبط ============ */}
-      <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
-        <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
-          <Link2 className="h-4 w-4" />
-          <span>محصولات مرتبط (Related Products)</span>
-        </div>
-        <MultiAsyncSelect
-          key="related-products-multiselect"
-          label="انتخاب محصولات مشابه یا مکمل"
-          placeholder="جستجو در عنوان محصولات..."
-          selectedValues={relatedProductIds}
-          initialOptions={relatedInitialOptions}
-          onChange={setRelatedProductIds}
-          fetchOptions={fetchProductTitles}
-        />
-      </div>
+<div className="relative z-20 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-4 shadow-lg shadow-black/20">
+  <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
+    <Link2 className="h-4 w-4" />
+    <span>محصولات مرتبط (Related Products)</span>
+  </div>
+  <MultiAsyncSelect
+    key="related-products-multiselect"
+    label="انتخاب محصولات مشابه یا مکمل"
+    placeholder="جستجو در عنوان محصولات..."
+    selectedValues={relatedProductIds}
+    initialOptions={relatedInitialOptions}
+    onChange={setRelatedProductIds}
+    fetchOptions={fetchProductTitles}
+  />
+</div>
 
       {/* ============ توضیحات ============ */}
       <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 space-y-3 shadow-lg shadow-black/20">

@@ -1,23 +1,26 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
+// next.config.ts
+import type { NextConfig } from 'next';
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
+
+const nextConfig: NextConfig = {
+  typescript: { ignoreBuildErrors: true },
+
+  webpack: (config: any, { isServer }: { isServer: boolean }) => {
+    if (!isServer) {
+      config.plugins.push(
+        new MonacoWebpackPlugin({
+          languages: ['html', 'css'],
+          filename: 'static/[name].worker.js',
+        })
+      );
+    }
+    return config;
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
   async rewrites() {
     return [
-      // ۱. پروکسی APIها
-      {
-        source: '/api/:path*',
-        destination: 'https://api.yadakchi.com/api/:path*',
-      },
-      // ۲. پروکسی تصاویر و فایل‌های چندرسانه‌ای
-      {
-        source: '/media-proxy/:path*',
-        destination: 'https://api.yadakchi.com/:path*',
-      },
+      { source: '/api/:path*', destination: 'https://api.yadakchi.com/api/:path*' },
+      { source: '/media-proxy/:path*', destination: 'https://api.yadakchi.com/:path*' },
     ];
   },
 };

@@ -1,27 +1,24 @@
 // src/features/page-builder/services/pageService.ts
-
 import { apiClient } from '@/lib/axios';
 import {
   FullPage,
   PageListItem,
   CreatePageRequest,
   UpdatePageRequest,
-  PageSchema,
+  PageContent,
   PageApiResponse,
 } from '../types/schema.types';
-import { PAGE_BUILDER_CONSTANTS } from '../constants/pageBuilder.constants';
+import { isLegacyPuckContent, migratePuckToHtml } from '../lib/legacyMigration';
 
-const PUCK_PREFIX = '__PUCK__:';
+const API = {
+  STATIC_PAGES: '/api/Admin/A_Miscellanies/StaticPages',
+  STATIC_PAGE: '/api/Admin/A_Miscellanies/StaticPage',
+  STATIC_PAGE_CATEGORIES: '/api/Admin/A_Miscellanies/StaticPageCategories',
+};
 
-/**
- * سرویس مدیریت صفحات Page Builder
- * متصل به API واقعی:
- *   GET    /api/Admin/A_Miscellanies/StaticPages
- *   GET    /api/Admin/A_Miscellanies/StaticPage?Id=...
- *   POST   /api/Admin/A_Miscellanies/StaticPage
- *   PUT    /api/Admin/A_Miscellanies/StaticPage
- *   DELETE /api/Admin/A_Miscellanies/StaticPage
- */
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
 
 function slugify(input: string): string {
   return input
@@ -32,47 +29,52 @@ function slugify(input: string): string {
     .replace(/-+/g, '-');
 }
 
-/**
- * تشخیص اینکه content رشته JSON Puck هست یا HTML قدیمی
- */
-function isPuckContent(content: string): boolean {
-  return typeof content === 'string' && content.startsWith(PUCK_PREFIX);
+function serializeContent(content: PageContent): string {
+  return JSON.stringify({
+    html: content.html || '',
+    css: content.css || '',
+  });
 }
 
 /**
- * از رشته content، Schema استخراج کن
+ * تبدیل رشته content ذخیره‌شده در DB به PageContent
+ * - اگر Puck قدیمی است → مهاجرت به HTML/CSS
+ * - اگر JSON { html, css } است → همان
+ * - اگر HTML خام است → html = raw، css = ''
  */
-function parsePuckContent(content: string): PageSchema | null {
-  if (!isPuckContent(content)) return null;
-  try {
-    const raw = content.slice(PUCK_PREFIX.length);
-    return JSON.parse(raw) as PageSchema;
-  } catch {
-    return null;
+function parseContent(raw: string): PageContent {
+  if (!raw) return { html: '', css: '' };
+
+  // ① Puck قدیمی → مهاجرت
+  if (isLegacyPuckContent(raw)) {
+    console.warn('[pageService] Legacy Puck content detected → migrating');
+    return migratePuckToHtml(raw);
   }
+
+  // ② تلاش برای JSON { html, css }
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === 'object' && parsed !== null) {
+      return {
+        html: typeof parsed.html === 'string' ? parsed.html : '',
+        css: typeof parsed.css === 'string' ? parsed.css : '',
+      };
+    }
+  } catch {
+    // ③ HTML خام
+    return { html: raw, css: '' };
+  }
+
+  return { html: '', css: '' };
 }
 
-/**
- * Schema رو به رشته content تبدیل کن
- */
-function serializePuckContent(schema: PageSchema): string {
-  return `${PUCK_PREFIX}${JSON.stringify(schema)}`;
-}
-
-/**
- * ساخت schema خالی
- */
-function emptySchema(): PageSchema {
-  return {
-    root: { props: {} },
-    content: [],
-    zones: {},
-  } as unknown as PageSchema;
-}
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
 
 export const pageService = {
   /**
-   * لیست همه صفحات
+   * دریافت لیست صفحات
    */
   async getList(params?: {
     title?: string;
@@ -91,7 +93,7 @@ export const pageService = {
           englishTitle: string;
           url: string;
         }>;
-      }>('/api/Admin/A_Miscellanies/StaticPages', {
+      }>(API.STATIC_PAGES, {
         params: {
           Title: params?.title || '',
           PageNumber: params?.pageNumber || 1,
@@ -99,16 +101,12 @@ export const pageService = {
         },
       });
 
-      const items = response.data.items || [];
-
-      return items.map((item) => ({
+      return (response.data.items || []).map((item) => ({
         id: item.id,
         slug: item.englishTitle,
         title: item.title,
         status: 'published' as const,
-        version: 1,
         updatedAt: new Date().toISOString(),
-        authorName: 'Admin',
       }));
     } catch (error) {
       console.error('[pageService] getList failed:', error);
@@ -117,23 +115,15 @@ export const pageService = {
   },
 
   /**
-   * دریافت یک صفحه با id (یا slug)
+   * دریافت یک صفحه با ID
    */
   async getById(id: string): Promise<FullPage | null> {
     try {
-      const response = await apiClient.get<PageApiResponse>(
-        '/api/Admin/A_Miscellanies/StaticPage',
-        { params: { Id: id } }
-      );
-
+      const response = await apiClient.get<PageApiResponse>(API.STATIC_PAGE, {
+        params: { Id: id },
+      });
       const data = response.data;
       if (!data || !data.id) return null;
-
-      const schema =
-        parsePuckContent(data.content) || {
-          ...emptySchema(),
-          root: { props: {} },
-        };
 
       return {
         meta: {
@@ -152,13 +142,10 @@ export const pageService = {
               }
             : null,
           status: 'published',
-          version: 1,
-          authorId: 'admin',
-          publishedAt: null,
           createdAt: data.createdAt || new Date().toISOString(),
           updatedAt: data.updatedAt || new Date().toISOString(),
         },
-        schema,
+        content: parseContent(data.content),
       };
     } catch (error) {
       console.error('[pageService] getById failed:', error);
@@ -167,8 +154,7 @@ export const pageService = {
   },
 
   /**
-   * دریافت صفحه با slug (englishTitle)
-   * API فعلی فقط با Id کار می‌کنه، پس باید لیست رو بگیریم و فیلتر کنیم
+   * دریافت یک صفحه با slug (englishTitle)
    */
   async getBySlug(slug: string): Promise<FullPage | null> {
     try {
@@ -183,7 +169,6 @@ export const pageService = {
 
   /**
    * ساخت صفحه جدید
-   * API نیازمند categoryId هست
    */
   async create(
     request: CreatePageRequest,
@@ -191,14 +176,13 @@ export const pageService = {
   ): Promise<FullPage | null> {
     try {
       const slug = slugify(request.meta.slug);
-      const schema = request.schema;
 
       const body = {
         title: request.meta.title,
         englishTitle: slug,
         url: `/page/${slug}`,
-        content: serializePuckContent(schema),
-        categoryId: categoryId,
+        content: serializeContent(request.content),
+        categoryId,
         seoInformation: request.meta.seo
           ? {
               title: request.meta.seo.metaTitle || request.meta.title,
@@ -215,14 +199,12 @@ export const pageService = {
       };
 
       const response = await apiClient.post<PageApiResponse>(
-        '/api/Admin/A_Miscellanies/StaticPage',
+        API.STATIC_PAGE,
         body
       );
 
-      const data = response.data;
-      if (!data || !data.id) return null;
-
-      return this.getById(data.id);
+      if (!response.data?.id) return null;
+      return this.getById(response.data.id);
     } catch (error) {
       console.error('[pageService] create failed:', error);
       throw error;
@@ -234,13 +216,11 @@ export const pageService = {
    */
   async update(request: UpdatePageRequest): Promise<FullPage | null> {
     try {
-      // اول صفحه فعلی رو بگیر تا categoryId و مقادیر دیگه رو داشته باشیم
       const current = await this.getById(request.id);
       if (!current) throw new Error('صفحه یافت نشد');
 
       const meta = request.meta || {};
-      const schema = request.schema;
-
+      const content = request.content || current.content;
       const slug = meta.slug ? slugify(meta.slug) : current.meta.slug;
       const title = meta.title || current.meta.title;
 
@@ -249,11 +229,9 @@ export const pageService = {
         title,
         englishTitle: slug,
         url: `/page/${slug}`,
-        content: schema ? serializePuckContent(schema) : undefined,
-        categoryId: undefined as string | undefined, // در صورتی که نیاز شد اضافه کن
+        content: serializeContent(content),
         seoInformation: meta.seo
           ? {
-              id: undefined,
               title: meta.seo.metaTitle || title,
               description: meta.seo.metaDescription || title,
               canonicalUrl: meta.seo.canonicalUrl || `/page/${slug}`,
@@ -262,7 +240,7 @@ export const pageService = {
         isActive: true,
       };
 
-      await apiClient.put('/api/Admin/A_Miscellanies/StaticPage', body);
+      await apiClient.put(API.STATIC_PAGE, body);
 
       return this.getById(request.id);
     } catch (error) {
@@ -276,9 +254,7 @@ export const pageService = {
    */
   async remove(id: string): Promise<boolean> {
     try {
-      await apiClient.delete('/api/Admin/A_Miscellanies/StaticPage', {
-        data: { id },
-      });
+      await apiClient.delete(API.STATIC_PAGE, { data: { id } });
       return true;
     } catch (error) {
       console.error('[pageService] remove failed:', error);
@@ -298,12 +274,8 @@ export const pageService = {
         totalPages: number;
         pageSize: number;
         totalCount: number;
-        items: Array<{
-          id: string;
-          title: string;
-          isActive: boolean;
-        }>;
-      }>('/api/Admin/A_Miscellanies/StaticPageCategories', {
+        items: Array<{ id: string; title: string; isActive: boolean }>;
+      }>(API.STATIC_PAGE_CATEGORIES, {
         params: { PageNumber: 1, PageSize: 100 },
       });
 

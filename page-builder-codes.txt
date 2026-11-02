@@ -1,0 +1,1237 @@
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\index.ts
+================================================================================
+// src/features/page-builder/index.ts
+export * from './types/schema.types';
+export { pageService } from './services/pageService';
+export * from './hooks/usePages';
+export * from './hooks/usePageMutations';
+export { CodePageEditor } from './components/CodePageEditor';
+export { CodeMirrorEditor } from './components/CodeMirrorEditor';
+export { buildPreviewDoc } from './lib/buildPreviewDoc';
+export { sanitizeHtml, sanitizeCss } from './lib/sanitize';
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\components\CodeMirrorEditor.tsx
+================================================================================
+// src/features/page-builder/components/CodeMirrorEditor.tsx
+'use client';
+
+import { useState } from 'react';
+import Editor, { loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
+import { Code2, WrapText, Copy, Check, Maximize2, Minimize2 } from 'lucide-react';
+
+// استفاده از پکیج محلی به جای دانلود از CDN (رفع مشکل لود نشدن و صفحه سیاه)
+loader.config({ monaco });
+
+interface CodeMirrorEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+  language?: 'html' | 'css';
+  label?: string;
+}
+
+export function CodeMirrorEditor({
+  value,
+  onChange,
+  language = 'html',
+  label,
+}: CodeMirrorEditorProps) {
+  const [copied, setCopied] = useState(false);
+  const [wrap, setWrap] = useState(true);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
+  return (
+    <div
+      className={
+        fullscreen
+          ? 'fixed inset-4 z-[999] shadow-2xl flex flex-col bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden'
+          : 'flex flex-col h-full w-full bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden'
+      }
+    >
+      {/* Header (RTL مناسب فارسی) */}
+      <div 
+        dir="rtl" 
+        className="flex items-center justify-between px-3 py-2 border-b border-neutral-800 bg-neutral-900 shrink-0"
+      >
+        <div className="flex items-center gap-2">
+          <Code2 className="h-3.5 w-3.5 text-amber-500" />
+          <span className="text-[11px] font-bold text-white">{label}</span>
+          <span className="text-[9px] font-mono text-neutral-500 uppercase px-1.5 py-0.5 rounded bg-neutral-800">
+            {language}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setWrap((w) => !w)}
+            className={`p-1.5 rounded-md ${
+              wrap ? 'text-amber-400 bg-amber-500/10' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
+            }`}
+            title="Word Wrap"
+          >
+            <WrapText className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="p-1.5 rounded-md text-neutral-400 hover:bg-neutral-800 hover:text-white"
+            title="کپی"
+          >
+            {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setFullscreen((f) => !f)}
+            className="p-1.5 rounded-md text-neutral-400 hover:bg-neutral-800 hover:text-white"
+            title={fullscreen ? 'خروج' : 'تمام صفحه'}
+          >
+            {fullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Editor Container - حتماً باید LTR باشد تا تایپ و کلیک کار کند */}
+      <div className="flex-1 min-h-0 relative" dir="ltr">
+        <Editor
+          height="100%"
+          width="100%"
+          language={language}
+          value={value}
+          onChange={(v) => onChange(v || '')}
+          theme="vs-dark"
+          loading={
+            <div className="flex items-center justify-center h-full text-neutral-400 text-xs gap-2 bg-neutral-950">
+              <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+              <span>در حال بارگذاری ادیتور...</span>
+            </div>
+          }
+          options={{
+            fontSize: 13,
+            fontFamily: "'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+            minimap: { enabled: false },
+            wordWrap: wrap ? 'on' : 'off',
+            scrollBeyondLastLine: false,
+            tabSize: 2,
+            automaticLayout: true,
+            padding: { top: 12, bottom: 12 },
+            scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\components\CodePageEditor.tsx
+================================================================================
+// src/features/page-builder/components/CodePageEditor.tsx
+'use client';
+
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import {
+  Eye,
+  Code2,
+  Monitor,
+  Smartphone,
+  Tablet,
+  RefreshCw,
+  Save,
+  Loader2,
+  ArrowRight,
+  Maximize2,
+  Minimize2,
+  Columns2,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { CodeMirrorEditor } from './CodeMirrorEditor';
+import { buildPreviewDoc } from '../lib/buildPreviewDoc';
+
+interface CodePageEditorProps {
+  initialHtml?: string;
+  initialCss?: string;
+  onSave: (data: { html: string; css: string }) => Promise<void>;
+  isSaving?: boolean;
+  headerTitle?: string;
+  headerActions?: React.ReactNode;
+  onBack?: () => void;
+}
+
+type Device = 'desktop' | 'tablet' | 'mobile';
+type ViewMode = 'split' | 'html-only' | 'css-only' | 'preview-only';
+
+const DEVICE_WIDTH: Record<Device, string> = {
+  desktop: '100%',
+  tablet: '768px',
+  mobile: '375px',
+};
+
+const DEFAULT_HTML = `<!-- شروع کدنویسی -->
+<div class="page-wrap">
+  <h1>صفحه جدید</h1>
+  <p>کد HTML خود را اینجا بنویسید.</p>
+</div>`;
+
+const DEFAULT_CSS = `/* استایل‌های سفارشی */
+.page-wrap {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.page-wrap h1 {
+  color: #f59e0b;
+  font-size: 28px;
+  margin-bottom: 12px;
+}`;
+
+export function CodePageEditor({
+  initialHtml = '',
+  initialCss = '',
+  onSave,
+  isSaving = false,
+  headerTitle = 'ادیتور کد',
+  headerActions,
+  onBack,
+}: CodePageEditorProps) {
+  const [html, setHtml] = useState(initialHtml || DEFAULT_HTML);
+  const [css, setCss] = useState(initialCss || DEFAULT_CSS);
+  const [device, setDevice] = useState<Device>('desktop');
+  const [viewMode, setViewMode] = useState<ViewMode>('split');
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
+  // نگه داشتن مقادیر برای جلوگیری از پرش و ریلود متوالی
+  const [debouncedContent, setDebouncedContent] = useState({ html, css });
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const t = setTimeout(() => {
+      setDebouncedContent({ html, css });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [html, css, autoRefresh]);
+
+  const srcDoc = useMemo(
+    () => buildPreviewDoc(debouncedContent),
+    [debouncedContent]
+  );
+
+  const handleManualRefresh = useCallback(() => {
+    setDebouncedContent({ html, css });
+  }, [html, css]);
+
+  const [fullscreenPreview, setFullscreenPreview] = useState(false);
+
+  const handleSave = async () => {
+    try {
+      await onSave({ html, css });
+    } catch (e: any) {
+      toast.error(e?.message || 'خطا در ذخیره');
+    }
+  };
+
+  return (
+    <div className="h-full w-full flex flex-col bg-neutral-950" dir="rtl">
+      {/* ─────────── Top Bar ─────────── */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-800 bg-neutral-900 shrink-0">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-white transition-all"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
+
+        <div className="flex items-center gap-2">
+          <Code2 className="h-4 w-4 text-amber-500" />
+          <h1 className="text-sm font-bold text-white">{headerTitle}</h1>
+        </div>
+
+        <div className="flex-1" />
+
+        {headerActions}
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 text-black text-xs font-bold hover:bg-amber-400 disabled:opacity-50 transition-all"
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>در حال ذخیره...</span>
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4" />
+              <span>ذخیره</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* ─────────── Toolbar ─────────── */}
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-neutral-800 bg-neutral-900/50 shrink-0 flex-wrap">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-neutral-950 border border-neutral-800">
+          <ToolbarBtn
+            active={viewMode === 'split'}
+            onClick={() => setViewMode('split')}
+            icon={<Columns2 className="h-3.5 w-3.5" />}
+            title="دو ستون"
+          />
+          <ToolbarBtn
+            active={viewMode === 'html-only'}
+            onClick={() => setViewMode('html-only')}
+            icon={<Code2 className="h-3.5 w-3.5" />}
+            title="فقط HTML"
+          />
+          <ToolbarBtn
+            active={viewMode === 'css-only'}
+            onClick={() => setViewMode('css-only')}
+            icon={<Code2 className="h-3.5 w-3.5" />}
+            title="فقط CSS"
+          />
+          <ToolbarBtn
+            active={viewMode === 'preview-only'}
+            onClick={() => setViewMode('preview-only')}
+            icon={<Eye className="h-3.5 w-3.5" />}
+            title="فقط پیش‌نمایش"
+          />
+        </div>
+
+        <div className="w-px h-6 bg-neutral-800" />
+
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-neutral-950 border border-neutral-800">
+          <ToolbarBtn
+            active={device === 'desktop'}
+            onClick={() => setDevice('desktop')}
+            icon={<Monitor className="h-3.5 w-3.5" />}
+            title="دسکتاپ"
+          />
+          <ToolbarBtn
+            active={device === 'tablet'}
+            onClick={() => setDevice('tablet')}
+            icon={<Tablet className="h-3.5 w-3.5" />}
+            title="تبلت"
+          />
+          <ToolbarBtn
+            active={device === 'mobile'}
+            onClick={() => setDevice('mobile')}
+            icon={<Smartphone className="h-3.5 w-3.5" />}
+            title="موبایل"
+          />
+        </div>
+
+        <div className="w-px h-6 bg-neutral-800" />
+
+        <label className="flex items-center gap-2 text-[11px] text-neutral-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={autoRefresh}
+            onChange={(e) => setAutoRefresh(e.target.checked)}
+            className="w-3.5 h-3.5 rounded border-neutral-700 bg-neutral-950 text-amber-500 focus:ring-amber-500"
+          />
+          <span>پیش‌نمایش خودکار</span>
+        </label>
+
+        <button
+          type="button"
+          onClick={handleManualRefresh}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] text-neutral-400 hover:text-white hover:bg-neutral-800 transition-all"
+        >
+          <RefreshCw className="h-3 w-3" />
+          <span>رفرش</span>
+        </button>
+
+        <div className="flex-1" />
+
+        <button
+          type="button"
+          onClick={() => setFullscreenPreview(true)}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] text-neutral-400 hover:text-amber-400 hover:bg-neutral-800 transition-all"
+        >
+          <Maximize2 className="h-3 w-3" />
+          <span>تمام صفحه</span>
+        </button>
+      </div>
+
+      {/* ─────────── Main Area ─────────── */}
+      <div className="flex-1 min-h-0 overflow-hidden flex gap-3 p-3">
+        {/* HTML Panel */}
+        {(viewMode === 'split' || viewMode === 'html-only') && (
+          <div className="flex flex-col flex-1 min-h-0 min-w-0">
+            <CodeMirrorEditor
+              value={html}
+              onChange={setHtml}
+              language="html"
+              label="HTML"
+            />
+          </div>
+        )}
+
+        {/* CSS Panel */}
+        {(viewMode === 'split' || viewMode === 'css-only') && (
+          <div className="flex flex-col flex-1 min-h-0 min-w-0">
+            <CodeMirrorEditor
+              value={css}
+              onChange={setCss}
+              language="css"
+              label="CSS"
+            />
+          </div>
+        )}
+
+        {/* Preview Panel - کادر اصلاح شده با ارتفاع ۱۰۰٪ واقعی */}
+        {(viewMode === 'split' || viewMode === 'preview-only') && (
+          <div className="flex flex-col flex-1 min-h-0 min-w-0 bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-800 bg-neutral-900 shrink-0">
+              <div className="flex items-center gap-2">
+                <Eye className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="text-[11px] font-bold text-white">
+                  پیش‌نمایش
+                </span>
+                <span className="text-[9px] font-mono text-neutral-500">
+                  {DEVICE_WIDTH[device]}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex-1 min-h-0 w-full overflow-hidden bg-neutral-950 p-2 flex justify-center items-stretch">
+              <div
+                className="bg-white h-full w-full transition-all rounded-lg overflow-hidden flex flex-col shadow-xl"
+                style={{ width: DEVICE_WIDTH[device], maxWidth: '100%' }}
+              >
+                <iframe
+                  srcDoc={srcDoc}
+                  title="preview"
+                  className="w-full h-full flex-1 border-none bg-white block"
+                  sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ─────────── Fullscreen Preview ─────────── */}
+      {fullscreenPreview && (
+        <div className="fixed inset-0 z-[999] bg-black/95 flex flex-col">
+          <div className="flex items-center justify-between p-3 border-b border-neutral-800 bg-neutral-900 shrink-0">
+            <div className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-emerald-400" />
+              <span className="text-sm font-bold text-white">
+                پیش‌نمایش تمام صفحه
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFullscreenPreview(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-xs hover:bg-neutral-700"
+            >
+              <Minimize2 className="h-3.5 w-3.5" />
+              <span>بستن</span>
+            </button>
+          </div>
+          <div className="flex-1 min-h-0 bg-white">
+            <iframe
+              srcDoc={srcDoc}
+              title="preview-fullscreen"
+              className="w-full h-full border-none bg-white block"
+              sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ToolbarBtn({
+  active,
+  onClick,
+  icon,
+  title,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className={`p-1.5 rounded-md transition-all ${
+        active
+          ? 'bg-amber-500 text-black'
+          : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
+      }`}
+    >
+      {icon}
+    </button>
+  );
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\components\PageBuilderToolbar.tsx
+================================================================================
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\components\PageMetaPanel.tsx
+================================================================================
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\hooks\usePageMutations.ts
+================================================================================
+// src/features/page-builder/hooks/usePageMutations.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { pageService } from '../services/pageService';
+import { CreatePageRequest, UpdatePageRequest } from '../types/schema.types';
+import { pageBuilderKeys } from './usePages';
+
+export function useCreatePage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      request,
+      categoryId,
+    }: {
+      request: CreatePageRequest;
+      categoryId: string;
+    }) => pageService.create(request, categoryId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: pageBuilderKeys.lists() });
+    },
+  });
+}
+
+export function useUpdatePage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (request: UpdatePageRequest) => pageService.update(request),
+    onSuccess: (data) => {
+      if (data) {
+        qc.invalidateQueries({
+          queryKey: pageBuilderKeys.detail(data.meta.id),
+        });
+      }
+      qc.invalidateQueries({ queryKey: pageBuilderKeys.lists() });
+    },
+  });
+}
+
+export function useDeletePage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => pageService.remove(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: pageBuilderKeys.lists() });
+    },
+  });
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\hooks\usePages.ts
+================================================================================
+// src/features/page-builder/hooks/usePages.ts
+import { useQuery } from '@tanstack/react-query';
+import { pageService } from '../services/pageService';
+import { FullPage, PageListItem } from '../types/schema.types';
+
+export const pageBuilderKeys = {
+  all: ['page-builder'] as const,
+  lists: () => [...pageBuilderKeys.all, 'list'] as const,
+  list: (params?: Record<string, unknown>) =>
+    [...pageBuilderKeys.lists(), params] as const,
+  details: () => [...pageBuilderKeys.all, 'detail'] as const,
+  detail: (id: string) => [...pageBuilderKeys.details(), id] as const,
+  categories: () => [...pageBuilderKeys.all, 'categories'] as const,
+};
+
+export function usePagesList(params?: {
+  title?: string;
+  pageNumber?: number;
+  pageSize?: number;
+}) {
+  return useQuery<PageListItem[]>({
+    queryKey: pageBuilderKeys.list(params),
+    queryFn: () => pageService.getList(params),
+    staleTime: 30 * 1000,
+  });
+}
+
+export function usePageDetails(id: string) {
+  return useQuery<FullPage | null>({
+    queryKey: pageBuilderKeys.detail(id),
+    queryFn: () => pageService.getById(id),
+    enabled: !!id,
+    staleTime: 60 * 1000,
+  });
+}
+
+export function usePageCategories() {
+  return useQuery({
+    queryKey: pageBuilderKeys.categories(),
+    queryFn: () => pageService.getCategories(),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\lib\buildPreviewDoc.ts
+================================================================================
+// src/features/page-builder/lib/buildPreviewDoc.ts
+interface BuildDocOptions {
+  html: string;
+  css: string;
+  includeTailwind?: boolean;
+  includeFonts?: boolean;
+}
+
+export function buildPreviewDoc({
+  html,
+  css,
+  includeTailwind = true,
+  includeFonts = true,
+}: BuildDocOptions): string {
+  const tailwind = includeTailwind
+    ? '<script src="https://cdn.tailwindcss.com"></script>'
+    : '';
+
+  const fonts = includeFonts
+    ? '<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />'
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  ${fonts}
+  ${tailwind}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      color: #111;
+      background-color: #ffffff;
+    }
+    img { max-width: 100%; height: auto; }
+    /* استایل‌های سفارشی شما */
+    ${css || ''}
+  </style>
+</head>
+<body>
+  ${html || ''}
+</body>
+</html>`;
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\lib\legacyMigration.ts
+================================================================================
+// src/features/page-builder/lib/legacyMigration.ts
+import type { PageContent } from '../types/schema.types';
+
+/**
+ * تشخیص اینکه محتوا Puck قدیمی است یا خیر
+ */
+export function isLegacyPuckContent(raw: string): boolean {
+  return (
+    typeof raw === 'string' &&
+    (raw.startsWith('__PUCK__:') || raw.trim().startsWith('{"root":'))
+  );
+}
+
+/**
+ * تبدیل Puck JSON قدیمی به HTML/CSS معادل
+ */
+export function migratePuckToHtml(raw: string): PageContent {
+  try {
+    const jsonStr = raw.startsWith('__PUCK__:')
+      ? raw.slice('__PUCK__:'.length)
+      : raw;
+    const data = JSON.parse(jsonStr);
+
+    const rootProps = data?.root?.props || {};
+    const items = Array.isArray(data?.content) ? data.content : [];
+
+    const htmlParts = items
+      .map((node: any) => renderNode(node))
+      .filter(Boolean);
+
+    // استخراج تنظیمات root
+    const maxWidth = rootProps?.maxWidth || 'lg';
+    const bg = rootProps?.backgroundColor || '';
+
+    const MAX_WIDTH_MAP: Record<string, string> = {
+      sm: 'max-w-2xl',
+      md: 'max-w-4xl',
+      lg: 'max-w-6xl',
+      xl: 'max-w-7xl',
+      full: 'max-w-full',
+    };
+
+    const containerClass = MAX_WIDTH_MAP[maxWidth] || 'max-w-6xl';
+
+    const html = `<div${bg ? ` style="background-color:${bg};"` : ''}>
+  <div class="page-container ${containerClass}">
+${htmlParts.map((p) => `    ${p}`).join('\n')}
+  </div>
+</div>`;
+
+    const css = `.page-container {
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}`;
+
+    return { html, css };
+  } catch (e) {
+    console.error('[legacyMigration] failed:', e);
+    return { html: '', css: '' };
+  }
+}
+
+// ─────────────────────────────────────────
+// Renderer هر node
+// ─────────────────────────────────────────
+function renderNode(node: any): string {
+  if (!node || !node.type) return '';
+  const props = node.props || {};
+
+  switch (node.type) {
+    case 'Heading':
+      return renderHeading(props);
+    case 'Text':
+      return renderText(props);
+    case 'Button':
+      return renderButton(props);
+    case 'Image':
+      return renderImage(props);
+    case 'Divider':
+      return renderDivider(props);
+    case 'Spacer':
+      return renderSpacer(props);
+    case 'Section':
+      return renderSection(props);
+    case 'RawHtml':
+      return props.html || '';
+    default:
+      return `<!-- unsupported block: ${node.type} -->`;
+  }
+}
+
+function alignClass(align: string): string {
+  switch (align) {
+    case 'center':
+      return 'text-center';
+    case 'left':
+      return 'text-left';
+    case 'right':
+    default:
+      return 'text-right';
+  }
+}
+
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderHeading(props: any): string {
+  const level = props.level || 'h2';
+  const text = escapeHtml(props.text || '');
+  const color = props.color ? ` style="color:${props.color};"` : '';
+  const align = alignClass(props.align);
+  return `<${level} class="${align}"${color}>${text}</${level}>`;
+}
+
+function renderText(props: any): string {
+  const content = escapeHtml(props.content || '');
+  const align = alignClass(props.align);
+  const color = props.color ? ` style="color:${props.color};"` : '';
+  return `<p class="${align}"${color}>${content}</p>`;
+}
+
+function renderButton(props: any): string {
+  const label = escapeHtml(props.label || 'دکمه');
+  const href = escapeHtml(props.href || '#');
+  const align = alignClass(props.align);
+  return `<div class="${align}"><a href="${href}" class="btn">${label}</a></div>`;
+}
+
+function renderImage(props: any): string {
+  if (!props.src) return '';
+  const src = escapeHtml(props.src);
+  const alt = escapeHtml(props.alt || '');
+  const caption = props.caption
+    ? `<figcaption>${escapeHtml(props.caption)}</figcaption>`
+    : '';
+  return `<figure><img src="${src}" alt="${alt}" />${caption}</figure>`;
+}
+
+function renderDivider(props: any): string {
+  const style = props.style || 'solid';
+  const color = props.color || 'currentColor';
+  const thickness = props.thickness || 1;
+  const spacing = props.spacing ?? 16;
+  return `<hr style="border-style:${style};border-color:${color};border-top-width:${thickness}px;margin:${spacing}px 0;" />`;
+}
+
+function renderSpacer(props: any): string {
+  const height = props.height || 32;
+  return `<div style="height:${height}px;"></div>`;
+}
+
+function renderSection(props: any): string {
+  const children = Array.isArray(props.content)
+    ? props.content.map(renderNode).join('\n')
+    : '';
+  return `<section>${children}</section>`;
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\lib\sanitize.ts
+================================================================================
+// src/features/page-builder/lib/sanitize.ts
+import DOMPurify from 'isomorphic-dompurify';
+
+export function sanitizeHtml(html: string): string {
+  if (!html) return '';
+  return DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true, svg: true, svgFilters: true },
+    ADD_ATTR: ['target', 'rel', 'loading', 'class', 'style', 'data-*', 'aria-*'],
+    ADD_TAGS: ['iframe'],
+    FORBID_TAGS: ['script', 'object', 'embed', 'form'],
+    FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover', 'onfocus', 'onchange'],
+  });
+}
+
+export function sanitizeCss(css: string): string {
+  if (!css) return '';
+  return css
+    .replace(/@import[^;]+;/gi, '')
+    .replace(/url\(\s*['"]?\s*javascript:[^)]*\)/gi, '')
+    .replace(/expression\s*\(/gi, '')
+    .replace(/behavior\s*:/gi, '');
+}
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\mappers\pageBuilder.mapper.ts
+================================================================================
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\services\pageService.ts
+================================================================================
+// src/features/page-builder/services/pageService.ts
+import { apiClient } from '@/lib/axios';
+import {
+  FullPage,
+  PageListItem,
+  CreatePageRequest,
+  UpdatePageRequest,
+  PageContent,
+  PageApiResponse,
+} from '../types/schema.types';
+import { isLegacyPuckContent, migratePuckToHtml } from '../lib/legacyMigration';
+
+const API = {
+  STATIC_PAGES: '/api/Admin/A_Miscellanies/StaticPages',
+  STATIC_PAGE: '/api/Admin/A_Miscellanies/StaticPage',
+  STATIC_PAGE_CATEGORIES: '/api/Admin/A_Miscellanies/StaticPageCategories',
+};
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+
+function slugify(input: string): string {
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-');
+}
+
+function serializeContent(content: PageContent): string {
+  return JSON.stringify({
+    html: content.html || '',
+    css: content.css || '',
+  });
+}
+
+/**
+ * تبدیل رشته content ذخیره‌شده در DB به PageContent
+ * - اگر Puck قدیمی است → مهاجرت به HTML/CSS
+ * - اگر JSON { html, css } است → همان
+ * - اگر HTML خام است → html = raw، css = ''
+ */
+function parseContent(raw: string): PageContent {
+  if (!raw) return { html: '', css: '' };
+
+  // ① Puck قدیمی → مهاجرت
+  if (isLegacyPuckContent(raw)) {
+    console.warn('[pageService] Legacy Puck content detected → migrating');
+    return migratePuckToHtml(raw);
+  }
+
+  // ② تلاش برای JSON { html, css }
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === 'object' && parsed !== null) {
+      return {
+        html: typeof parsed.html === 'string' ? parsed.html : '',
+        css: typeof parsed.css === 'string' ? parsed.css : '',
+      };
+    }
+  } catch {
+    // ③ HTML خام
+    return { html: raw, css: '' };
+  }
+
+  return { html: '', css: '' };
+}
+
+// ─────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────
+
+export const pageService = {
+  /**
+   * دریافت لیست صفحات
+   */
+  async getList(params?: {
+    title?: string;
+    pageNumber?: number;
+    pageSize?: number;
+  }): Promise<PageListItem[]> {
+    try {
+      const response = await apiClient.get<{
+        currentPage: number;
+        totalPages: number;
+        pageSize: number;
+        totalCount: number;
+        items: Array<{
+          id: string;
+          title: string;
+          englishTitle: string;
+          url: string;
+        }>;
+      }>(API.STATIC_PAGES, {
+        params: {
+          Title: params?.title || '',
+          PageNumber: params?.pageNumber || 1,
+          PageSize: params?.pageSize || 100,
+        },
+      });
+
+      return (response.data.items || []).map((item) => ({
+        id: item.id,
+        slug: item.englishTitle,
+        title: item.title,
+        status: 'published' as const,
+        updatedAt: new Date().toISOString(),
+      }));
+    } catch (error) {
+      console.error('[pageService] getList failed:', error);
+      return [];
+    }
+  },
+
+  /**
+   * دریافت یک صفحه با ID
+   */
+  async getById(id: string): Promise<FullPage | null> {
+    try {
+      const response = await apiClient.get<PageApiResponse>(API.STATIC_PAGE, {
+        params: { Id: id },
+      });
+      const data = response.data;
+      if (!data || !data.id) return null;
+
+      return {
+        meta: {
+          id: data.id,
+          slug: data.englishTitle,
+          title: data.title,
+          englishTitle: data.englishTitle,
+          url: data.url,
+          seo: data.seoInformation
+            ? {
+                metaTitle: data.seoInformation.title || null,
+                metaDescription: data.seoInformation.description || null,
+                metaKeywords: data.seoInformation.keywords || null,
+                canonicalUrl: data.seoInformation.canonicalUrl || null,
+                ogImage: null,
+              }
+            : null,
+          status: 'published',
+          createdAt: data.createdAt || new Date().toISOString(),
+          updatedAt: data.updatedAt || new Date().toISOString(),
+        },
+        content: parseContent(data.content),
+      };
+    } catch (error) {
+      console.error('[pageService] getById failed:', error);
+      return null;
+    }
+  },
+
+  /**
+   * دریافت یک صفحه با slug (englishTitle)
+   */
+  async getBySlug(slug: string): Promise<FullPage | null> {
+    try {
+      const list = await this.getList({ pageSize: 500 });
+      const found = list.find((p) => p.slug === slug);
+      if (!found) return null;
+      return this.getById(found.id);
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * ساخت صفحه جدید
+   */
+  async create(
+    request: CreatePageRequest,
+    categoryId: string
+  ): Promise<FullPage | null> {
+    try {
+      const slug = slugify(request.meta.slug);
+
+      const body = {
+        title: request.meta.title,
+        englishTitle: slug,
+        url: `/page/${slug}`,
+        content: serializeContent(request.content),
+        categoryId,
+        seoInformation: request.meta.seo
+          ? {
+              title: request.meta.seo.metaTitle || request.meta.title,
+              description:
+                request.meta.seo.metaDescription || request.meta.title,
+              canonicalUrl:
+                request.meta.seo.canonicalUrl || `/page/${slug}`,
+            }
+          : {
+              title: request.meta.title,
+              description: request.meta.title,
+              canonicalUrl: `/page/${slug}`,
+            },
+      };
+
+      const response = await apiClient.post<PageApiResponse>(
+        API.STATIC_PAGE,
+        body
+      );
+
+      if (!response.data?.id) return null;
+      return this.getById(response.data.id);
+    } catch (error) {
+      console.error('[pageService] create failed:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * ویرایش صفحه
+   */
+  async update(request: UpdatePageRequest): Promise<FullPage | null> {
+    try {
+      const current = await this.getById(request.id);
+      if (!current) throw new Error('صفحه یافت نشد');
+
+      const meta = request.meta || {};
+      const content = request.content || current.content;
+      const slug = meta.slug ? slugify(meta.slug) : current.meta.slug;
+      const title = meta.title || current.meta.title;
+
+      const body = {
+        id: request.id,
+        title,
+        englishTitle: slug,
+        url: `/page/${slug}`,
+        content: serializeContent(content),
+        seoInformation: meta.seo
+          ? {
+              title: meta.seo.metaTitle || title,
+              description: meta.seo.metaDescription || title,
+              canonicalUrl: meta.seo.canonicalUrl || `/page/${slug}`,
+            }
+          : undefined,
+        isActive: true,
+      };
+
+      await apiClient.put(API.STATIC_PAGE, body);
+
+      return this.getById(request.id);
+    } catch (error) {
+      console.error('[pageService] update failed:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * حذف صفحه
+   */
+  async remove(id: string): Promise<boolean> {
+    try {
+      await apiClient.delete(API.STATIC_PAGE, { data: { id } });
+      return true;
+    } catch (error) {
+      console.error('[pageService] remove failed:', error);
+      return false;
+    }
+  },
+
+  /**
+   * لیست دسته‌بندی‌های صفحات استاتیک
+   */
+  async getCategories(): Promise<
+    Array<{ id: string; title: string; isActive: boolean }>
+  > {
+    try {
+      const response = await apiClient.get<{
+        currentPage: number;
+        totalPages: number;
+        pageSize: number;
+        totalCount: number;
+        items: Array<{ id: string; title: string; isActive: boolean }>;
+      }>(API.STATIC_PAGE_CATEGORIES, {
+        params: { PageNumber: 1, PageSize: 100 },
+      });
+
+      return (response.data.items || []).map((c) => ({
+        id: c.id,
+        title: c.title,
+        isActive: c.isActive,
+      }));
+    } catch (error) {
+      console.error('[pageService] getCategories failed:', error);
+      return [];
+    }
+  },
+};
+
+
+================================================================================
+FILE: C:\Users\Raven\dataEntry-dashboard\yadakchi-dataentry\src\features\page-builder\types\schema.types.ts
+================================================================================
+// src/features/page-builder/types/schema.types.ts
+
+export interface PageContent {
+  html: string;
+  css: string;
+}
+
+export type PageStatus = 'draft' | 'published' | 'archived';
+
+export interface PageSeo {
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metaKeywords: string | null;
+  canonicalUrl: string | null;
+  ogImage: string | null;
+}
+
+export interface PageMeta {
+  id: string;
+  slug: string;
+  title: string;
+  englishTitle: string;
+  url: string;
+  seo: PageSeo | null;
+  status: PageStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FullPage {
+  meta: PageMeta;
+  content: PageContent;
+}
+
+export interface PageListItem {
+  id: string;
+  slug: string;
+  title: string;
+  status: PageStatus;
+  updatedAt: string;
+}
+
+export interface CreatePageRequest {
+  meta: {
+    slug: string;
+    title: string;
+    englishTitle: string;
+    seo?: Partial<PageSeo>;
+  };
+  content: PageContent;
+}
+
+export interface UpdatePageRequest {
+  id: string;
+  meta?: {
+    slug?: string;
+    title?: string;
+    englishTitle?: string;
+    seo?: Partial<PageSeo>;
+  };
+  content?: PageContent;
+}
+
+export interface PageApiResponse {
+  id: string;
+  slug: string;
+  title: string;
+  englishTitle: string;
+  url: string;
+  content: string; // JSON: { html, css }
+  seoInformation: {
+    id: string;
+    title: string;
+    description: string;
+    keywords?: string;
+    canonicalUrl?: string;
+  } | null;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+

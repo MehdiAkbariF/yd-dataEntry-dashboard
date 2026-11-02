@@ -33,6 +33,7 @@ const menuGroups = [
       { title: 'دسته‌بندی قطعات', href: '/parts/categories', icon: Layers },
       { title: 'ویژگی‌های قطعات', href: '/properties', icon: Sliders },
       { title: 'توضیحات قطعه-خودرو', href: '/part-descriptions', icon: FileText },
+       { title: 'توضیحات نوع قطعه-خودرو', href: '/car-type-part-descriptions', icon: FileText },
     ],
   },
   {

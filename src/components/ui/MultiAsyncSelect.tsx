@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Loader2, X, ChevronDown, Check, Trash2 } from 'lucide-react';
 
 export interface SelectOption {
@@ -31,25 +32,69 @@ export function MultiAsyncSelect({
   const [loading, setLoading] = useState(false);
   const [selectedItems, setSelectedItems] = useState<SelectOption[]>(initialOptions);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [mounted, setMounted] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  
-  // ⚠️ رفرنس برای نگهداری تگ‌های گزینه‌ها جهت اسکرول اتوماتیک
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // ست کردن آیتم‌های اولیه در حالت ویرایش
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (initialOptions && initialOptions.length > 0) {
       setSelectedItems(initialOptions);
     }
   }, [initialOptions]);
 
+  // ✅ محاسبه موقعیت دراپ‌داون نسبت به viewport
+  const updateDropdownPosition = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setDropdownPosition({
+      top: rect.bottom + 6,
+      left: rect.left,
+      width: rect.width,
+    });
+  }, []);
+
+  // ✅ به‌روزرسانی موقعیت هنگام باز شدن
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+    }
+  }, [isOpen, updateDropdownPosition]);
+
+  // ✅ به‌روزرسانی موقعیت هنگام اسکرول یا تغییر اندازه
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleScroll = () => updateDropdownPosition();
+    const handleResize = () => updateDropdownPosition();
+
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen, updateDropdownPosition]);
+
   // بستن منو با کلیک بیرون
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -75,21 +120,17 @@ export function MultiAsyncSelect({
 
   useEffect(() => {
     if (!isOpen) return;
-
     const timer = setTimeout(() => {
       loadOptions(search);
     }, 300);
-
     return () => clearTimeout(timer);
   }, [search, isOpen, loadOptions]);
 
-  // ریست کردن ایندکس‌های هایلایت هنگام تغییر آپشن‌ها
   useEffect(() => {
     setHighlightedIndex(-1);
     optionRefs.current = new Array(options.length).fill(null);
   }, [options]);
 
-  // ⚠️ اسکرول اتوماتیک به سمت گزینه هایلایت‌شده با کیبورد
   useEffect(() => {
     if (highlightedIndex >= 0 && optionRefs.current[highlightedIndex]) {
       optionRefs.current[highlightedIndex]?.scrollIntoView({
@@ -128,7 +169,6 @@ export function MultiAsyncSelect({
     setSelectedItems([]);
   };
 
-  // کنترل کامل کیبورد همراه با اسکرول خودکار
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
       if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === ' ') {
@@ -159,6 +199,69 @@ export function MultiAsyncSelect({
         break;
     }
   };
+
+  // ✅ محتوای دراپ‌داون (جدا شده برای استفاده در portal)
+  const dropdownContent = isOpen ? (
+    <div
+      ref={dropdownRef}
+      style={{
+        position: 'fixed',
+        top: dropdownPosition.top,
+        left: dropdownPosition.left,
+        width: dropdownPosition.width,
+        zIndex: 9999,
+      }}
+      className="rounded-2xl border border-neutral-800 bg-neutral-900 p-2 shadow-2xl animate-scaleIn"
+    >
+      <div className="relative mb-2">
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="تایپ جهت سرچ..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 pl-9 text-xs text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+          autoFocus
+        />
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
+      </div>
+
+      <div ref={listRef} className="max-h-52 overflow-y-auto space-y-1 pr-0.5">
+        {loading ? (
+          <div className="flex items-center justify-center p-4 text-neutral-500 text-xs gap-2">
+            <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+            <span>در حال جستجو...</span>
+          </div>
+        ) : options.length === 0 ? (
+          <div className="p-4 text-center text-xs text-neutral-500">موردی پیدا نشد.</div>
+        ) : (
+          options.map((opt, index) => {
+            const isSelected = selectedValues.includes(opt.value);
+            const isHighlighted = highlightedIndex === index;
+
+            return (
+              <div
+                key={opt.value}
+                ref={(el) => {
+                  optionRefs.current[index] = el;
+                }}
+                onClick={() => handleToggleSelect(opt)}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                className={`flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 text-xs transition-all ${
+                  isHighlighted
+                    ? 'bg-neutral-800 text-amber-400 font-bold'
+                    : 'text-neutral-200 hover:bg-neutral-800/60'
+                } ${isSelected ? 'bg-amber-500/10 text-amber-400 font-semibold' : ''}`}
+              >
+                <span>{opt.label}</span>
+                {isSelected && <Check className="h-4 w-4 text-amber-500" />}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div ref={containerRef} className="relative w-full space-y-1.5" tabIndex={0} onKeyDown={handleKeyDown}>
@@ -208,57 +311,8 @@ export function MultiAsyncSelect({
         </div>
       </div>
 
-      {/* منوی دراپ‌داون */}
-      {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 w-full rounded-2xl border border-neutral-800 bg-neutral-900/95 p-2 shadow-2xl backdrop-blur-xl animate-scaleIn">
-          <div className="relative mb-2">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="تایپ جهت سرچ... (با کلیدهای جهت‌نما حرکت کنید و Enter بزنید)"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 pl-9 text-xs text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
-              autoFocus
-            />
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
-          </div>
-
-          <div ref={listRef} className="max-h-52 overflow-y-auto space-y-1 pr-0.5">
-            {loading ? (
-              <div className="flex items-center justify-center p-4 text-neutral-500 text-xs gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
-                <span>در حال جستجو...</span>
-              </div>
-            ) : options.length === 0 ? (
-              <div className="p-4 text-center text-xs text-neutral-500">موردی پیدا نشد.</div>
-            ) : (
-             options.map((opt, index) => {
-  const isSelected = selectedValues.includes(opt.value);
-  const isHighlighted = highlightedIndex === index;
-
-  return (
-    <div
-      key={opt.value}
-      ref={(el) => {
-        optionRefs.current[index] = el;
-      }} // 👈 اصلاح شد تا خطا برطرف شود
-      onClick={() => handleToggleSelect(opt)}
-      onMouseEnter={() => setHighlightedIndex(index)}
-      className={`flex items-center justify-between cursor-pointer rounded-xl px-3 py-2.5 text-xs transition-all ${
-        isHighlighted
-          ? 'bg-neutral-800 text-amber-400 font-bold'
-          : 'text-neutral-200 hover:bg-neutral-800/60'
-      } ${isSelected ? 'bg-amber-500/10 text-amber-400 font-semibold' : ''}`}
-    >
-      <span>{opt.label}</span>
-      {isSelected && <Check className="h-4 w-4 text-amber-500" />}
-    </div>
-  );
-})            )}
-          </div>
-        </div>
-      )}
+      {/* ✅ دراپ‌داون با createPortal — خارج از هر کانتینر */}
+      {mounted && dropdownContent && createPortal(dropdownContent, document.body)}
     </div>
   );
 }
