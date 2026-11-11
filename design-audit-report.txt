@@ -1,0 +1,1768 @@
+# Design System Compliance Audit
+# Generated: 2026-11-11 10:44:19
+# Root: src
+
+## Summary
+
+| Metric | Value |
+|---|---|
+| Files with issues | 109 |
+| Total violations | 3589 |
+| CRITICAL | 107 |
+| HIGH | 2292 |
+
+## Files (sorted by priority)
+
+| Priority | File | Lines | Total | Critical | High |
+|---:|---|---:|---:|---:|---:|
+| 1 | `components\editor\ProEditor.tsx` | 655 | 227 | 10 | 184 |
+| 2 | `app\(dashboard)\pages\[id]\edit\page.tsx` | 275 | 98 | 10 | 51 |
+| 3 | `app\(dashboard)\pages\new\page.tsx` | 214 | 84 | 10 | 43 |
+| 4 | `app\(dashboard)\products\view\[id]\page.tsx` | 332 | 137 | 8 | 87 |
+| 5 | `features\blogs\components\BlogCommentTable.tsx` | 122 | 54 | 5 | 29 |
+| 6 | `features\products\components\ProductForm.tsx` | 1227 | 129 | 4 | 76 |
+| 7 | `features\blogs\components\BlogPostForm.tsx` | 540 | 98 | 4 | 56 |
+| 8 | `features\part-descriptions\components\PartDescriptionForm.tsx` | 345 | 67 | 4 | 32 |
+| 9 | `app\(dashboard)\cars\view\[id]\page.tsx` | 207 | 82 | 3 | 51 |
+| 10 | `features\products\components\ProductTable.tsx` | 205 | 70 | 3 | 44 |
+| 11 | `components\common\SplitWorkspace.tsx` | 395 | 64 | 3 | 44 |
+| 12 | `features\car-type-part-descriptions\components\CarTypePartDescriptionForm.tsx` | 317 | 56 | 3 | 32 |
+| 13 | `components\common\ProductGalleryUploader.tsx` | 109 | 32 | 3 | 20 |
+| 14 | `app\(dashboard)\parts\view\[id]\page.tsx` | 215 | 85 | 2 | 55 |
+| 15 | `components\scratchpad\ScratchpadDrawer.tsx` | 129 | 57 | 2 | 38 |
+| 16 | `features\properties\components\PropertyModal.tsx` | 389 | 57 | 2 | 37 |
+| 17 | `app\(dashboard)\cars\manufacturers\page.tsx` | 161 | 58 | 2 | 36 |
+| 18 | `app\(dashboard)\cars\types\page.tsx` | 150 | 54 | 2 | 34 |
+| 19 | `features\part-categories\components\PartCategoryTable.tsx` | 148 | 51 | 2 | 34 |
+| 20 | `features\car-type-part-descriptions\components\CarTypePartDescriptionTable.tsx` | 130 | 50 | 2 | 34 |
+| 21 | `features\cars\components\CarTable.tsx` | 153 | 50 | 2 | 34 |
+| 22 | `features\blogs\components\BlogPostTable.tsx` | 160 | 51 | 2 | 33 |
+| 23 | `features\page-builder\components\CodeMirrorEditor.tsx` | 117 | 34 | 2 | 25 |
+| 24 | `features\comments\components\CommentTable.tsx` | 128 | 38 | 2 | 22 |
+| 25 | `features\inquiries\components\InquiryTable.tsx` | 121 | 37 | 2 | 22 |
+| 26 | `app\(dashboard)\properties\page.tsx` | 405 | 65 | 1 | 39 |
+| 27 | `app\(dashboard)\pages\page.tsx` | 141 | 62 | 1 | 38 |
+| 28 | `features\parts\components\PartForm.tsx` | 406 | 64 | 1 | 36 |
+| 29 | `features\parts\components\PartTable.tsx` | 174 | 50 | 1 | 34 |
+| 30 | `features\brands\components\BrandTable.tsx` | 171 | 48 | 1 | 33 |
+| 31 | `features\part-descriptions\components\CarTypePartDescriptionTable.tsx` | 125 | 43 | 1 | 30 |
+| 32 | `features\part-descriptions\components\PartCarDescriptionTable.tsx` | 129 | 43 | 1 | 30 |
+| 33 | `features\blogs\components\BlogCategoryTable.tsx` | 112 | 40 | 1 | 28 |
+| 34 | `features\tags\components\TagTable.tsx` | 95 | 35 | 1 | 25 |
+| 35 | `components\common\MobileSidebar.tsx` | 145 | 33 | 1 | 24 |
+| 36 | `components\common\MediaUploader.tsx` | 62 | 21 | 1 | 12 |
+| 37 | `components\ui\Select.tsx` | 43 | 17 | 1 | 8 |
+| 38 | `components\common\SEOPreview.tsx` | 43 | 13 | 1 | 7 |
+| 39 | `app\(auth)\login\page.tsx` | 251 | 57 | 0 | 37 |
+| 40 | `app\(dashboard)\parts\categories\view\[id]\page.tsx` | 137 | 58 | 0 | 36 |
+| 41 | `features\part-categories\components\PartCategoryForm.tsx` | 338 | 57 | 0 | 35 |
+| 42 | `app\(dashboard)\brands\view\[id]\page.tsx` | 151 | 55 | 0 | 33 |
+| 43 | `app\(dashboard)\part-descriptions\view\[id]\page.tsx` | 136 | 48 | 0 | 33 |
+| 44 | `features\cars\components\CarForm.tsx` | 384 | 54 | 0 | 30 |
+| 45 | `app\(dashboard)\page.tsx` | 87 | 44 | 0 | 28 |
+| 46 | `components\ui\MultiAsyncSelect.tsx` | 318 | 40 | 0 | 28 |
+| 47 | `features\cars\components\CarTypeForm.tsx` | 231 | 43 | 0 | 27 |
+| 48 | `features\properties\components\PropertyTable.tsx` | 121 | 33 | 0 | 25 |
+| 49 | `components\ui\AsyncSelect.tsx` | 301 | 37 | 0 | 24 |
+| 50 | `features\blogs\components\BlogCommentReplyModal.tsx` | 104 | 34 | 0 | 24 |
+| 51 | `features\brands\components\BrandForm.tsx` | 296 | 38 | 0 | 23 |
+| 52 | `features\cars\components\CarManufacturerForm.tsx` | 186 | 38 | 0 | 23 |
+| 53 | `app\(dashboard)\cars\manufacturers\view\[id]\page.tsx` | 88 | 30 | 0 | 21 |
+| 54 | `app\(dashboard)\cars\types\view\[id]\page.tsx` | 78 | 28 | 0 | 20 |
+| 55 | `app\(dashboard)\part-descriptions\page.tsx` | 191 | 33 | 0 | 19 |
+| 56 | `features\cars\components\CarTypeModal.tsx` | 195 | 25 | 0 | 17 |
+| 57 | `features\properties\components\PropertyParentModal.tsx` | 148 | 23 | 0 | 15 |
+| 58 | `features\blogs\components\BlogCategoryModal.tsx` | 133 | 23 | 0 | 15 |
+| 59 | `features\cars\components\CarManufacturerModal.tsx` | 161 | 23 | 0 | 15 |
+| 60 | `features\tags\components\TagModal.tsx` | 106 | 22 | 0 | 14 |
+| 61 | `app\(dashboard)\products\duplicate\[id]\page.tsx` | 88 | 16 | 0 | 10 |
+| 62 | `app\(dashboard)\blogs\page.tsx` | 118 | 14 | 0 | 8 |
+| 63 | `app\(dashboard)\blogs\categories\page.tsx` | 145 | 14 | 0 | 8 |
+| 64 | `app\(dashboard)\parts\categories\page.tsx` | 113 | 14 | 0 | 8 |
+| 65 | `app\(dashboard)\tags\page.tsx` | 155 | 14 | 0 | 8 |
+| 66 | `app\(dashboard)\brands\page.tsx` | 127 | 14 | 0 | 8 |
+| 67 | `app\(dashboard)\cars\page.tsx` | 121 | 14 | 0 | 8 |
+| 68 | `app\(dashboard)\parts\page.tsx` | 136 | 14 | 0 | 8 |
+| 69 | `app\(dashboard)\products\page.tsx` | 160 | 14 | 0 | 8 |
+| 70 | `features\cars\components\CarSubNav.tsx` | 41 | 11 | 0 | 7 |
+| 71 | `features\blogs\components\BlogSubNav.tsx` | 44 | 11 | 0 | 7 |
+| 72 | `app\(dashboard)\parts\edit\[id]\page.tsx` | 33 | 10 | 0 | 7 |
+| 73 | `app\(dashboard)\cars\edit\[id]\page.tsx` | 33 | 10 | 0 | 7 |
+| 74 | `app\(dashboard)\products\edit\[id]\page.tsx` | 33 | 10 | 0 | 7 |
+| 75 | `app\(dashboard)\car-type-part-descriptions\view\[id]\page.tsx` | 34 | 9 | 0 | 7 |
+| 76 | `components\common\ThemeToggle.tsx` | 29 | 10 | 0 | 6 |
+| 77 | `app\(dashboard)\parts\categories\edit\[id]\page.tsx` | 32 | 9 | 0 | 6 |
+| 78 | `app\(dashboard)\brands\edit\[id]\page.tsx` | 32 | 9 | 0 | 6 |
+| 79 | `features\properties\components\PropertyFilterBar.tsx` | 124 | 8 | 0 | 6 |
+| 80 | `features\part-categories\components\PartCategoryFilterBar.tsx` | 136 | 8 | 0 | 6 |
+| 81 | `features\inquiries\components\InquiryFilterBar.tsx` | 75 | 8 | 0 | 6 |
+| 82 | `features\products\components\ProductFilterBar.tsx` | 166 | 8 | 0 | 6 |
+| 83 | `features\tags\components\TagFilterBar.tsx` | 82 | 8 | 0 | 6 |
+| 84 | `features\part-descriptions\components\PartDescriptionFilterBar.tsx` | 100 | 8 | 0 | 6 |
+| 85 | `features\parts\components\PartFilterBar.tsx` | 179 | 8 | 0 | 6 |
+| 86 | `features\blogs\components\BlogCommentFilterBar.tsx` | 94 | 8 | 0 | 6 |
+| 87 | `features\blogs\components\logPostFilterBar.tsx` | 100 | 8 | 0 | 6 |
+| 88 | `features\cars\components\CarFilterBar.tsx` | 170 | 8 | 0 | 6 |
+| 89 | `features\brands\components\BrandFilterBar.tsx` | 130 | 8 | 0 | 6 |
+| 90 | `features\car-type-part-descriptions\components\CarTypePartDescriptionFilterBar.tsx` | 126 | 8 | 0 | 6 |
+| 91 | `features\comments\components\CommentFilterBar.tsx` | 75 | 8 | 0 | 6 |
+| 92 | `features\blogs\components\BlogCategoryFilterBar.tsx` | 82 | 8 | 0 | 6 |
+| 93 | `app\(dashboard)\inquiries\page.tsx` | 83 | 7 | 0 | 5 |
+| 94 | `app\(dashboard)\comments\page.tsx` | 83 | 7 | 0 | 5 |
+| 95 | `app\(dashboard)\blogs\comments\page.tsx` | 108 | 7 | 0 | 5 |
+| 96 | `app\(dashboard)\layout.tsx` | 49 | 5 | 0 | 5 |
+| 97 | `app\(dashboard)\car-type-part-descriptions\page.tsx` | 113 | 7 | 0 | 4 |
+| 98 | `app\layout.tsx` | 41 | 4 | 0 | 4 |
+| 99 | `features\page-builder\components\CodePageEditor.tsx` | 260 | 8 | 0 | 1 |
+| 100 | `components\common\ConfirmModal.tsx` | 47 | 4 | 0 | 1 |
+| 101 | `app\(dashboard)\car-type-part-descriptions\edit\[id]\page.tsx` | 15 | 2 | 0 | 1 |
+| 102 | `app\(dashboard)\cars\manufacturers\edit\[id]\page.tsx` | 31 | 1 | 0 | 1 |
+| 103 | `app\(dashboard)\part-descriptions\edit\[id]\page.tsx` | 36 | 1 | 0 | 1 |
+| 104 | `app\(dashboard)\cars\types\edit\[id]\page.tsx` | 31 | 1 | 0 | 1 |
+| 105 | `app\(dashboard)\blogs\edit\[id]\page.tsx` | 21 | 1 | 0 | 1 |
+| 106 | `components\common\Sidebar.tsx` | 111 | 3 | 0 | 0 |
+| 107 | `components\common\Pagination.tsx` | 130 | 2 | 0 | 0 |
+| 108 | `components\common\Header.tsx` | 145 | 2 | 0 | 0 |
+| 109 | `components\ui\Switch.tsx` | 52 | 1 | 0 | 0 |
+
+## Per-file details
+
+### `components\editor\ProEditor.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 10 | 530, 564, 568, 575, 582 |
+| HIGH | Accent | `amber-*` | 50 | 185, 196, 207, 218, 260 |
+| HIGH | Color | `bg-neutral-*` | 46 | 150, 155, 162, 171, 184 |
+| HIGH | Color | `text-neutral-*` | 34 | 87, 162, 171, 184, 195 |
+| HIGH | Color | `text-white` | 31 | 162, 171, 184, 195, 206 |
+| HIGH | Color | `border-neutral-*` | 13 | 150, 155, 157, 179, 236 |
+| HIGH | Typography | `text-[10px]-[11px]` | 10 | 530, 564, 568, 575, 582 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 10 | 530, 564, 568, 575, 582 |
+| MEDIUM | Accent | `red-*` | 10 | 517, 575, 589, 610 |
+| MEDIUM | Accent | `emerald-*` | 3 | 619, 626, 643 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 236, 267 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 150 |
+| LOW | Motion | `transition-all` | 5 | 150, 530, 542, 553, 641 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 636 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 636 |
+
+### `app\(dashboard)\pages\[id]\edit\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 10 | 134, 147, 152, 157, 175 |
+| HIGH | Typography | `text-[10px]-[11px]` | 10 | 134, 147, 152, 157, 175 |
+| HIGH | Color | `bg-neutral-*` | 9 | 102, 113, 130, 144, 171 |
+| HIGH | Color | `text-neutral-*` | 9 | 104, 134, 152, 157, 180 |
+| HIGH | Color | `border-neutral-*` | 8 | 130, 144, 171, 189, 218 |
+| HIGH | Accent | `amber-*` | 8 | 103, 119, 144, 171, 189 |
+| HIGH | Color | `text-white` | 7 | 144, 171, 189, 218, 231 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 10 | 134, 147, 152, 157, 175 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 8 | 103, 144, 171, 189, 218 |
+| MEDIUM | Radius | `rounded-xl` | 7 | 144, 171, 189, 218, 231 |
+| MEDIUM | Accent | `red-*` | 4 | 114, 147, 175, 199 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 7 | 144, 171, 189, 218, 231 |
+| LOW | Motion | `transition-all` | 1 | 265 |
+
+### `app\(dashboard)\pages\new\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 10 | 92, 103, 107, 112, 129 |
+| HIGH | Typography | `text-[10px]-[11px]` | 10 | 92, 103, 107, 112, 129 |
+| HIGH | Color | `bg-neutral-*` | 7 | 89, 100, 125, 141, 170 |
+| HIGH | Color | `text-neutral-*` | 7 | 92, 107, 112, 133, 160 |
+| HIGH | Color | `border-neutral-*` | 7 | 89, 100, 125, 141, 170 |
+| HIGH | Color | `text-white` | 6 | 100, 125, 141, 170, 183 |
+| HIGH | Accent | `amber-*` | 6 | 100, 125, 141, 170, 183 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 10 | 92, 103, 107, 112, 129 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 6 | 100, 125, 141, 170, 183 |
+| MEDIUM | Radius | `rounded-xl` | 6 | 100, 125, 141, 170, 183 |
+| MEDIUM | Accent | `red-*` | 3 | 103, 129, 151 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 6 | 100, 125, 141, 170, 183 |
+
+### `app\(dashboard)\products\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 8 | 172, 179, 186, 193, 238 |
+| HIGH | Color | `text-neutral-*` | 25 | 53, 62, 77, 132, 141 |
+| HIGH | Accent | `amber-*` | 16 | 52, 85, 103, 139, 152 |
+| HIGH | Color | `border-neutral-*` | 16 | 51, 60, 73, 77, 92 |
+| HIGH | Color | `bg-neutral-*` | 14 | 51, 60, 77, 92, 121 |
+| HIGH | Typography | `text-[10px]-[11px]` | 8 | 172, 179, 186, 193, 238 |
+| HIGH | Color | `text-white` | 6 | 77, 83, 110, 286, 290 |
+| HIGH | Color | `text-black` | 1 | 103 |
+| HIGH | Color | `bg-black` | 1 | 309 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 8 | 172, 179, 186, 193, 238 |
+| MEDIUM | Radius | `rounded-xl` | 8 | 77, 92, 103, 110, 152 |
+| MEDIUM | Radius | `rounded-2xl` | 7 | 51, 60, 121, 138, 169 |
+| MEDIUM | Accent | `red-*` | 7 | 60, 110, 247, 253 |
+| MEDIUM | Accent | `emerald-*` | 2 | 247, 253 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 77 |
+| LOW | Motion | `transition-all` | 4 | 77, 103, 110, 152 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 92, 103, 110 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 103, 110 |
+
+### `features\blogs\components\BlogCommentTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 5 | 64, 71, 78, 94, 109 |
+| HIGH | Color | `text-neutral-*` | 8 | 25, 35, 44, 61, 64 |
+| HIGH | Color | `bg-neutral-*` | 6 | 24, 35, 42, 44, 56 |
+| HIGH | Typography | `text-[10px]-[11px]` | 5 | 64, 71, 78, 94, 109 |
+| HIGH | Color | `border-neutral-*` | 5 | 24, 35, 42, 44, 109 |
+| HIGH | Accent | `amber-*` | 4 | 26, 57, 109 |
+| HIGH | Color | `text-black` | 1 | 94 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 5 | 64, 71, 78, 94, 109 |
+| MEDIUM | Accent | `emerald-*` | 4 | 94 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 24, 35, 42 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 94, 109 |
+| MEDIUM | Accent | `blue-*` | 1 | 71 |
+| LOW | Motion | `transition-all` | 3 | 56, 94, 109 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 94, 109 |
+
+### `features\products\components\ProductForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 4 | 859, 874, 892, 1153 |
+| HIGH | Accent | `amber-*` | 21 | 800, 801, 805, 817, 912 |
+| HIGH | Color | `bg-neutral-*` | 17 | 773, 789, 808, 816, 911 |
+| HIGH | Color | `border-neutral-*` | 17 | 768, 773, 789, 808, 816 |
+| HIGH | Color | `text-neutral-*` | 9 | 773, 783, 918, 923, 981 |
+| HIGH | Color | `text-white` | 7 | 773, 778, 808, 999, 1102 |
+| HIGH | Typography | `text-[10px]-[11px]` | 4 | 859, 874, 892, 1153 |
+| HIGH | Color | `text-black` | 1 | 1204 |
+| MEDIUM | Radius | `rounded-2xl` | 11 | 789, 800, 816, 911, 1009 |
+| MEDIUM | Radius | `rounded-xl` | 8 | 773, 801, 808, 999, 1143 |
+| MEDIUM | Accent | `red-*` | 8 | 859, 874, 892, 983, 1143 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 4 | 859, 874, 892, 1153 |
+| MEDIUM | Accent | `blue-*` | 3 | 1152, 1153 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 773 |
+| LOW | Motion | `transition-all` | 5 | 773, 999, 1143, 1195, 1204 |
+| LOW | Spacing | `py-2 / py-2.5` | 5 | 789, 808, 999, 1195, 1204 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 4 | 789, 808, 999, 1143 |
+
+### `features\blogs\components\BlogPostForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 4 | 308, 330, 342, 352 |
+| HIGH | Color | `bg-neutral-*` | 15 | 261, 275, 328, 336, 346 |
+| HIGH | Color | `border-neutral-*` | 13 | 257, 261, 275, 328, 336 |
+| HIGH | Accent | `amber-*` | 11 | 276, 328, 337, 365, 379 |
+| HIGH | Color | `text-neutral-*` | 7 | 261, 269, 320, 412, 420 |
+| HIGH | Color | `text-white` | 5 | 261, 266, 328, 437, 459 |
+| HIGH | Typography | `text-[10px]-[11px]` | 4 | 308, 330, 342, 352 |
+| HIGH | Color | `text-black` | 1 | 523 |
+| MEDIUM | Accent | `red-*` | 9 | 308, 330, 342, 352, 420 |
+| MEDIUM | Radius | `rounded-xl` | 8 | 261, 328, 404, 416, 437 |
+| MEDIUM | Radius | `rounded-2xl` | 7 | 275, 336, 346, 362, 395 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 4 | 308, 330, 342, 352 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 261 |
+| LOW | Motion | `transition-all` | 5 | 261, 404, 459, 514, 523 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 514, 523 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 404, 459 |
+
+### `features\part-descriptions\components\PartDescriptionForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 4 | 219, 232, 244, 256 |
+| HIGH | Color | `bg-neutral-*` | 8 | 186, 198, 203, 250, 260 |
+| HIGH | Color | `border-neutral-*` | 8 | 182, 186, 198, 203, 250 |
+| HIGH | Accent | `amber-*` | 5 | 204, 251, 262, 320 |
+| HIGH | Typography | `text-[10px]-[11px]` | 4 | 219, 232, 244, 256 |
+| HIGH | Color | `text-neutral-*` | 3 | 186, 194, 311 |
+| HIGH | Color | `text-white` | 3 | 186, 191, 271 |
+| HIGH | Color | `text-black` | 1 | 320 |
+| MEDIUM | Accent | `red-*` | 8 | 219, 232, 244, 256, 271 |
+| MEDIUM | Radius | `rounded-2xl` | 5 | 198, 203, 250, 260, 307 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 186, 271, 311, 320 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 4 | 219, 232, 244, 256 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 186 |
+| LOW | Motion | `transition-all` | 4 | 186, 271, 311, 320 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 198, 311, 320 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 198, 271 |
+
+### `app\(dashboard)\cars\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 3 | 133, 140, 147 |
+| HIGH | Color | `border-neutral-*` | 13 | 54, 63, 74, 78, 93 |
+| HIGH | Color | `text-neutral-*` | 13 | 56, 78, 125, 133, 134 |
+| HIGH | Accent | `amber-*` | 9 | 55, 86, 104, 130, 159 |
+| HIGH | Color | `bg-neutral-*` | 9 | 54, 63, 78, 93, 121 |
+| HIGH | Color | `text-white` | 3 | 78, 84, 111 |
+| HIGH | Typography | `text-[10px]-[11px]` | 3 | 133, 140, 147 |
+| HIGH | Color | `text-black` | 1 | 104 |
+| MEDIUM | Radius | `rounded-2xl` | 6 | 54, 63, 121, 129, 158 |
+| MEDIUM | Radius | `rounded-xl` | 5 | 78, 93, 104, 111, 164 |
+| MEDIUM | Accent | `red-*` | 5 | 63, 111 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 3 | 133, 140, 147 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 78 |
+| LOW | Motion | `transition-all` | 3 | 78, 104, 111 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 93, 104, 111 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 104, 111 |
+
+### `features\products\components\ProductTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 3 | 102, 104, 123 |
+| HIGH | Color | `text-neutral-*` | 14 | 36, 46, 55, 76, 92 |
+| HIGH | Color | `bg-neutral-*` | 11 | 35, 46, 53, 55, 74 |
+| HIGH | Color | `border-neutral-*` | 10 | 35, 46, 53, 55, 82 |
+| HIGH | Accent | `amber-*` | 5 | 37, 102, 135, 182 |
+| HIGH | Typography | `text-[10px]-[11px]` | 3 | 102, 104, 123 |
+| HIGH | Color | `text-white` | 1 | 100 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 4 | 76, 102, 104, 123 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 35, 46, 53 |
+| MEDIUM | Accent | `emerald-*` | 3 | 160, 164 |
+| MEDIUM | Accent | `red-*` | 2 | 191 |
+| MEDIUM | Accent | `blue-*` | 2 | 150 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 82 |
+| LOW | Motion | `transition-all` | 6 | 74, 150, 160, 173, 182 |
+| LOW | Accent | `cyan-*` | 2 | 173 |
+
+### `components\common\SplitWorkspace.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 3 | 308, 312, 326 |
+| HIGH | Color | `bg-neutral-*` | 13 | 215, 233, 241, 243, 251 |
+| HIGH | Color | `text-neutral-*` | 9 | 243, 299, 312, 320, 323 |
+| HIGH | Accent | `amber-*` | 7 | 241, 243, 254, 295, 299 |
+| HIGH | Color | `border-neutral-*` | 6 | 233, 253, 254, 295, 307 |
+| HIGH | Typography | `text-[10px]-[11px]` | 3 | 308, 312, 326 |
+| HIGH | Color | `text-white` | 3 | 295, 340, 349 |
+| HIGH | Color | `text-black` | 3 | 243, 299, 367 |
+| MEDIUM | Color | `bg-white` | 3 | 367, 373, 380 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 3 | 308, 312, 326 |
+| MEDIUM | Accent | `emerald-*` | 2 | 262, 263 |
+| MEDIUM | Accent | `red-*` | 2 | 357 |
+| MEDIUM | Accent | `blue-*` | 2 | 267, 268 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 307 |
+| LOW | Motion | `transition-all` | 3 | 233, 299, 320 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 320 |
+
+### `features\car-type-part-descriptions\components\CarTypePartDescriptionForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 3 | 195, 213, 231 |
+| HIGH | Color | `bg-neutral-*` | 9 | 157, 174, 222, 237, 244 |
+| HIGH | Color | `border-neutral-*` | 9 | 153, 157, 174, 222, 237 |
+| HIGH | Accent | `amber-*` | 5 | 175, 223, 256, 300 |
+| HIGH | Color | `text-neutral-*` | 3 | 157, 167, 293 |
+| HIGH | Typography | `text-[10px]-[11px]` | 3 | 195, 213, 231 |
+| HIGH | Color | `text-white` | 2 | 157, 162 |
+| HIGH | Color | `text-black` | 1 | 300 |
+| MEDIUM | Radius | `rounded-2xl` | 6 | 174, 222, 237, 244, 255 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 157, 293, 300 |
+| MEDIUM | Accent | `red-*` | 3 | 195, 213, 231 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 3 | 195, 213, 231 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 157 |
+| LOW | Motion | `transition-all` | 3 | 157, 293, 300 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 293, 300 |
+
+### `components\common\ProductGalleryUploader.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 3 | 61, 91, 101 |
+| HIGH | Color | `bg-neutral-*` | 6 | 65, 79, 81, 91, 101 |
+| HIGH | Accent | `amber-*` | 4 | 57, 65, 91, 101 |
+| HIGH | Color | `border-neutral-*` | 3 | 65, 79, 101 |
+| HIGH | Color | `text-neutral-*` | 3 | 61, 66, 67 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 61, 101 |
+| HIGH | Color | `text-white` | 2 | 86, 101 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 3 | 61, 91, 101 |
+| MEDIUM | Accent | `red-*` | 2 | 86 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 65 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 79 |
+| LOW | Motion | `transition-all` | 2 | 65, 86 |
+
+### `app\(dashboard)\parts\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 127, 133 |
+| HIGH | Color | `border-neutral-*` | 14 | 50, 59, 70, 74, 89 |
+| HIGH | Color | `text-neutral-*` | 14 | 52, 61, 74, 127, 128 |
+| HIGH | Accent | `amber-*` | 11 | 51, 82, 100, 120, 134 |
+| HIGH | Color | `bg-neutral-*` | 10 | 50, 59, 74, 89, 116 |
+| HIGH | Color | `text-white` | 3 | 74, 80, 107 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 127, 133 |
+| HIGH | Color | `text-black` | 1 | 100 |
+| MEDIUM | Radius | `rounded-2xl` | 6 | 50, 59, 116, 124, 167 |
+| MEDIUM | Radius | `rounded-xl` | 6 | 74, 89, 100, 107, 141 |
+| MEDIUM | Accent | `red-*` | 5 | 59, 107 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 127, 133 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 74 |
+| LOW | Motion | `transition-all` | 3 | 74, 100, 107 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 89, 100, 107 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 100, 107 |
+
+### `components\scratchpad\ScratchpadDrawer.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 38, 118 |
+| HIGH | Accent | `amber-*` | 10 | 33, 38, 49, 68, 75 |
+| HIGH | Color | `bg-neutral-*` | 9 | 38, 46, 55, 62, 68 |
+| HIGH | Color | `border-neutral-*` | 7 | 46, 48, 62, 68, 75 |
+| HIGH | Color | `text-neutral-*` | 6 | 33, 55, 89, 105, 112 |
+| HIGH | Color | `text-white` | 4 | 51, 55, 68, 75 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 38, 118 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 62, 97 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 38, 118 |
+| MEDIUM | Accent | `red-*` | 2 | 112 |
+| MEDIUM | Accent | `emerald-*` | 1 | 107 |
+| LOW | Motion | `transition-all` | 7 | 33, 46, 55, 79, 97 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 33, 68 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 79 |
+
+### `features\properties\components\PropertyModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 274, 333 |
+| HIGH | Accent | `amber-*` | 9 | 221, 232, 279, 280, 296 |
+| HIGH | Color | `text-neutral-*` | 8 | 225, 233, 296, 307, 318 |
+| HIGH | Color | `border-neutral-*` | 7 | 219, 220, 306, 339, 350 |
+| HIGH | Color | `bg-neutral-*` | 6 | 219, 296, 306, 318, 361 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 274, 333 |
+| HIGH | Color | `text-white` | 2 | 225, 312 |
+| HIGH | Color | `text-black` | 2 | 296, 368 |
+| HIGH | Color | `bg-black` | 1 | 217 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 279, 296, 361, 368 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 274, 333 |
+| MEDIUM | Accent | `emerald-*` | 2 | 318 |
+| MEDIUM | Accent | `red-*` | 2 | 274, 325 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 219 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 296 |
+| LOW | Motion | `transition-all` | 2 | 296, 368 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 361, 368 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 216, 361 |
+
+### `app\(dashboard)\cars\manufacturers\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 99, 105 |
+| HIGH | Accent | `amber-*` | 9 | 43, 54, 67, 91, 127 |
+| HIGH | Color | `bg-neutral-*` | 8 | 66, 70, 72, 85, 87 |
+| HIGH | Color | `border-neutral-*` | 7 | 66, 70, 72, 87, 119 |
+| HIGH | Color | `text-neutral-*` | 7 | 48, 72, 99, 105, 119 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 99, 105 |
+| HIGH | Color | `text-white` | 2 | 47, 96 |
+| HIGH | Color | `text-black` | 1 | 54 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 43, 54, 87 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 2 | 43, 87 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 66, 70 |
+| MEDIUM | Accent | `blue-*` | 2 | 119 |
+| MEDIUM | Accent | `red-*` | 2 | 135 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 99, 105 |
+| LOW | Motion | `transition-all` | 5 | 54, 85, 119, 127, 135 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 54 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 54 |
+
+### `app\(dashboard)\cars\types\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 85, 95 |
+| HIGH | Accent | `amber-*` | 9 | 41, 52, 65, 91, 117 |
+| HIGH | Color | `bg-neutral-*` | 7 | 64, 68, 70, 81, 109 |
+| HIGH | Color | `text-neutral-*` | 7 | 46, 70, 85, 95, 109 |
+| HIGH | Color | `border-neutral-*` | 6 | 64, 68, 70, 109, 117 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 85, 95 |
+| HIGH | Color | `text-white` | 2 | 45, 82 |
+| HIGH | Color | `text-black` | 1 | 52 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 64, 68 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 41, 52 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 85, 95 |
+| MEDIUM | Accent | `blue-*` | 2 | 109 |
+| MEDIUM | Accent | `red-*` | 2 | 125 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 41 |
+| LOW | Motion | `transition-all` | 5 | 52, 81, 109, 117, 125 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 52 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 52 |
+
+### `features\part-categories\components\PartCategoryTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 89, 100 |
+| HIGH | Color | `text-neutral-*` | 10 | 34, 44, 53, 89, 96 |
+| HIGH | Color | `bg-neutral-*` | 9 | 33, 44, 51, 53, 68 |
+| HIGH | Color | `border-neutral-*` | 8 | 33, 44, 51, 53, 70 |
+| HIGH | Accent | `amber-*` | 4 | 35, 80, 126 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 89, 100 |
+| HIGH | Color | `text-white` | 1 | 87 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 33, 44, 51 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 89, 100 |
+| MEDIUM | Accent | `red-*` | 2 | 134 |
+| MEDIUM | Accent | `blue-*` | 2 | 118 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 70 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 70 |
+| LOW | Motion | `transition-all` | 4 | 68, 118, 126, 134 |
+
+### `features\car-type-part-descriptions\components\CarTypePartDescriptionTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 73, 80 |
+| HIGH | Color | `text-neutral-*` | 12 | 30, 40, 49, 66, 70 |
+| HIGH | Color | `bg-neutral-*` | 8 | 29, 40, 47, 49, 65 |
+| HIGH | Color | `border-neutral-*` | 7 | 29, 40, 47, 49, 102 |
+| HIGH | Accent | `amber-*` | 4 | 31, 90, 109 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 73, 80 |
+| HIGH | Color | `text-white` | 1 | 69 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 29, 40, 47 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 3 | 66, 73, 80 |
+| MEDIUM | Accent | `red-*` | 2 | 116 |
+| MEDIUM | Accent | `blue-*` | 2 | 102 |
+| LOW | Motion | `transition-all` | 4 | 65, 102, 109, 116 |
+
+### `features\cars\components\CarTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 78, 92 |
+| HIGH | Color | `text-neutral-*` | 10 | 20, 30, 39, 68, 78 |
+| HIGH | Color | `bg-neutral-*` | 9 | 19, 30, 37, 39, 55 |
+| HIGH | Color | `border-neutral-*` | 8 | 19, 30, 37, 39, 58 |
+| HIGH | Accent | `amber-*` | 4 | 21, 88, 131 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 78, 92 |
+| HIGH | Color | `text-white` | 1 | 76 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 19, 30, 37 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 78, 92 |
+| MEDIUM | Accent | `red-*` | 2 | 139 |
+| MEDIUM | Accent | `blue-*` | 2 | 123 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 58 |
+| LOW | Motion | `transition-all` | 4 | 55, 123, 131, 139 |
+
+### `features\blogs\components\BlogPostTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 85, 115 |
+| HIGH | Color | `text-neutral-*` | 10 | 28, 38, 47, 76, 85 |
+| HIGH | Color | `bg-neutral-*` | 8 | 27, 38, 45, 47, 64 |
+| HIGH | Color | `border-neutral-*` | 7 | 27, 38, 45, 47, 66 |
+| HIGH | Accent | `amber-*` | 4 | 29, 100, 138 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 85, 115 |
+| HIGH | Color | `text-white` | 1 | 83 |
+| HIGH | Color | `text-black` | 1 | 125 |
+| MEDIUM | Accent | `emerald-*` | 4 | 125 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 27, 38, 45 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 85, 115 |
+| MEDIUM | Accent | `red-*` | 2 | 146 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 66 |
+| LOW | Motion | `transition-all` | 4 | 64, 125, 138, 146 |
+
+### `features\page-builder\components\CodeMirrorEditor.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 52, 53 |
+| HIGH | Color | `bg-neutral-*` | 8 | 41, 42, 48, 53, 62 |
+| HIGH | Color | `text-neutral-*` | 5 | 53, 62, 71, 79, 97 |
+| HIGH | Accent | `amber-*` | 4 | 51, 62, 98 |
+| HIGH | Color | `text-white` | 4 | 52, 62, 71, 79 |
+| HIGH | Color | `border-neutral-*` | 3 | 41, 42, 48 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 52 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 52, 53 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 41, 42 |
+| MEDIUM | Accent | `emerald-*` | 1 | 74 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 48 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 48 |
+
+### `features\comments\components\CommentTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 75, 109 |
+| HIGH | Color | `text-neutral-*` | 7 | 24, 34, 43, 67, 72 |
+| HIGH | Color | `bg-neutral-*` | 5 | 23, 34, 41, 43, 55 |
+| HIGH | Color | `border-neutral-*` | 4 | 23, 34, 41, 43 |
+| HIGH | Accent | `amber-*` | 3 | 25, 61, 87 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 75, 109 |
+| HIGH | Color | `text-black` | 1 | 109 |
+| MEDIUM | Accent | `emerald-*` | 5 | 75, 109 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 23, 34, 41 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 75, 109 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 109 |
+| LOW | Motion | `transition-all` | 2 | 55, 109 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 109 |
+
+### `features\inquiries\components\InquiryTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 2 | 75, 102 |
+| HIGH | Color | `text-neutral-*` | 7 | 24, 34, 43, 67, 72 |
+| HIGH | Color | `bg-neutral-*` | 5 | 23, 34, 41, 43, 55 |
+| HIGH | Color | `border-neutral-*` | 4 | 23, 34, 41, 43 |
+| HIGH | Accent | `amber-*` | 3 | 25, 61, 75 |
+| HIGH | Typography | `text-[10px]-[11px]` | 2 | 75, 102 |
+| HIGH | Color | `text-black` | 1 | 102 |
+| MEDIUM | Accent | `emerald-*` | 4 | 102 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 23, 34, 41 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 75, 102 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 102 |
+| LOW | Motion | `transition-all` | 2 | 55, 102 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 102 |
+
+### `app\(dashboard)\properties\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 345 |
+| HIGH | Accent | `amber-*` | 16 | 220, 236, 247, 264, 279 |
+| HIGH | Color | `bg-neutral-*` | 7 | 265, 280, 330, 332, 342 |
+| HIGH | Color | `text-neutral-*` | 7 | 225, 265, 280, 332, 344 |
+| HIGH | Color | `border-neutral-*` | 5 | 256, 330, 332, 355, 365 |
+| HIGH | Color | `text-black` | 2 | 236, 247 |
+| HIGH | Color | `text-white` | 1 | 224 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 345 |
+| MEDIUM | Radius | `rounded-xl` | 5 | 220, 236, 247, 262, 277 |
+| MEDIUM | Accent | `red-*` | 2 | 365 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 330 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 345 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 220 |
+| LOW | Motion | `transition-all` | 7 | 236, 247, 262, 277, 342 |
+| LOW | Spacing | `py-2 / py-2.5` | 4 | 236, 247, 262, 277 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 4 | 236, 247, 262, 277 |
+
+### `app\(dashboard)\pages\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 102 |
+| HIGH | Accent | `amber-*` | 11 | 44, 56, 70, 76, 94 |
+| HIGH | Color | `text-neutral-*` | 9 | 49, 64, 70, 75, 81 |
+| HIGH | Color | `border-neutral-*` | 8 | 42, 70, 80, 94, 109 |
+| HIGH | Color | `text-white` | 5 | 48, 70, 98, 121, 129 |
+| HIGH | Color | `bg-neutral-*` | 2 | 70, 94 |
+| HIGH | Color | `text-black` | 2 | 56, 112 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 102 |
+| MEDIUM | Radius | `rounded-xl` | 6 | 44, 56, 70, 112, 121 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 5 | 44, 70, 112, 121, 129 |
+| MEDIUM | Accent | `red-*` | 3 | 129 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 80, 94 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 102 |
+| LOW | Motion | `transition-all` | 5 | 56, 94, 112, 121, 129 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 56 |
+
+### `features\parts\components\PartForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 263 |
+| HIGH | Color | `bg-neutral-*` | 10 | 208, 221, 231, 285, 303 |
+| HIGH | Color | `border-neutral-*` | 10 | 203, 208, 221, 231, 285 |
+| HIGH | Accent | `amber-*` | 7 | 232, 276, 285, 304, 330 |
+| HIGH | Color | `text-white` | 4 | 208, 213, 285, 338 |
+| HIGH | Color | `text-neutral-*` | 3 | 208, 216, 380 |
+| HIGH | Color | `text-black` | 1 | 389 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 263 |
+| MEDIUM | Radius | `rounded-2xl` | 6 | 221, 231, 303, 313, 328 |
+| MEDIUM | Radius | `rounded-xl` | 5 | 208, 285, 338, 380, 389 |
+| MEDIUM | Accent | `red-*` | 5 | 263, 338 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 263 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 208 |
+| LOW | Motion | `transition-all` | 4 | 208, 338, 380, 389 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 221, 380, 389 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 221, 338 |
+
+### `features\parts\components\PartTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 98 |
+| HIGH | Color | `bg-neutral-*` | 9 | 31, 42, 49, 51, 70 |
+| HIGH | Color | `text-neutral-*` | 9 | 32, 42, 51, 72, 98 |
+| HIGH | Color | `border-neutral-*` | 8 | 31, 42, 49, 51, 78 |
+| HIGH | Accent | `amber-*` | 6 | 33, 88, 113, 130, 152 |
+| HIGH | Color | `text-white` | 1 | 96 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 98 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 31, 42, 49 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 2 | 72, 98 |
+| MEDIUM | Accent | `red-*` | 2 | 160 |
+| MEDIUM | Accent | `blue-*` | 2 | 144 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 78 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 78 |
+| LOW | Motion | `transition-all` | 4 | 70, 144, 152, 160 |
+
+### `features\brands\components\BrandTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 87 |
+| HIGH | Color | `bg-neutral-*` | 9 | 27, 38, 45, 47, 64 |
+| HIGH | Color | `text-neutral-*` | 9 | 28, 38, 47, 87, 95 |
+| HIGH | Color | `border-neutral-*` | 8 | 27, 38, 45, 47, 67 |
+| HIGH | Accent | `amber-*` | 5 | 29, 77, 114, 149 |
+| HIGH | Color | `text-white` | 1 | 85 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 87 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 27, 38, 45 |
+| MEDIUM | Accent | `red-*` | 2 | 157 |
+| MEDIUM | Accent | `blue-*` | 2 | 141 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 67 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 87 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 67 |
+| LOW | Motion | `transition-all` | 4 | 64, 141, 149, 157 |
+
+### `features\part-descriptions\components\CarTypePartDescriptionTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 80 |
+| HIGH | Color | `text-neutral-*` | 10 | 27, 37, 46, 61, 72 |
+| HIGH | Color | `bg-neutral-*` | 8 | 26, 37, 44, 46, 58 |
+| HIGH | Color | `border-neutral-*` | 7 | 26, 37, 44, 46, 96 |
+| HIGH | Accent | `amber-*` | 4 | 28, 59, 104 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 80 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 26, 37, 44 |
+| MEDIUM | Accent | `red-*` | 2 | 112 |
+| MEDIUM | Accent | `blue-*` | 2 | 96 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 80 |
+| LOW | Motion | `transition-all` | 4 | 58, 96, 104, 112 |
+
+### `features\part-descriptions\components\PartCarDescriptionTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 84 |
+| HIGH | Color | `text-neutral-*` | 10 | 27, 37, 46, 61, 75 |
+| HIGH | Color | `bg-neutral-*` | 8 | 26, 37, 44, 46, 58 |
+| HIGH | Color | `border-neutral-*` | 7 | 26, 37, 44, 46, 100 |
+| HIGH | Accent | `amber-*` | 4 | 28, 59, 108 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 84 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 26, 37, 44 |
+| MEDIUM | Accent | `red-*` | 2 | 116 |
+| MEDIUM | Accent | `blue-*` | 2 | 100 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 84 |
+| LOW | Motion | `transition-all` | 4 | 58, 100, 108, 116 |
+
+### `features\blogs\components\BlogCategoryTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 76 |
+| HIGH | Color | `bg-neutral-*` | 8 | 24, 35, 42, 44, 59 |
+| HIGH | Color | `text-neutral-*` | 7 | 25, 35, 44, 72, 76 |
+| HIGH | Color | `border-neutral-*` | 7 | 24, 35, 42, 44, 61 |
+| HIGH | Accent | `amber-*` | 4 | 26, 65, 90 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 76 |
+| HIGH | Color | `text-white` | 1 | 70 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 24, 35, 42 |
+| MEDIUM | Accent | `red-*` | 2 | 98 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 61 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 76 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 61 |
+| LOW | Motion | `transition-all` | 3 | 59, 90, 98 |
+
+### `features\tags\components\TagTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 60 |
+| HIGH | Color | `bg-neutral-*` | 7 | 22, 33, 40, 42, 52 |
+| HIGH | Color | `text-neutral-*` | 7 | 23, 33, 42, 55, 60 |
+| HIGH | Color | `border-neutral-*` | 6 | 22, 33, 40, 42, 74 |
+| HIGH | Accent | `amber-*` | 4 | 24, 53, 74 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 60 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 22, 33, 40 |
+| MEDIUM | Accent | `red-*` | 2 | 82 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 60 |
+| LOW | Motion | `transition-all` | 3 | 52, 74, 82 |
+
+### `components\common\MobileSidebar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 96 |
+| HIGH | Accent | `amber-*` | 5 | 80, 115, 119 |
+| HIGH | Color | `text-neutral-*` | 5 | 87, 96, 116, 119, 137 |
+| HIGH | Color | `bg-neutral-*` | 4 | 77, 87, 116, 137 |
+| HIGH | Color | `text-white` | 4 | 83, 87, 116, 137 |
+| HIGH | Color | `border-neutral-*` | 3 | 77, 78, 137 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 96 |
+| HIGH | Color | `bg-black` | 1 | 74 |
+| HIGH | Color | `text-black` | 1 | 80 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 113, 137 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 137 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 96 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 96, 113 |
+| LOW | Motion | `transition-all` | 1 | 113 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 113 |
+
+### `components\common\MediaUploader.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 55 |
+| HIGH | Color | `text-neutral-*` | 4 | 36, 52, 53, 55 |
+| HIGH | Color | `bg-neutral-*` | 3 | 39, 51 |
+| HIGH | Color | `border-neutral-*` | 2 | 39, 51 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 55 |
+| HIGH | Color | `text-white` | 1 | 44 |
+| HIGH | Accent | `amber-*` | 1 | 51 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 39, 51 |
+| MEDIUM | Accent | `red-*` | 2 | 44 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 44 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 55 |
+| LOW | Motion | `transition-all` | 2 | 44, 51 |
+
+### `components\ui\Select.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 37 |
+| HIGH | Color | `text-white` | 2 | 25, 32 |
+| HIGH | Color | `bg-neutral-*` | 2 | 25, 32 |
+| HIGH | Color | `text-neutral-*` | 1 | 21 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 37 |
+| HIGH | Color | `border-neutral-*` | 1 | 25 |
+| HIGH | Accent | `amber-*` | 1 | 25 |
+| MEDIUM | Accent | `red-*` | 3 | 26, 37 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 25 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 37 |
+| LOW | Motion | `transition-all` | 1 | 25 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 25 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 25 |
+
+### `components\common\SEOPreview.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| CRITICAL | Typography | `text-[9px] یا کوچکتر` | 1 | 27 |
+| HIGH | Color | `border-neutral-*` | 2 | 19, 25 |
+| HIGH | Color | `bg-neutral-*` | 2 | 19, 25 |
+| HIGH | Typography | `text-[10px]-[11px]` | 1 | 27 |
+| HIGH | Accent | `amber-*` | 1 | 20 |
+| HIGH | Color | `text-neutral-*` | 1 | 37 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 19 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 25 |
+| MEDIUM | Typography | `text-[NNpx] دلخواه` | 1 | 27 |
+| MEDIUM | Accent | `emerald-*` | 1 | 27 |
+| MEDIUM | Accent | `blue-*` | 1 | 32 |
+
+### `app\(auth)\login\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 15 | 121, 125, 149, 161, 182 |
+| HIGH | Color | `text-neutral-*` | 12 | 129, 142, 149, 151, 161 |
+| HIGH | Color | `bg-neutral-*` | 5 | 120, 123, 149, 177, 198 |
+| HIGH | Color | `border-neutral-*` | 4 | 123, 149, 177, 198 |
+| HIGH | Color | `text-white` | 1 | 128 |
+| MEDIUM | Radius | `rounded-xl` | 6 | 133, 149, 161, 177, 198 |
+| MEDIUM | Accent | `red-*` | 5 | 133, 154, 203 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 123, 125 |
+| LOW | Motion | `transition-all` | 4 | 149, 161, 198, 227 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 120, 149, 198 |
+
+### `app\(dashboard)\parts\categories\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 10 | 25, 34, 45, 49, 85 |
+| HIGH | Accent | `amber-*` | 9 | 26, 60, 69, 89, 94 |
+| HIGH | Color | `bg-neutral-*` | 7 | 25, 34, 49, 85, 93 |
+| HIGH | Color | `text-neutral-*` | 6 | 27, 49, 95, 97, 101 |
+| HIGH | Color | `text-white` | 3 | 49, 55, 76 |
+| HIGH | Color | `text-black` | 1 | 69 |
+| MEDIUM | Radius | `rounded-2xl` | 5 | 25, 34, 85, 93, 109 |
+| MEDIUM | Accent | `red-*` | 5 | 34, 76 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 49, 69, 76, 115 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 49 |
+| LOW | Motion | `transition-all` | 3 | 49, 69, 76 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 69, 76 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 69, 76 |
+
+### `features\part-categories\components\PartCategoryForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 10 | 155, 159, 172, 210, 219 |
+| HIGH | Color | `bg-neutral-*` | 10 | 159, 172, 210, 219, 229 |
+| HIGH | Accent | `amber-*` | 7 | 173, 210, 220, 262, 321 |
+| HIGH | Color | `text-neutral-*` | 4 | 159, 167, 205, 312 |
+| HIGH | Color | `text-white` | 3 | 159, 164, 271 |
+| HIGH | Color | `text-black` | 1 | 321 |
+| MEDIUM | Radius | `rounded-2xl` | 6 | 172, 219, 229, 243, 260 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 159, 271, 312, 321 |
+| MEDIUM | Accent | `red-*` | 4 | 271 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 159 |
+| LOW | Motion | `transition-all` | 4 | 159, 271, 312, 321 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 312, 321 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 271 |
+
+### `app\(dashboard)\brands\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 9 | 46, 55, 65, 69, 87 |
+| HIGH | Accent | `amber-*` | 8 | 47, 80, 98, 118, 123 |
+| HIGH | Color | `bg-neutral-*` | 6 | 46, 55, 69, 87, 114 |
+| HIGH | Color | `text-neutral-*` | 6 | 48, 69, 124, 126, 130 |
+| HIGH | Color | `text-white` | 3 | 69, 75, 105 |
+| HIGH | Color | `text-black` | 1 | 98 |
+| MEDIUM | Accent | `red-*` | 5 | 55, 105 |
+| MEDIUM | Radius | `rounded-2xl` | 4 | 46, 55, 114, 122 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 69, 87, 98, 105 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 69 |
+| LOW | Motion | `transition-all` | 3 | 69, 98, 105 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 87, 98, 105 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 98, 105 |
+
+### `app\(dashboard)\part-descriptions\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 8 | 43, 56, 60, 83, 91 |
+| HIGH | Color | `bg-neutral-*` | 7 | 43, 60, 83, 91, 113 |
+| HIGH | Accent | `amber-*` | 6 | 32, 74, 84, 92, 114 |
+| HIGH | Color | `text-neutral-*` | 6 | 39, 60, 66, 122, 124 |
+| HIGH | Color | `text-white` | 5 | 43, 60, 65, 88, 105 |
+| HIGH | Color | `text-black` | 1 | 74 |
+| MEDIUM | Radius | `rounded-2xl` | 4 | 83, 91, 113, 122 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 43, 60, 74, 116 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 60 |
+| LOW | Motion | `transition-all` | 2 | 60, 74 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 43, 74 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 43, 74 |
+
+### `features\cars\components\CarForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 9 | 190, 194, 207, 217, 280 |
+| HIGH | Color | `bg-neutral-*` | 9 | 194, 207, 217, 280, 290 |
+| HIGH | Accent | `amber-*` | 5 | 218, 281, 307, 367 |
+| HIGH | Color | `text-white` | 3 | 194, 199, 316 |
+| HIGH | Color | `text-neutral-*` | 3 | 194, 202, 358 |
+| HIGH | Color | `text-black` | 1 | 367 |
+| MEDIUM | Radius | `rounded-2xl` | 6 | 207, 217, 280, 290, 305 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 194, 316, 358, 367 |
+| MEDIUM | Accent | `red-*` | 4 | 316 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 194 |
+| LOW | Motion | `transition-all` | 4 | 194, 316, 358, 367 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 207, 358, 367 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 207, 316 |
+
+### `app\(dashboard)\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 8 | 8, 49, 66, 70, 73 |
+| HIGH | Color | `text-white` | 5 | 25, 45, 48, 58, 77 |
+| HIGH | Color | `bg-neutral-*` | 5 | 24, 39, 66, 73 |
+| HIGH | Color | `text-neutral-*` | 5 | 26, 48, 49, 73, 78 |
+| HIGH | Color | `border-neutral-*` | 4 | 24, 39, 66 |
+| HIGH | Color | `text-black` | 1 | 73 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 24, 39, 66 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 42, 70 |
+| MEDIUM | Accent | `emerald-*` | 2 | 9 |
+| MEDIUM | Accent | `blue-*` | 2 | 7 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 70 |
+| LOW | Motion | `transition-all` | 6 | 39, 48, 49, 66, 73 |
+
+### `components\ui\MultiAsyncSelect.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 10 | 223, 232, 252, 254, 257 |
+| HIGH | Color | `text-neutral-*` | 7 | 226, 231, 236, 253, 268 |
+| HIGH | Color | `bg-neutral-*` | 5 | 214, 223, 252, 253, 276 |
+| HIGH | Color | `border-neutral-*` | 4 | 214, 223, 276 |
+| HIGH | Color | `text-white` | 2 | 223, 276 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 223, 250, 276 |
+| MEDIUM | Accent | `red-*` | 2 | 290, 304 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 214 |
+| LOW | Motion | `transition-all` | 2 | 250, 276 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 223, 250 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 223, 250 |
+
+### `features\cars\components\CarTypeForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 8 | 127, 131, 143, 148, 182 |
+| HIGH | Color | `bg-neutral-*` | 8 | 131, 143, 148, 182, 191 |
+| HIGH | Accent | `amber-*` | 5 | 149, 183, 192, 214 |
+| HIGH | Color | `text-neutral-*` | 3 | 131, 139, 205 |
+| HIGH | Color | `text-white` | 2 | 131, 136 |
+| HIGH | Color | `text-black` | 1 | 214 |
+| MEDIUM | Radius | `rounded-2xl` | 5 | 143, 148, 182, 191, 201 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 131, 205, 214 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 131 |
+| LOW | Motion | `transition-all` | 3 | 131, 205, 214 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 143, 205, 214 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 143 |
+
+### `features\properties\components\PropertyTable.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `bg-neutral-*` | 7 | 22, 33, 40, 42, 56 |
+| HIGH | Color | `border-neutral-*` | 6 | 22, 33, 40, 42, 100 |
+| HIGH | Color | `text-neutral-*` | 6 | 23, 33, 42, 70, 100 |
+| HIGH | Accent | `amber-*` | 5 | 24, 59, 74, 100 |
+| HIGH | Color | `text-white` | 1 | 57 |
+| MEDIUM | Radius | `rounded-2xl` | 3 | 22, 33, 40 |
+| MEDIUM | Accent | `red-*` | 2 | 108 |
+| LOW | Motion | `transition-all` | 3 | 56, 100, 108 |
+
+### `components\ui\AsyncSelect.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `text-neutral-*` | 7 | 200, 211, 215, 258, 263 |
+| HIGH | Accent | `amber-*` | 5 | 255, 264, 286, 288 |
+| HIGH | Color | `bg-neutral-*` | 5 | 209, 246, 255, 286, 287 |
+| HIGH | Color | `border-neutral-*` | 4 | 209, 246, 255 |
+| HIGH | Color | `text-white` | 3 | 209, 211, 255 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 209, 255, 284 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 246 |
+| MEDIUM | Accent | `red-*` | 1 | 220 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 209, 255, 284 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 209, 255, 284 |
+| LOW | Motion | `transition-all` | 2 | 209, 284 |
+
+### `features\blogs\components\BlogCommentReplyModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 6 | 42, 43, 53, 68, 73 |
+| HIGH | Color | `bg-neutral-*` | 5 | 42, 53, 68, 77 |
+| HIGH | Color | `text-neutral-*` | 5 | 48, 54, 55, 60, 77 |
+| HIGH | Accent | `amber-*` | 4 | 44, 68, 84 |
+| HIGH | Color | `text-white` | 2 | 48, 68 |
+| HIGH | Color | `bg-black` | 1 | 40 |
+| HIGH | Color | `text-black` | 1 | 84 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 53, 68, 77, 84 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 42 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 77, 84 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 39, 77 |
+| LOW | Motion | `transition-all` | 1 | 84 |
+
+### `features\brands\components\BrandForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 7 | 178, 182, 194, 204, 251 |
+| HIGH | Color | `bg-neutral-*` | 7 | 182, 194, 204, 251, 266 |
+| HIGH | Accent | `amber-*` | 3 | 205, 279 |
+| HIGH | Color | `text-neutral-*` | 3 | 182, 190, 270 |
+| HIGH | Color | `text-white` | 2 | 182, 187 |
+| HIGH | Color | `text-black` | 1 | 279 |
+| MEDIUM | Radius | `rounded-2xl` | 4 | 194, 204, 251, 266 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 182, 270, 279 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 182 |
+| LOW | Motion | `transition-all` | 3 | 182, 270, 279 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 194, 270, 279 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 194 |
+
+### `features\cars\components\CarManufacturerForm.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 7 | 96, 100, 112, 117, 142 |
+| HIGH | Color | `bg-neutral-*` | 7 | 100, 112, 117, 142, 156 |
+| HIGH | Accent | `amber-*` | 3 | 118, 169 |
+| HIGH | Color | `text-neutral-*` | 3 | 100, 108, 160 |
+| HIGH | Color | `text-white` | 2 | 100, 105 |
+| HIGH | Color | `text-black` | 1 | 169 |
+| MEDIUM | Radius | `rounded-2xl` | 4 | 112, 117, 142, 156 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 100, 160, 169 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 100 |
+| LOW | Motion | `transition-all` | 3 | 100, 160, 169 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 112, 160, 169 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 112 |
+
+### `app\(dashboard)\cars\manufacturers\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 6 | 38, 42, 59, 73, 74 |
+| HIGH | Accent | `amber-*` | 5 | 28, 51 |
+| HIGH | Color | `text-neutral-*` | 4 | 42, 69, 75, 79 |
+| HIGH | Color | `bg-neutral-*` | 3 | 42, 59, 73 |
+| HIGH | Color | `text-white` | 2 | 42, 46 |
+| HIGH | Color | `text-black` | 1 | 51 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 59, 73 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 42, 51 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 42 |
+| LOW | Motion | `transition-all` | 2 | 42, 51 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 51 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 51 |
+
+### `app\(dashboard)\cars\types\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 6 | 26, 46, 55, 60 |
+| HIGH | Color | `border-neutral-*` | 5 | 33, 37, 53, 59, 65 |
+| HIGH | Color | `bg-neutral-*` | 4 | 37, 53, 59, 65 |
+| HIGH | Color | `text-neutral-*` | 3 | 37, 54, 65 |
+| HIGH | Color | `text-white` | 2 | 37, 41 |
+| MEDIUM | Radius | `rounded-xl` | 3 | 37, 46, 65 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 53, 59 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 37 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 46 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 46 |
+
+### `app\(dashboard)\part-descriptions\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 11 | 93, 104, 117, 129 |
+| HIGH | Color | `text-neutral-*` | 3 | 98, 118, 130 |
+| HIGH | Color | `bg-neutral-*` | 2 | 118, 130 |
+| HIGH | Color | `border-neutral-*` | 1 | 112 |
+| HIGH | Color | `text-black` | 1 | 104 |
+| HIGH | Color | `text-white` | 1 | 97 |
+| MEDIUM | Radius | `rounded-xl` | 4 | 93, 104, 115, 127 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 93 |
+| LOW | Motion | `transition-all` | 3 | 104, 115, 127 |
+| LOW | Spacing | `py-2 / py-2.5` | 3 | 104, 115, 127 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 3 | 104, 115, 127 |
+
+### `features\cars\components\CarTypeModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 5 | 104, 105, 153, 164, 168 |
+| HIGH | Accent | `amber-*` | 3 | 106, 175 |
+| HIGH | Color | `bg-neutral-*` | 3 | 104, 168 |
+| HIGH | Color | `text-neutral-*` | 3 | 110, 149, 168 |
+| HIGH | Color | `bg-black` | 1 | 102 |
+| HIGH | Color | `text-white` | 1 | 110 |
+| HIGH | Color | `text-black` | 1 | 175 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 168, 175 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 104 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 168, 175 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 101, 168 |
+| LOW | Motion | `transition-all` | 1 | 175 |
+
+### `features\properties\components\PropertyParentModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 4 | 73, 74, 117, 121 |
+| HIGH | Accent | `amber-*` | 3 | 75, 128 |
+| HIGH | Color | `bg-neutral-*` | 3 | 73, 121 |
+| HIGH | Color | `text-neutral-*` | 2 | 79, 121 |
+| HIGH | Color | `bg-black` | 1 | 71 |
+| HIGH | Color | `text-white` | 1 | 79 |
+| HIGH | Color | `text-black` | 1 | 128 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 121, 128 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 73 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 121, 128 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 70, 121 |
+| LOW | Motion | `transition-all` | 1 | 128 |
+
+### `features\blogs\components\BlogCategoryModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 4 | 72, 73, 102, 106 |
+| HIGH | Accent | `amber-*` | 3 | 74, 113 |
+| HIGH | Color | `bg-neutral-*` | 3 | 72, 106 |
+| HIGH | Color | `text-neutral-*` | 2 | 78, 106 |
+| HIGH | Color | `bg-black` | 1 | 70 |
+| HIGH | Color | `text-white` | 1 | 78 |
+| HIGH | Color | `text-black` | 1 | 113 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 106, 113 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 72 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 106, 113 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 69, 106 |
+| LOW | Motion | `transition-all` | 1 | 113 |
+
+### `features\cars\components\CarManufacturerModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 4 | 80, 81, 130, 134 |
+| HIGH | Accent | `amber-*` | 3 | 82, 141 |
+| HIGH | Color | `bg-neutral-*` | 3 | 80, 134 |
+| HIGH | Color | `text-neutral-*` | 2 | 86, 134 |
+| HIGH | Color | `bg-black` | 1 | 78 |
+| HIGH | Color | `text-white` | 1 | 86 |
+| HIGH | Color | `text-black` | 1 | 141 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 134, 141 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 80 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 134, 141 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 77, 134 |
+| LOW | Motion | `transition-all` | 1 | 141 |
+
+### `features\tags\components\TagModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 3 | 51, 52, 79 |
+| HIGH | Accent | `amber-*` | 3 | 53, 86 |
+| HIGH | Color | `bg-neutral-*` | 3 | 51, 79 |
+| HIGH | Color | `text-neutral-*` | 2 | 57, 79 |
+| HIGH | Color | `bg-black` | 1 | 49 |
+| HIGH | Color | `text-white` | 1 | 57 |
+| HIGH | Color | `text-black` | 1 | 86 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 79, 86 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 51 |
+| LOW | Spacing | `py-2 / py-2.5` | 2 | 79, 86 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 48, 79 |
+| LOW | Motion | `transition-all` | 1 | 86 |
+
+### `app\(dashboard)\products\duplicate\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 4 | 19, 69 |
+| HIGH | Color | `text-neutral-*` | 3 | 20, 31, 74 |
+| HIGH | Color | `text-white` | 1 | 73 |
+| HIGH | Color | `bg-neutral-*` | 1 | 18 |
+| HIGH | Color | `border-neutral-*` | 1 | 18 |
+| MEDIUM | Accent | `red-*` | 3 | 29 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 2 | 19, 69 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 69 |
+
+### `app\(dashboard)\blogs\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 59, 70 |
+| HIGH | Color | `text-black` | 1 | 70 |
+| HIGH | Color | `text-neutral-*` | 1 | 64 |
+| HIGH | Color | `text-white` | 1 | 63 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 59, 70 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 59 |
+| LOW | Motion | `transition-all` | 1 | 70 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 70 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 70 |
+
+### `app\(dashboard)\blogs\categories\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 82, 93 |
+| HIGH | Color | `text-black` | 1 | 93 |
+| HIGH | Color | `text-neutral-*` | 1 | 87 |
+| HIGH | Color | `text-white` | 1 | 86 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 82, 93 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 82 |
+| LOW | Motion | `transition-all` | 1 | 93 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 93 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 93 |
+
+### `app\(dashboard)\parts\categories\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 49, 60 |
+| HIGH | Color | `text-black` | 1 | 60 |
+| HIGH | Color | `text-neutral-*` | 1 | 54 |
+| HIGH | Color | `text-white` | 1 | 53 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 49, 60 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 49 |
+| LOW | Motion | `transition-all` | 1 | 60 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 60 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 60 |
+
+### `app\(dashboard)\tags\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 89, 100 |
+| HIGH | Color | `text-black` | 1 | 100 |
+| HIGH | Color | `text-neutral-*` | 1 | 94 |
+| HIGH | Color | `text-white` | 1 | 93 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 89, 100 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 89 |
+| LOW | Motion | `transition-all` | 1 | 100 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 100 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 100 |
+
+### `app\(dashboard)\brands\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 62, 73 |
+| HIGH | Color | `text-black` | 1 | 73 |
+| HIGH | Color | `text-neutral-*` | 1 | 67 |
+| HIGH | Color | `text-white` | 1 | 66 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 62, 73 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 62 |
+| LOW | Motion | `transition-all` | 1 | 73 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 73 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 73 |
+
+### `app\(dashboard)\cars\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 52, 63 |
+| HIGH | Color | `text-black` | 1 | 63 |
+| HIGH | Color | `text-neutral-*` | 1 | 57 |
+| HIGH | Color | `text-white` | 1 | 56 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 52, 63 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 52 |
+| LOW | Motion | `transition-all` | 1 | 63 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 63 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 63 |
+
+### `app\(dashboard)\parts\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 65, 76 |
+| HIGH | Color | `text-black` | 1 | 76 |
+| HIGH | Color | `text-neutral-*` | 1 | 70 |
+| HIGH | Color | `text-white` | 1 | 69 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 65, 76 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 65 |
+| LOW | Motion | `transition-all` | 1 | 76 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 76 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 76 |
+
+### `app\(dashboard)\products\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 5 | 83, 94 |
+| HIGH | Color | `text-black` | 1 | 94 |
+| HIGH | Color | `text-neutral-*` | 1 | 88 |
+| HIGH | Color | `text-white` | 1 | 87 |
+| MEDIUM | Radius | `rounded-xl` | 2 | 83, 94 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 83 |
+| LOW | Motion | `transition-all` | 1 | 94 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 94 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 94 |
+
+### `features\cars\components\CarSubNav.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 3 | 30 |
+| HIGH | Color | `text-white` | 1 | 31 |
+| HIGH | Color | `bg-neutral-*` | 1 | 31 |
+| HIGH | Color | `text-neutral-*` | 1 | 31 |
+| HIGH | Color | `border-neutral-*` | 1 | 18 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 28 |
+| LOW | Motion | `transition-all` | 1 | 28 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 28 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 28 |
+
+### `features\blogs\components\BlogSubNav.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 3 | 33 |
+| HIGH | Color | `text-white` | 1 | 34 |
+| HIGH | Color | `bg-neutral-*` | 1 | 34 |
+| HIGH | Color | `text-neutral-*` | 1 | 34 |
+| HIGH | Color | `border-neutral-*` | 1 | 18 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 31 |
+| LOW | Motion | `transition-all` | 1 | 31 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 31 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 31 |
+
+### `app\(dashboard)\parts\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 2 | 16, 25 |
+| HIGH | Color | `text-neutral-*` | 2 | 18, 27 |
+| HIGH | Color | `bg-neutral-*` | 2 | 16, 25 |
+| HIGH | Accent | `amber-*` | 1 | 17 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 16, 25 |
+| MEDIUM | Accent | `red-*` | 1 | 25 |
+
+### `app\(dashboard)\cars\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 2 | 16, 25 |
+| HIGH | Color | `text-neutral-*` | 2 | 18, 27 |
+| HIGH | Color | `bg-neutral-*` | 2 | 16, 25 |
+| HIGH | Accent | `amber-*` | 1 | 17 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 16, 25 |
+| MEDIUM | Accent | `red-*` | 1 | 25 |
+
+### `app\(dashboard)\products\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 2 | 16, 25 |
+| HIGH | Color | `text-neutral-*` | 2 | 18, 27 |
+| HIGH | Color | `bg-neutral-*` | 2 | 16, 25 |
+| HIGH | Accent | `amber-*` | 1 | 17 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 16, 25 |
+| MEDIUM | Accent | `red-*` | 1 | 25 |
+
+### `app\(dashboard)\car-type-part-descriptions\view\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `text-white` | 2 | 15, 31 |
+| HIGH | Color | `text-neutral-*` | 2 | 10, 30 |
+| HIGH | Color | `border-neutral-*` | 2 | 16, 29 |
+| HIGH | Color | `bg-neutral-*` | 1 | 16 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 16 |
+| MEDIUM | Accent | `red-*` | 1 | 11 |
+
+### `components\common\ThemeToggle.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 2 | 20 |
+| HIGH | Accent | `amber-*` | 2 | 20, 23 |
+| HIGH | Color | `bg-neutral-*` | 1 | 20 |
+| HIGH | Color | `text-neutral-*` | 1 | 20 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 2 | 14, 20 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 20 |
+| LOW | Motion | `transition-all` | 1 | 20 |
+
+### `app\(dashboard)\parts\categories\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 2 | 16, 25 |
+| HIGH | Color | `bg-neutral-*` | 2 | 16, 25 |
+| HIGH | Accent | `amber-*` | 1 | 17 |
+| HIGH | Color | `text-neutral-*` | 1 | 18 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 16, 25 |
+| MEDIUM | Accent | `red-*` | 1 | 25 |
+
+### `app\(dashboard)\brands\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `border-neutral-*` | 2 | 16, 25 |
+| HIGH | Color | `bg-neutral-*` | 2 | 16, 25 |
+| HIGH | Accent | `amber-*` | 1 | 17 |
+| HIGH | Color | `text-neutral-*` | 1 | 18 |
+| MEDIUM | Radius | `rounded-2xl` | 2 | 16, 25 |
+| MEDIUM | Accent | `red-*` | 1 | 25 |
+
+### `features\properties\components\PropertyFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 48, 54 |
+| HIGH | Color | `border-neutral-*` | 2 | 46, 47 |
+| HIGH | Color | `bg-neutral-*` | 1 | 46 |
+| HIGH | Color | `text-neutral-*` | 1 | 54 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 46 |
+| LOW | Motion | `transition-all` | 1 | 54 |
+
+### `features\part-categories\components\PartCategoryFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 56, 62 |
+| HIGH | Color | `border-neutral-*` | 2 | 54, 55 |
+| HIGH | Color | `bg-neutral-*` | 1 | 54 |
+| HIGH | Color | `text-neutral-*` | 1 | 62 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 54 |
+| LOW | Motion | `transition-all` | 1 | 62 |
+
+### `features\inquiries\components\InquiryFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 29, 35 |
+| HIGH | Color | `border-neutral-*` | 2 | 27, 28 |
+| HIGH | Color | `bg-neutral-*` | 1 | 27 |
+| HIGH | Color | `text-neutral-*` | 1 | 35 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 27 |
+| LOW | Motion | `transition-all` | 1 | 35 |
+
+### `features\products\components\ProductFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 82, 88 |
+| HIGH | Color | `border-neutral-*` | 2 | 80, 81 |
+| HIGH | Color | `bg-neutral-*` | 1 | 80 |
+| HIGH | Color | `text-neutral-*` | 1 | 88 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 80 |
+| LOW | Motion | `transition-all` | 1 | 88 |
+
+### `features\tags\components\TagFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 39, 45 |
+| HIGH | Color | `border-neutral-*` | 2 | 37, 38 |
+| HIGH | Color | `bg-neutral-*` | 1 | 37 |
+| HIGH | Color | `text-neutral-*` | 1 | 45 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 37 |
+| LOW | Motion | `transition-all` | 1 | 45 |
+
+### `features\part-descriptions\components\PartDescriptionFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 49, 55 |
+| HIGH | Color | `border-neutral-*` | 2 | 47, 48 |
+| HIGH | Color | `bg-neutral-*` | 1 | 47 |
+| HIGH | Color | `text-neutral-*` | 1 | 55 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 47 |
+| LOW | Motion | `transition-all` | 1 | 55 |
+
+### `features\parts\components\PartFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 74, 80 |
+| HIGH | Color | `border-neutral-*` | 2 | 72, 73 |
+| HIGH | Color | `bg-neutral-*` | 1 | 72 |
+| HIGH | Color | `text-neutral-*` | 1 | 80 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 72 |
+| LOW | Motion | `transition-all` | 1 | 80 |
+
+### `features\blogs\components\BlogCommentFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 40, 46 |
+| HIGH | Color | `border-neutral-*` | 2 | 38, 39 |
+| HIGH | Color | `bg-neutral-*` | 1 | 38 |
+| HIGH | Color | `text-neutral-*` | 1 | 46 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 38 |
+| LOW | Motion | `transition-all` | 1 | 46 |
+
+### `features\blogs\components\logPostFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 49, 55 |
+| HIGH | Color | `border-neutral-*` | 2 | 47, 48 |
+| HIGH | Color | `bg-neutral-*` | 1 | 47 |
+| HIGH | Color | `text-neutral-*` | 1 | 55 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 47 |
+| LOW | Motion | `transition-all` | 1 | 55 |
+
+### `features\cars\components\CarFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 73, 79 |
+| HIGH | Color | `border-neutral-*` | 2 | 71, 72 |
+| HIGH | Color | `bg-neutral-*` | 1 | 71 |
+| HIGH | Color | `text-neutral-*` | 1 | 79 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 71 |
+| LOW | Motion | `transition-all` | 1 | 79 |
+
+### `features\brands\components\BrandFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 51, 57 |
+| HIGH | Color | `border-neutral-*` | 2 | 49, 50 |
+| HIGH | Color | `bg-neutral-*` | 1 | 49 |
+| HIGH | Color | `text-neutral-*` | 1 | 57 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 49 |
+| LOW | Motion | `transition-all` | 1 | 57 |
+
+### `features\car-type-part-descriptions\components\CarTypePartDescriptionFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 64, 70 |
+| HIGH | Color | `border-neutral-*` | 2 | 62, 63 |
+| HIGH | Color | `bg-neutral-*` | 1 | 62 |
+| HIGH | Color | `text-neutral-*` | 1 | 70 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 62 |
+| LOW | Motion | `transition-all` | 1 | 70 |
+
+### `features\comments\components\CommentFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 29, 35 |
+| HIGH | Color | `border-neutral-*` | 2 | 27, 28 |
+| HIGH | Color | `bg-neutral-*` | 1 | 27 |
+| HIGH | Color | `text-neutral-*` | 1 | 35 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 27 |
+| LOW | Motion | `transition-all` | 1 | 35 |
+
+### `features\blogs\components\BlogCategoryFilterBar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 39, 45 |
+| HIGH | Color | `border-neutral-*` | 2 | 37, 38 |
+| HIGH | Color | `bg-neutral-*` | 1 | 37 |
+| HIGH | Color | `text-neutral-*` | 1 | 45 |
+| MEDIUM | Radius | `rounded-2xl` | 1 | 37 |
+| LOW | Motion | `transition-all` | 1 | 45 |
+
+### `app\(dashboard)\inquiries\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 3 | 48 |
+| HIGH | Color | `text-neutral-*` | 1 | 53 |
+| HIGH | Color | `text-white` | 1 | 52 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 48 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 48 |
+
+### `app\(dashboard)\comments\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 3 | 48 |
+| HIGH | Color | `text-neutral-*` | 1 | 53 |
+| HIGH | Color | `text-white` | 1 | 52 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 48 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 48 |
+
+### `app\(dashboard)\blogs\comments\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 3 | 60 |
+| HIGH | Color | `text-neutral-*` | 1 | 65 |
+| HIGH | Color | `text-white` | 1 | 64 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 60 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 60 |
+
+### `app\(dashboard)\layout.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `bg-neutral-*` | 3 | 19, 27, 32 |
+| HIGH | Color | `text-neutral-*` | 2 | 19, 27 |
+
+### `app\(dashboard)\car-type-part-descriptions\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 2 | 78 |
+| HIGH | Color | `text-white` | 1 | 73 |
+| HIGH | Color | `text-black` | 1 | 78 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 78 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 78 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 78 |
+
+### `app\layout.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `text-black` | 1 | 30 |
+| HIGH | Accent | `amber-*` | 1 | 30 |
+| HIGH | Color | `bg-neutral-*` | 1 | 30 |
+| HIGH | Color | `text-neutral-*` | 1 | 30 |
+
+### `features\page-builder\components\CodePageEditor.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `bg-black` | 1 | 212 |
+| MEDIUM | Color | `bg-white` | 3 | 201, 223, 227 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 92, 128 |
+| LOW | Motion | `transition-all` | 1 | 195 |
+| LOW | Spacing | `py-2 / py-2.5` | 1 | 128 |
+
+### `components\common\ConfirmModal.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `bg-black` | 1 | 22 |
+| MEDIUM | Radius | `rounded-xl` | 1 | 24 |
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 26 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 1 | 21 |
+
+### `app\(dashboard)\car-type-part-descriptions\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Color | `text-neutral-*` | 1 | 11 |
+| MEDIUM | Accent | `red-*` | 1 | 12 |
+
+### `app\(dashboard)\cars\manufacturers\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 1 | 25 |
+
+### `app\(dashboard)\part-descriptions\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 1 | 30 |
+
+### `app\(dashboard)\cars\types\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 1 | 25 |
+
+### `app\(dashboard)\blogs\edit\[id]\page.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| HIGH | Accent | `amber-*` | 1 | 15 |
+
+### `components\common\Sidebar.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| MEDIUM | Spacing | `h-9 / h-10 / h-11` | 1 | 58 |
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 57, 72 |
+
+### `components\common\Pagination.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 49, 60 |
+
+### `components\common\Header.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| LOW | Spacing | `px-3 / px-3.5 / px-4` | 2 | 54, 118 |
+
+### `components\ui\Switch.tsx`
+
+| Severity | Category | Pattern | Count | Lines |
+|---|---|---|---:|---|
+| MEDIUM | Color | `bg-white` | 1 | 41 |
+
+## Breakdown by Category
+
+| Category | Hits |
+|---|---:|
+| Color | 1669 |
+| Accent | 739 |
+| Spacing | 265 |
+| Radius | 387 |
+| Typography | 322 |
+| Motion | 207 |
+
+## Breakdown by Severity
+
+| Severity | Hits |
+|---|---:|
+| HIGH | 2292 |
+| MEDIUM | 782 |
+| LOW | 408 |
+| CRITICAL | 107 |
+
+## Legend
+
+- CRITICAL: typography below 12px - damages long-session work
+- HIGH: non-token colors - no auto dark/light support
+- MEDIUM: hardcoded sizes (h-9, rounded-xl) - visual inconsistency
+- LOW: transition-all, shadow-xs - motion/depth quality

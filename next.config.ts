@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
-      { source: '/api/:path*', destination: 'https://api.yadakchi.com/api/:path*' },
+      { source: '/api/:path*', destination: 'https://api.ydkchbot.ir/api/:path*' },
       { source: '/media-proxy/:path*', destination: 'https://api.yadakchi.com/:path*' },
     ];
   },

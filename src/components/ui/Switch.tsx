@@ -1,6 +1,6 @@
 'use client';
 
-import clsx from 'clsx';
+import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 interface SwitchProps {
@@ -13,7 +13,12 @@ interface SwitchProps {
 
 export function Switch({ checked, onChange, label, disabled, isLoading }: SwitchProps) {
   return (
-    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+    <label
+      className={cn(
+        'inline-flex items-center gap-2.5 cursor-pointer select-none',
+        (disabled || isLoading) && 'opacity-50 cursor-not-allowed'
+      )}
+    >
       <div className="relative">
         <input
           type="checkbox"
@@ -23,21 +28,25 @@ export function Switch({ checked, onChange, label, disabled, isLoading }: Switch
           className="sr-only"
         />
         <div
-          className={clsx(
+          className={cn(
             'h-6 w-11 rounded-full transition-colors border',
-            checked ? 'bg-emerald-500 border-emerald-400' : 'bg-neutral-800 border-neutral-700'
+            checked
+              ? 'bg-[color:var(--success)] border-[color:var(--success)]'
+              : 'bg-[color:var(--surface-3)] border-[color:var(--border-default)]'
           )}
+          style={{ transitionDuration: 'var(--duration-fast)' }}
         />
         <div
-          className={clsx(
-            'absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-white transition-transform',
-            checked && 'translate-x-5'
+          className={cn(
+            'absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-token-sm transition-transform',
+            checked && '-translate-x-5'
           )}
+          style={{ transitionDuration: 'var(--duration-fast)' }}
         >
-          {isLoading && <Loader2 className="h-2.5 w-2.5 animate-spin text-neutral-900" />}
+          {isLoading && <Loader2 className="h-2.5 w-2.5 animate-spin text-[color:var(--text-secondary)]" />}
         </div>
       </div>
-      {label && <span className="text-xs font-medium text-neutral-300">{label}</span>}
+      {label && <span className="text-sm font-medium text-secondary">{label}</span>}
     </label>
   );
 }

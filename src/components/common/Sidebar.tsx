@@ -3,19 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  Package,
-  Cpu,
-  Sliders,
-  Layers,
-  FileText,
-  Car,
-  Factory,
-  Award,
-  Tag,
-  BookOpen,
+  LayoutDashboard, Package, Cpu, Sliders, Layers, FileText,
+  Car, Factory, Award, Tag, BookOpen,
 } from 'lucide-react';
-import clsx from 'clsx';
+import { cn } from '@/lib/utils';
 
 const menuGroups = [
   {
@@ -33,7 +24,7 @@ const menuGroups = [
       { title: 'دسته‌بندی قطعات', href: '/parts/categories', icon: Layers },
       { title: 'ویژگی‌های قطعات', href: '/properties', icon: Sliders },
       { title: 'توضیحات قطعه-خودرو', href: '/part-descriptions', icon: FileText },
-       { title: 'توضیحات نوع قطعه-خودرو', href: '/car-type-part-descriptions', icon: FileText },
+      { title: 'توضیحات قطعه-نوع خودرو', href: '/car-type-part-descriptions', icon: FileText },
     ],
   },
   {
@@ -53,10 +44,7 @@ const menuGroups = [
   },
   {
     title: 'صفحات استاتیک',
-    items: [
-      { title: 'صفحات', href: '/pages', icon: Award },
-  
-    ],
+    items: [{ title: 'صفحات', href: '/pages', icon: Award }],
   },
 ];
 
@@ -64,45 +52,46 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 shrink-0 border-l border-neutral-800 bg-neutral-900/60 p-4 flex flex-col justify-between hidden md:flex transition-colors">
+    <aside className="sidebar-token p-4 flex flex-col justify-between hidden md:flex">
       <div>
-        <div className="flex items-center gap-3 px-3 py-4 border-b border-neutral-800 mb-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 font-black text-neutral-950 text-lg shadow-md shadow-amber-500/20">
+        <div className="flex items-center gap-3 px-3 py-3 border-b border-subtle mb-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[color:var(--accent)] font-black text-[color:var(--accent-contrast)] text-lg">
             ید
           </div>
           <div>
-            <h2 className="font-bold text-sm text-white">پنل محتوا یدک‌چی</h2>
-            <span className="text-[10px] text-amber-500 font-medium">نسخه Data Entry 2.0</span>
+            <h2 className="font-bold text-sm text-primary">پنل محتوا یدک‌چی</h2>
+            <span className="text-2xs text-[color:var(--accent-fg)] font-semibold">
+              نسخه Data Entry 2.1
+            </span>
           </div>
         </div>
 
-        <nav className="space-y-5 overflow-y-auto max-h-[72vh] pr-1">
+        <nav className="space-y-6 overflow-y-auto max-h-[calc(100vh-160px)] pr-1">
           {menuGroups.map((group) => (
             <div key={group.title} className="space-y-1">
-              <span className="px-3 text-[10px] font-bold text-neutral-500 uppercase tracking-wider block mb-1">
+              <span className="px-3 text-2xs font-bold text-tertiary uppercase tracking-wider block mb-2">
                 {group.title}
               </span>
-
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive =
                   item.href === '/'
                     ? pathname === '/'
                     : pathname === item.href || pathname.startsWith(`${item.href}/`);
-
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={clsx(
-                      'flex items-center gap-3 rounded-xl px-3.5 py-2 text-xs font-medium transition-all',
-                      isActive
-                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold'
-                        : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
-                    )}
+                    data-active={isActive}
+                    className="sidebar-link"
                   >
-                    <Icon className={clsx('h-4 w-4', isActive ? 'text-amber-400' : 'text-neutral-500')} />
-                    <span>{item.title}</span>
+                    <Icon
+                      className={cn(
+                        'h-4 w-4 shrink-0',
+                        isActive ? 'text-[color:var(--accent-fg)]' : 'text-tertiary'
+                      )}
+                    />
+                    <span className="truncate">{item.title}</span>
                   </Link>
                 );
               })}
@@ -111,9 +100,10 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3 text-center">
-        <p className="text-[11px] text-neutral-400">
-          وضعیت اتصال: <span className="text-emerald-400 font-bold">برقرار</span>
+      <div className="rounded-md border border-default bg-surface-2 p-3 text-center">
+        <p className="text-xs text-tertiary">
+          وضعیت اتصال:{' '}
+          <span className="text-[color:var(--success-fg)] font-bold">برقرار</span>
         </p>
       </div>
     </aside>

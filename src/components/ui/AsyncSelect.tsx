@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Loader2, X, ChevronDown } from 'lucide-react';
 
 interface AsyncSelectOption {
@@ -13,7 +14,7 @@ interface AsyncSelectProps {
   placeholder?: string;
   value?: string;
   initialLabel?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, label: string) => void;
   fetchOptions: (searchQuery: string) => Promise<AsyncSelectOption[]>;
 }
 
@@ -31,44 +32,86 @@ export function AsyncSelect({
   const [loading, setLoading] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<string>(initialLabel || '');
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
+  const [dropdownPos, setDropdownPos] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // ⚠️ همگام‌سازی هوشمند لیبل با مقدار value یا initialLabel
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // همگام‌سازی لیبل
   useEffect(() => {
     if (initialLabel) {
       setSelectedLabel(initialLabel);
     } else if (value) {
-      // اول چک می‌کنیم بین گزینه‌های لودشده فعلی هست یا خیر
       const foundInCurrent = options.find((o) => o.value === value);
       if (foundInCurrent) {
         setSelectedLabel(foundInCurrent.label);
       } else {
-        // اگر نبود، از سرور با جستجوی خالی یا آیدی پیدا می‌کنیم
         fetchOptions('').then((opts) => {
           const found = opts.find((o) => o.value === value);
-          if (found) {
-            setSelectedLabel(found.label);
-          }
+          if (found) setSelectedLabel(found.label);
         });
       }
     } else {
       setSelectedLabel('');
     }
-  }, [value, initialLabel, fetchOptions, options]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, initialLabel]);
+
+  // محاسبه موقعیت دراپ‌داون
+  const updatePosition = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const dropdownHeight = 300; // تقریبی
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < dropdownHeight && rect.top > dropdownHeight;
+
+    setDropdownPos({
+      top: openUp ? rect.top - dropdownHeight - 8 : rect.bottom + 6,
+      left: rect.left,
+      width: rect.width,
+    });
+  }, []);
 
   useEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [isOpen, updatePosition]);
+
+  // بستن با کلیک بیرون
+  useEffect(() => {
+    if (!isOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isOpen]);
 
   const loadOptions = useCallback(
     async (query: string) => {
@@ -78,6 +121,7 @@ export function AsyncSelect({
         setOptions(data);
       } catch (e) {
         console.error('AsyncSelect fetch error:', e);
+        setOptions([]);
       } finally {
         setLoading(false);
       }
@@ -87,11 +131,7 @@ export function AsyncSelect({
 
   useEffect(() => {
     if (!isOpen) return;
-
-    const timer = setTimeout(() => {
-      loadOptions(search);
-    }, 300);
-
+    const timer = setTimeout(() => loadOptions(search), 300);
     return () => clearTimeout(timer);
   }, [search, isOpen, loadOptions]);
 
@@ -100,7 +140,6 @@ export function AsyncSelect({
     optionRefs.current = new Array(options.length).fill(null);
   }, [options]);
 
-  // اسکرول اتوماتیک به سمت گزینه هایلایت‌شده با کیبورد
   useEffect(() => {
     if (highlightedIndex >= 0 && optionRefs.current[highlightedIndex]) {
       optionRefs.current[highlightedIndex]?.scrollIntoView({
@@ -111,19 +150,19 @@ export function AsyncSelect({
   }, [highlightedIndex]);
 
   const handleSelect = (option: AsyncSelectOption) => {
-    setSelectedLabel(option.label); // 👈 فوراً روی دکمه اعمال می‌شود
-    onChange(option.value);         // 👈 مقدار جدید به فرم والد ارسال می‌شود
+    setSelectedLabel(option.label);
+    onChange(option.value, option.label);
     setIsOpen(false);
+    setSearch('');
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedLabel('');
-    onChange('');
+    onChange('', '');
     setSearch('');
   };
 
-  // کنترل ناوبری با کیبورد (UX پیشرفته)
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
       if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === ' ') {
@@ -156,10 +195,12 @@ export function AsyncSelect({
   };
 
   return (
-    <div ref={containerRef} className="relative w-full space-y-1.5" tabIndex={0} onKeyDown={handleKeyDown}>
-      {label && <label className="block text-xs font-medium text-neutral-300">{label}</label>}
+    <div ref={containerRef} className="relative w-full space-y-1.5" onKeyDown={handleKeyDown}>
+      {label && (
+        <label className="block text-xs font-medium text-neutral-300">{label}</label>
+      )}
 
-      {/* باکس اصلی سلکت */}
+      {/* باکس اصلی */}
       <div
         onClick={() => {
           setIsOpen(!isOpen);
@@ -167,7 +208,7 @@ export function AsyncSelect({
         }}
         className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs text-white hover:border-neutral-700 transition-all shadow-sm"
       >
-        <span className={selectedLabel ? 'text-white font-medium' : 'text-neutral-500'}>
+        <span className={selectedLabel ? 'text-white font-medium truncate' : 'text-neutral-500'}>
           {selectedLabel || placeholder}
         </span>
 
@@ -182,61 +223,79 @@ export function AsyncSelect({
               <X className="h-3.5 w-3.5" />
             </button>
           )}
-          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          />
         </div>
       </div>
 
-      {/* منوی دراپ‌داون */}
-      {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 w-full rounded-2xl border border-neutral-800 bg-neutral-900/95 p-2 shadow-2xl backdrop-blur-xl animate-scaleIn">
-          <div className="relative mb-2">
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="تایپ جهت جستجو... (با کلیدهای جهت‌نما حرکت کنید)"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2 pl-9 text-xs text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
-              autoFocus
-            />
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
-          </div>
+      {/* دراپ‌داون با Portal — از مشکل z-index و overflow والدین نجات پیدا می‌کند */}
+      {mounted &&
+        isOpen &&
+        dropdownPos &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            style={{
+              position: 'fixed',
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              width: dropdownPos.width,
+              zIndex: 9999,
+            }}
+            className="rounded-2xl border border-neutral-800 bg-neutral-900/98 p-2 shadow-2xl backdrop-blur-xl"
+          >
+            <div className="relative mb-2">
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="تایپ جهت جستجو..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2 pl-9 text-xs text-white placeholder-neutral-600 focus:border-amber-500 focus:outline-none"
+                autoFocus
+              />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
+            </div>
 
-          <div ref={listRef} className="max-h-52 overflow-y-auto space-y-1 pr-0.5">
-            {loading ? (
-              <div className="flex items-center justify-center p-4 text-neutral-500 text-xs gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
-                <span>در حال دریافت...</span>
-              </div>
-            ) : options.length === 0 ? (
-              <div className="p-4 text-center text-xs text-neutral-500">موردی یافت نشد.</div>
-            ) : (
-              options.map((opt, index) => {
-                const isSelected = value === opt.value;
-                const isHighlighted = highlightedIndex === index;
+            <div ref={listRef} className="max-h-52 overflow-y-auto space-y-1 pr-0.5">
+              {loading ? (
+                <div className="flex items-center justify-center p-4 text-neutral-500 text-xs gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+                  <span>در حال دریافت...</span>
+                </div>
+              ) : options.length === 0 ? (
+                <div className="p-4 text-center text-xs text-neutral-500">
+                  موردی یافت نشد.
+                </div>
+              ) : (
+                options.map((opt, index) => {
+                  const isSelected = value === opt.value;
+                  const isHighlighted = highlightedIndex === index;
 
-                return (
-                  <div
-                    key={opt.value}
-                    ref={(el) => {
-                      optionRefs.current[index] = el;
-                    }}
-                    onClick={() => handleSelect(opt)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                    className={`cursor-pointer rounded-xl px-3.5 py-2.5 text-xs transition-all ${
-                      isHighlighted
-                        ? 'bg-neutral-800 text-amber-400 font-bold'
-                        : 'text-neutral-200 hover:bg-neutral-800/60'
-                    } ${isSelected ? 'bg-amber-500/10 text-amber-400 font-semibold' : ''}`}
-                  >
-                    {opt.label}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      )}
+                  return (
+                    <div
+                      key={opt.value}
+                      ref={(el) => {
+                        optionRefs.current[index] = el;
+                      }}
+                      onClick={() => handleSelect(opt)}
+                      onMouseEnter={() => setHighlightedIndex(index)}
+                      className={`cursor-pointer rounded-xl px-3.5 py-2.5 text-xs transition-all ${
+                        isHighlighted
+                          ? 'bg-neutral-800 text-amber-400 font-bold'
+                          : 'text-neutral-200 hover:bg-neutral-800/60'
+                      } ${isSelected ? 'bg-amber-500/10 text-amber-400 font-semibold' : ''}`}
+                    >
+                      {opt.label}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
